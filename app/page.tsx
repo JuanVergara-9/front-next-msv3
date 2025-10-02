@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { ProvidersService } from '../lib/services/providers.service'
+import { ProvidersService } from '@/lib/services/providers.service'
 import { Header } from '../components/Header'
 import { ProviderCard } from '../components/ProviderCard'
 import type { ProviderWithDetails } from '../types/api'
