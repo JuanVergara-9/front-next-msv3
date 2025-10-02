@@ -48,7 +48,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setIsProvider(false)
         setProviderProfile(null)
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error checking provider profile:', error)
       console.error('Error details:', error.response?.data || error.message)
       setIsProvider(false)
@@ -68,7 +68,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             await checkProviderProfile(currentUser.id)
           }
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error checking auth:', error)
       } finally {
         setIsLoading(false)
@@ -97,7 +97,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(authData.user)
       // Verificar si tiene perfil de proveedor
       await checkProviderProfile(authData.user.id)
-    } catch (error) {
+    } catch (error: any) {
       throw error
     } finally {
       setIsLoading(false)
@@ -111,7 +111,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(authData.user)
       // No verificar perfil de proveedor inmediatamente después del registro
       // Se verificará cuando se cargue la página principal
-    } catch (error) {
+    } catch (error: any) {
       throw error
     } finally {
       setIsLoading(false)
@@ -125,7 +125,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(null)
       setIsProvider(false)
       setProviderProfile(null)
-    } catch (error) {
+    } catch (error: any) {
       console.error('Logout error:', error)
     } finally {
       setIsLoading(false)
@@ -140,7 +140,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Verificar si tiene perfil de proveedor
         await checkProviderProfile(currentUser.id)
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error refreshing user:', error)
     }
   }
