@@ -109,7 +109,7 @@ const HowItWorks = () => {
               clipRule="evenodd"
             />
           </svg>
-          Más de 10,000 servicios completados
+          Tu punto de encuentro con servicios de calidad en tu zona
         </div>
 
         <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4 text-balance">
@@ -208,7 +208,7 @@ const HowItWorks = () => {
               clipRule="evenodd"
             />
           </svg>
-          Pagos seguros
+          Servicios seguros
         </div>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
