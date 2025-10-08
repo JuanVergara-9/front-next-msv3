@@ -1,11 +1,17 @@
 "use client"
 
-import { Star, MapPin } from "lucide-react"
+import { Star, MapPin, Eye } from "lucide-react"
+import { useRouter } from "next/navigation"
 import type { ProviderWithDetails } from "@/types/api"
 
 export function ProviderCard({ provider, onContact }: { provider: ProviderWithDetails; onContact?: (p: ProviderWithDetails) => void }) {
+  const router = useRouter()
   const displayName = provider.full_name || [provider.first_name, provider.last_name].filter(Boolean).join(' ')
   const avatar = (provider as any).avatar_url || "/placeholder.svg"
+
+  const handleViewProfile = () => {
+    router.push(`/proveedores/${provider.id}`)
+  }
 
   return (
     <div className="bg-card rounded-3xl p-6 premium-shadow border border-border/50 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 group">
@@ -55,14 +61,23 @@ export function ProviderCard({ provider, onContact }: { provider: ProviderWithDe
         </div>
       ) : null}
 
-      {onContact && (
+      <div className="flex gap-3">
         <button
-          onClick={() => onContact(provider)}
-          className="w-full py-3 bg-gradient-to-r from-primary to-secondary text-primary-foreground rounded-2xl hover:shadow-lg transition-all duration-200 font-semibold premium-shadow"
+          onClick={handleViewProfile}
+          className="flex-1 py-3 bg-white border border-primary text-primary rounded-2xl hover:bg-primary/10 transition-all duration-200 font-semibold flex items-center justify-center gap-2"
         >
-          Contactar ahora
+          <Eye className="h-4 w-4" />
+          Ver perfil
         </button>
-      )}
+        {onContact && (
+          <button
+            onClick={() => onContact(provider)}
+            className="flex-1 py-3 bg-gradient-to-r from-primary to-secondary text-primary-foreground rounded-2xl hover:shadow-lg transition-all duration-200 font-semibold premium-shadow"
+          >
+            Contactar
+          </button>
+        )}
+      </div>
     </div>
   )
 }

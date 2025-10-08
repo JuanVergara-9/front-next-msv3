@@ -7,9 +7,9 @@ import { BottomNavBar } from '@/components/BottomNavBar'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
-  generator: 'v0.app',
+  title: 'miservicio',
+  description: 'Conectamos personas con profesionales locales',
+  generator: 'miservicio.ar',
 }
 
 export default function RootLayout({
