@@ -641,7 +641,8 @@ export default function MiServicioHome() {
 
   const handleContact = (provider: ProviderWithDetails) => {
     if (provider.whatsapp_e164) {
-      window.open(`https://wa.me/${provider.whatsapp_e164}`, "_blank")
+      const message = encodeURIComponent("Hola 👋, te contacto desde miservicio. Vi tu perfil y me interesa tu servicio, quería hacerte una consulta rápida.")
+      window.open(`https://wa.me/${provider.whatsapp_e164}?text=${message}`, "_blank")
     } else if (provider.phone_e164) {
       window.open(`tel:${provider.phone_e164}`, "_blank")
     } else if (provider.contact_email) {
