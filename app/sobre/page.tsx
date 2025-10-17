@@ -3,8 +3,8 @@ import Link from 'next/link'
 import { Mail, Phone, MapPin, Heart, Users, Shield, Star } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'Sobre MiServicio - Conectamos personas con profesionales locales',
-  description: 'Conoce más sobre MiServicio, la plataforma que digitaliza los oficios locales en San Rafael, Mendoza. Busca servicios, contacta profesionales y encuentra confianza.',
+  title: 'Sobre miservicio - Conectamos personas con profesionales locales',
+  description: 'Conoce más sobre miservicio, la plataforma que digitaliza los oficios locales en San Rafael, Mendoza. Busca servicios, contacta profesionales y encuentra confianza.',
 }
 
 export default function SobrePage() {
@@ -17,7 +17,7 @@ export default function SobrePage() {
             <Heart className="w-10 h-10 text-white" />
           </div>
           <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
-            Sobre MiServicio
+            Sobre miservicio
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             La plataforma que digitaliza los oficios locales y facilita el encuentro entre quienes necesitan un servicio y quienes lo ofrecen.
@@ -34,7 +34,7 @@ export default function SobrePage() {
             </h2>
             <div className="prose prose-lg max-w-none">
               <p className="text-muted-foreground leading-relaxed mb-6">
-                MiServicio nace en San Rafael, Mendoza para digitalizar los oficios locales y facilitar el encuentro entre quienes necesitan un servicio y quienes lo ofrecen.
+                miservicio nace en San Rafael, Mendoza para digitalizar los oficios locales y facilitar el encuentro entre quienes necesitan un servicio y quienes lo ofrecen.
               </p>
               <p className="text-muted-foreground leading-relaxed mb-6">
                 En la app podés buscar por rubro (electricidad, gas, plomería, mantenimiento y limpieza de piletas, etc.), ver perfiles verificados, reseñas reales y contactar por WhatsApp o llamada.
@@ -49,7 +49,7 @@ export default function SobrePage() {
           <section className="bg-card rounded-2xl p-8 border border-border/50 shadow-sm">
             <h2 className="text-2xl font-bold text-foreground mb-6 flex items-center gap-3">
               <Star className="w-6 h-6 text-primary" />
-              ¿Por qué elegir MiServicio?
+              ¿Por qué elegir miservicio?
             </h2>
             <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-4">
@@ -119,6 +119,20 @@ export default function SobrePage() {
                 </div>
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-primary text-primary-foreground rounded-xl flex items-center justify-center">
+                    <Phone className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-foreground">Teléfono</h3>
+                    <a 
+                      href="tel:+542604275924" 
+                      className="text-primary hover:text-primary/80 transition-colors"
+                    >
+                      +54 260 427-5924
+                    </a>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-primary text-primary-foreground rounded-xl flex items-center justify-center">
                     <MapPin className="w-6 h-6" />
                   </div>
                   <div>
@@ -130,15 +144,24 @@ export default function SobrePage() {
               <div className="bg-white/50 rounded-xl p-6">
                 <h3 className="font-semibold text-foreground mb-3">¿Necesitás ayuda?</h3>
                 <p className="text-muted-foreground text-sm mb-4">
-                  Estamos aquí para ayudarte. Enviá un email y te responderemos lo antes posible.
+                  Estamos aquí para ayudarte. Enviá un email o llamanos y te responderemos lo antes posible.
                 </p>
-                <a 
-                  href="mailto:app.miservicio@gmail.com"
-                  className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors text-sm font-medium"
-                >
-                  <Mail className="w-4 h-4" />
-                  Enviar email
-                </a>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <a 
+                    href="mailto:app.miservicio@gmail.com"
+                    className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors text-sm font-medium"
+                  >
+                    <Mail className="w-4 h-4" />
+                    Enviar email
+                  </a>
+                  <a 
+                    href="tel:+542604275924"
+                    className="inline-flex items-center gap-2 bg-secondary text-secondary-foreground px-4 py-2 rounded-lg hover:bg-secondary/90 transition-colors text-sm font-medium"
+                  >
+                    <Phone className="w-4 h-4" />
+                    Llamar
+                  </a>
+                </div>
               </div>
             </div>
           </section>
@@ -159,7 +182,7 @@ export default function SobrePage() {
                     Términos y Condiciones
                   </h3>
                   <p className="text-muted-foreground text-sm">
-                    Conocé las condiciones de uso de la plataforma MiServicio
+                    Conocé las condiciones de uso de la plataforma miservicio
                   </p>
                 </Link>
                 <Link 
@@ -177,19 +200,12 @@ export default function SobrePage() {
               <div className="bg-muted/30 rounded-xl p-6">
                 <h3 className="font-semibold text-foreground mb-3">Tu privacidad es importante</h3>
                 <p className="text-muted-foreground text-sm">
-                  En MiServicio respetamos tu privacidad y protegemos tus datos personales. 
+                  En miservicio respetamos tu privacidad y protegemos tus datos personales. 
                   Consultá nuestros documentos legales para conocer más sobre cómo manejamos tu información.
                 </p>
               </div>
             </div>
           </section>
-        </div>
-
-        {/* Footer */}
-        <div className="mt-16 pt-8 border-t border-border/50 text-center">
-          <p className="text-muted-foreground text-sm">
-            © 2025 MiServicio. Todos los derechos reservados.
-          </p>
         </div>
       </div>
     </div>

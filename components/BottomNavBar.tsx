@@ -91,6 +91,11 @@ export const BottomNavBar = React.memo(function BottomNavBar({
             </Link>
           ))}
         </div>
+        <div className="text-center mt-2">
+          <p className="text-xs text-muted-foreground">
+            © 2025 MiServicio. Todos los derechos reservados.
+          </p>
+        </div>
       </div>
     </nav>
   )

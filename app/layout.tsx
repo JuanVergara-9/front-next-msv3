@@ -45,14 +45,6 @@ export default function RootLayout({
               {children}
             </main>
             <BottomNavBar />
-            {/* Footer */}
-            <footer className="bg-muted/30 border-t border-border/50 py-6 px-4">
-              <div className="max-w-7xl mx-auto text-center">
-                <p className="text-sm text-muted-foreground">
-                  © 2025 MiServicio. Todos los derechos reservados.
-                </p>
-              </div>
-            </footer>
           </div>
         </AuthProvider>
         <Analytics />
