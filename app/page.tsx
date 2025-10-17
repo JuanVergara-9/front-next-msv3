@@ -456,7 +456,7 @@ const AboutSection = () => (
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
-        <h3 className="text-2xl font-bold text-foreground mb-4">¿Querés saber más sobre MiServicio?</h3>
+        <h3 className="text-2xl font-bold text-foreground mb-4">¿Querés saber más sobre miservicio?</h3>
         <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
           Conocé nuestra historia, misión y cómo estamos digitalizando los oficios locales en San Rafael, Mendoza.
         </p>
@@ -464,7 +464,7 @@ const AboutSection = () => (
           href="/sobre"
           className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-colors font-medium"
         >
-          Más sobre MiServicio
+          Más sobre miservicio
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
