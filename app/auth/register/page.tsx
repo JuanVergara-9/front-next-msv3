@@ -389,11 +389,11 @@ export default function RegisterPage() {
                   />
                   <Label htmlFor="clientTerms" className="text-sm text-gray-600 leading-relaxed">
                     Acepto los{" "}
-                    <Link href="/terms" className="text-blue-600 hover:text-blue-800">
+                    <Link href="/legal/terminos" className="text-blue-600 hover:text-blue-800">
                       términos y condiciones
                     </Link>{" "}
                     y la{" "}
-                    <Link href="/privacy" className="text-blue-600 hover:text-blue-800">
+                    <Link href="/legal/privacidad" className="text-blue-600 hover:text-blue-800">
                       política de privacidad
                     </Link>
                   </Label>
@@ -696,11 +696,11 @@ export default function RegisterPage() {
                       />
                       <Label htmlFor="providerTerms" className="text-sm text-gray-600 leading-relaxed">
                         Acepto los{" "}
-                        <Link href="/terms" className="text-blue-600 hover:text-blue-800">
+                        <Link href="/legal/terminos" className="text-blue-600 hover:text-blue-800">
                           términos y condiciones
                         </Link>{" "}
                         y la{" "}
-                        <Link href="/privacy" className="text-blue-600 hover:text-blue-800">
+                        <Link href="/legal/privacidad" className="text-blue-600 hover:text-blue-800">
                           política de privacidad
                         </Link>
                       </Label>

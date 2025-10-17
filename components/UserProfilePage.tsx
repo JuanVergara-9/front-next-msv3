@@ -290,12 +290,26 @@ export function UserProfilePage() {
           <CardContent className="p-6">
             <div className="flex items-start gap-3">
               <Shield className="h-5 w-5 text-[#2563EB] mt-0.5" />
-              <div>
+              <div className="flex-1">
                 <h3 className="font-semibold text-[#111827] mb-2">Privacidad</h3>
-                <p className="text-[#6B7280] text-sm leading-relaxed">
+                <p className="text-[#6B7280] text-sm leading-relaxed mb-4">
                   Tu email permanece privado y solo es visible para ti. Tu nombre de usuario se genera automáticamente 
                   a partir de tu email para proteger tu identidad. Tus datos están seguros y encriptados.
                 </p>
+                <div className="flex flex-wrap gap-4">
+                  <Link 
+                    href="/legal/terminos" 
+                    className="text-[#2563EB] hover:text-[#1d4ed8] text-sm font-medium transition-colors"
+                  >
+                    Términos y Condiciones
+                  </Link>
+                  <Link 
+                    href="/legal/privacidad" 
+                    className="text-[#2563EB] hover:text-[#1d4ed8] text-sm font-medium transition-colors"
+                  >
+                    Política de Privacidad
+                  </Link>
+                </div>
               </div>
             </div>
           </CardContent>
