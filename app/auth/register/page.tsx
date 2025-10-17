@@ -19,15 +19,15 @@ import { useAuth } from "@/contexts/AuthContext"
 import { ProvidersService } from "@/lib/services/providers.service"
 import Image from "next/image"
 
-const RUBROS = ["Plomería", "Gasistas", "Electricidad", "Carpintería", "Pintura", "Reparación de electrodomésticos"]
+const RUBROS = ["Plomería", "Gasistas", "Electricidad", "Jardinería", "Mantenimiento y limpieza de piletas", "Reparación de electrodomésticos"]
 
 // Mapeo de rubros a category_id (basado en el seeder del backend)
 const RUBRO_TO_CATEGORY_ID: { [key: string]: number } = {
   "Plomería": 1,
   "Gasistas": 2,
   "Electricidad": 3,
-  "Carpintería": 4,
-  "Pintura": 5,
+  "Jardinería": 4,
+  "Mantenimiento y limpieza de piletas": 5,
   "Reparación de electrodomésticos": 6
 }
 
@@ -56,7 +56,7 @@ export default function RegisterPage() {
     confirmPassword: "",
     firstName: "",
     lastName: "",
-    rubro: "",
+    rubros: [] as string[], // Cambio a array para múltiples categorías
     provincia: "",
     ciudad: "",
     phone: "",
@@ -122,7 +122,7 @@ export default function RegisterPage() {
 
     if (!providerForm.firstName) newErrors.firstName = "El nombre es requerido"
     if (!providerForm.lastName) newErrors.lastName = "El apellido es requerido"
-    if (!providerForm.rubro) newErrors.rubro = "Debes seleccionar un rubro"
+    if (providerForm.rubros.length === 0) newErrors.rubros = "Debes seleccionar al menos un rubro"
     if (!providerForm.provincia) newErrors.provincia = "La provincia es requerida"
     if (!providerForm.ciudad) newErrors.ciudad = "La ciudad es requerida"
     if (!providerForm.yearsExperience) {
@@ -191,13 +191,13 @@ export default function RegisterPage() {
       }
       
       // 2. Crear el perfil de proveedor
-      const categoryId = RUBRO_TO_CATEGORY_ID[providerForm.rubro]
-      if (!categoryId) {
-        throw new Error('Rubro no válido')
+      const categoryIds = providerForm.rubros.map(rubro => RUBRO_TO_CATEGORY_ID[rubro]).filter(Boolean)
+      if (categoryIds.length === 0) {
+        throw new Error('Debes seleccionar al menos un rubro válido')
       }
 
       const created = await ProvidersService.createProviderProfile({
-        category_id: categoryId,
+        category_ids: categoryIds, // Enviar array de categorías
         first_name: providerForm.firstName,
         last_name: providerForm.lastName,
         contact_email: providerForm.email,
@@ -566,27 +566,36 @@ export default function RegisterPage() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="rubro" className="text-sm font-medium text-gray-700">
-                        Rubro
+                      <Label className="text-sm font-medium text-gray-700">
+                        Rubros (puedes seleccionar varios)
                       </Label>
-                      <Select
-                        value={providerForm.rubro}
-                        onValueChange={(value) => setProviderForm({ ...providerForm, rubro: value })}
-                      >
-                        <SelectTrigger
-                          className={`h-12 border-gray-300 focus:border-blue-600 focus:ring-blue-600 ${errors.rubro ? "border-red-500" : ""}`}
-                        >
-                          <SelectValue placeholder="Selecciona tu rubro" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {RUBROS.map((rubro) => (
-                            <SelectItem key={rubro} value={rubro}>
+                      <div className="grid grid-cols-1 gap-3">
+                        {RUBROS.map((rubro) => (
+                          <div key={rubro} className="flex items-center space-x-3">
+                            <Checkbox
+                              id={`rubro-${rubro}`}
+                              checked={providerForm.rubros.includes(rubro)}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  setProviderForm({
+                                    ...providerForm,
+                                    rubros: [...providerForm.rubros, rubro]
+                                  })
+                                } else {
+                                  setProviderForm({
+                                    ...providerForm,
+                                    rubros: providerForm.rubros.filter(r => r !== rubro)
+                                  })
+                                }
+                              }}
+                            />
+                            <Label htmlFor={`rubro-${rubro}`} className="text-sm text-gray-700 cursor-pointer">
                               {rubro}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      {errors.rubro && <p className="text-red-500 text-sm">{errors.rubro}</p>}
+                            </Label>
+                          </div>
+                        ))}
+                      </div>
+                      {errors.rubros && <p className="text-red-500 text-sm">{errors.rubros}</p>}
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">

@@ -98,7 +98,8 @@ export class ProvidersService {
 
   // Crear perfil de proveedor
   static async createProviderProfile(profileData: {
-    category_id: number;
+    category_id?: number; // Legacy support
+    category_ids?: number[]; // New multiple categories
     first_name: string;
     last_name: string;
     contact_email?: string;
