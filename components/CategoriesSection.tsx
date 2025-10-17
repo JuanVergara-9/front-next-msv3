@@ -4,18 +4,18 @@ import { useRef, useEffect, useState } from "react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Wrench, Flame, Zap, Hammer, PaintBucket, Settings, ChevronRight, ChevronLeft, Loader2 } from "lucide-react"
+import { Wrench, Flame, Zap, Settings, ChevronRight, ChevronLeft, Loader2, Leaf, Droplets } from "lucide-react"
 import { ProvidersService } from "@/lib/services/providers.service"
 import { Category } from "@/types/api"
 import { useRouter } from "next/navigation"
 
-// Mapeo de iconos por nombre de categoría
+// Mapeo de iconos por slug de categoría
 const iconMap: Record<string, any> = {
   'plomeria': Wrench,
   'gasistas': Flame,
   'electricidad': Zap,
-  'carpinteria': Hammer,
-  'pintura': PaintBucket,
+  'jardineria': Leaf,
+  'mantenimiento-limpieza-piletas': Droplets,
   'reparacion-electrodomesticos': Settings,
   'default': Settings
 }
