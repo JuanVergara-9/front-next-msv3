@@ -45,22 +45,12 @@ export default function RootLayout({
               {children}
             </main>
             <BottomNavBar />
-            {/* Footer with legal links */}
+            {/* Footer */}
             <footer className="bg-muted/30 border-t border-border/50 py-6 px-4">
-              <div className="max-w-7xl mx-auto">
-                <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
-                  <div className="flex flex-wrap gap-6">
-                    <Link href="/legal/terminos" className="hover:text-foreground transition-colors">
-                      Términos y Condiciones
-                    </Link>
-                    <Link href="/legal/privacidad" className="hover:text-foreground transition-colors">
-                      Política de Privacidad
-                    </Link>
-                  </div>
-                  <div className="text-center sm:text-right">
-                    <p>© 2025 MiServicio. Todos los derechos reservados.</p>
-                  </div>
-                </div>
+              <div className="max-w-7xl mx-auto text-center">
+                <p className="text-sm text-muted-foreground">
+                  © 2025 MiServicio. Todos los derechos reservados.
+                </p>
               </div>
             </footer>
           </div>

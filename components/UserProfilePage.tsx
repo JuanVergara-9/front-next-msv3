@@ -298,16 +298,10 @@ export function UserProfilePage() {
                 </p>
                 <div className="flex flex-wrap gap-4">
                   <Link 
-                    href="/legal/terminos" 
+                    href="/sobre" 
                     className="text-[#2563EB] hover:text-[#1d4ed8] text-sm font-medium transition-colors"
                   >
-                    Términos y Condiciones
-                  </Link>
-                  <Link 
-                    href="/legal/privacidad" 
-                    className="text-[#2563EB] hover:text-[#1d4ed8] text-sm font-medium transition-colors"
-                  >
-                    Política de Privacidad
+                    Más sobre MiServicio
                   </Link>
                 </div>
               </div>
