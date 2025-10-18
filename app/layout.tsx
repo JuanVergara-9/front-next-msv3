@@ -16,6 +16,11 @@ export const metadata: Metadata = {
   creator: 'miservicio',
   publisher: 'miservicio',
   robots: 'index, follow',
+  icons: {
+    icon: [ { url: '/logo.png' } ],
+    apple: [ { url: '/apple-touch-icon.png', sizes: '180x180' } ]
+  },
+  manifest: '/manifest.json',
   openGraph: {
     type: 'website',
     locale: 'es_AR',
