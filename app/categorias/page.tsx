@@ -22,7 +22,7 @@ export default function CategoriesPage() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-background flex flex-col overflow-x-hidden">
+    <div className="min-h-screen bg-background">
       <Header city={city} />
       <CategoriesSection />
     </div>
