@@ -43,7 +43,19 @@ export default function ProvidersByCategoryPage() {
         }
 
         const res = await ProvidersService.searchProviders({ category_slug: slug, limit: 24, offset: 0 })
-        setProviders(Array.isArray((res as any)?.providers) ? (res as any).providers : [])
+        const raw = Array.isArray((res as any)?.providers) ? (res as any).providers : []
+        // Normalizar: asegurar categories como string[] y full_name presente
+        const normalized = raw.map((p: any) => {
+          const categoryNames = Array.isArray(p?.categories)
+            ? p.categories.map((c: any) => typeof c === 'string' ? c : (c?.name || '')).filter(Boolean)
+            : (p?.category && p.category.name ? [p.category.name] : [])
+          return {
+            ...p,
+            full_name: p.full_name || [p.first_name, p.last_name].filter(Boolean).join(' '),
+            categories: categoryNames,
+          }
+        })
+        setProviders(normalized)
       } catch (e: any) {
         console.error(e)
         setError("No se pudieron cargar los proveedores")
@@ -93,11 +105,7 @@ export default function ProvidersByCategoryPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {providers.map((p) => (
-              <ProviderCard key={p.id} provider={{
-                ...p,
-                full_name: (p as any).full_name || [p.first_name, p.last_name].filter(Boolean).join(' '),
-                categories: p.categories || (p.category ? [p.category.name] : []),
-              }} />
+              <ProviderCard key={p.id} provider={p as any} />
             ))}
           </div>
         )}
