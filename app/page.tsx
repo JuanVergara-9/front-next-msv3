@@ -73,6 +73,7 @@ const HowItWorks = () => {
 
   const mobileWrapperRef = useRef<HTMLDivElement | null>(null)
   const currentIndexRef = useRef<number>(0)
+  const pausedUntilRef = useRef<number>(0)
 
   const scrollToIndex = (index: number) => {
     const container = mobileWrapperRef.current
@@ -93,10 +94,32 @@ const HowItWorks = () => {
   }
 
   useEffect(() => {
-    const id = setInterval(() => handleNext(), 3500)
+    const id = setInterval(() => {
+      if (Date.now() >= pausedUntilRef.current) handleNext()
+    }, 2500)
     // position at the first slide on mount
     scrollToIndex(0)
     return () => clearInterval(id)
+  }, [])
+
+  useEffect(() => {
+    const el = mobileWrapperRef.current
+    if (!el) return
+    const onInteract = () => { pausedUntilRef.current = Date.now() + 4000 }
+    const onScroll = () => {
+      const width = el.clientWidth || 1
+      currentIndexRef.current = Math.round(el.scrollLeft / width)
+    }
+    el.addEventListener('touchstart', onInteract, { passive: true } as any)
+    el.addEventListener('mousedown', onInteract)
+    el.addEventListener('wheel', onInteract, { passive: true } as any)
+    el.addEventListener('scroll', onScroll, { passive: true } as any)
+    return () => {
+      el.removeEventListener('touchstart', onInteract)
+      el.removeEventListener('mousedown', onInteract)
+      el.removeEventListener('wheel', onInteract)
+      el.removeEventListener('scroll', onScroll)
+    }
   }, [])
 
   return (
@@ -125,7 +148,7 @@ const HowItWorks = () => {
           La plataforma más confiable para encontrar servicios de calidad en tu zona
         </p>
 
-        <div className="md:hidden -mx-4 px-4 relative overflow-hidden scroll-smooth" ref={mobileWrapperRef}>
+        <div className="md:hidden -mx-4 px-4 relative overflow-x-auto scroll-smooth snap-x snap-mandatory" ref={mobileWrapperRef}>
           <div className="absolute inset-y-0 left-2 flex items-center">
             <button
               onClick={handlePrev}
@@ -148,10 +171,10 @@ const HowItWorks = () => {
               </svg>
             </button>
           </div>
-          <div className="flex snap-x snap-mandatory snap-always items-center">
+          <div className="flex">
             {steps.map((step, index) => (
-              <div key={step.title} className="min-w-full snap-start">
-                <div className="group flex flex-col items-center text-center">
+              <div key={step.title} className="min-w-full snap-start flex items-center justify-center">
+                <div className="group flex flex-col items-center text-center w-full">
                   <div className="relative w-fit mx-auto">
                     <div
                       className={`w-20 h-20 bg-gradient-to-br ${step.color} rounded-3xl flex items-center justify-center mb-6 mx-auto premium-shadow-lg group-hover:scale-110 transition-all duration-300 smooth-bounce`}
