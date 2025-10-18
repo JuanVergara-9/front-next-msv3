@@ -8,7 +8,7 @@ import Link from 'next/link'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'miservicio - Conectamos personas con profesionales locales',
+  title: 'miservicio',
   description: 'La plataforma más confiable para encontrar servicios de calidad en tu zona. Conectamos clientes con los mejores profesionales locales.',
   keywords: 'servicios, profesionales, plomería, electricidad, gasistas, jardinería, mantenimiento, San Rafael, Mendoza, Argentina',
   generator: 'miservicio.ar',
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   publisher: 'miservicio',
   robots: 'index, follow',
   icons: {
-    icon: [ { url: '/logo.png' } ],
+    icon: [ { url: '/logo-transparente-wuachin.png' } ],
     apple: [ { url: '/apple-touch-icon.png', sizes: '180x180' } ]
   },
   manifest: '/manifest.json',

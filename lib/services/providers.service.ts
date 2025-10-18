@@ -33,6 +33,33 @@ export class ProvidersService {
     return response.provider
   }
 
+  static async updateMyProviderProfile(updateData: {
+    // mantener compatibilidad con backend
+    first_name?: string;
+    last_name?: string;
+    contact_email?: string;
+    phone_e164?: string;
+    whatsapp_e164?: string;
+    description?: string;
+    province?: string;
+    city?: string;
+    address?: string;
+    lat?: number;
+    lng?: number;
+    years_experience?: number;
+    price_hint?: number;
+    emergency_available?: boolean;
+    business_hours?: any;
+    category_id?: number;
+    category_ids?: number[];
+  }): Promise<Provider> {
+    const res = await apiFetch<{ provider: Provider }>(`/api/v1/providers/mine`, {
+      method: 'PUT',
+      body: JSON.stringify(updateData),
+    })
+    return res.provider
+  }
+
   static async getCategories(): Promise<Category[]> {
     const response = await apiFetch<{ items: Category[] }>('/api/v1/categories');
     return response.items;

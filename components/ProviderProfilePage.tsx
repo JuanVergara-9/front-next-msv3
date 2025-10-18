@@ -27,6 +27,7 @@ import {
 } from "lucide-react"
 import { useAuth } from "@/contexts/AuthContext"
 import { ReviewsService, type ReviewItem } from "@/lib/services/reviews.service"
+import { ProvidersService } from "@/lib/services/providers.service"
 
 interface ProviderProfilePageProps {
   providerProfile?: any
@@ -34,6 +35,7 @@ interface ProviderProfilePageProps {
 
 export function ProviderProfilePage({ providerProfile: propProviderProfile }: ProviderProfilePageProps) {
   const { user, logout } = useAuth()
+  const isOwner = !!user && !!propProviderProfile && Number(user.id) === Number(propProviderProfile.user_id)
   const { toast } = useToast()
   const [reviews, setReviews] = useState<ReviewItem[]>([])
   const [reviewsCount, setReviewsCount] = useState<number>(0)
@@ -272,6 +274,21 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
                   <MessageCircle className="h-4 w-4 mr-2" />
                   Contactar por WhatsApp
                 </Button>
+                {isOwner && (
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button variant="outline" className="border-amber-500 text-amber-600 hover:bg-amber-50 bg-transparent">
+                        Editar perfil
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent aria-describedby={undefined} className="max-w-lg">
+                      <DialogHeader>
+                        <DialogTitle>Editar perfil</DialogTitle>
+                      </DialogHeader>
+                      <EditProviderForm initial={propProviderProfile} onSaved={() => window.location.reload()} />
+                    </DialogContent>
+                  </Dialog>
+                )}
                 <Button
                   variant="outline"
                   className="border-[#2563EB] text-[#2563EB] hover:bg-[#2563EB] hover:text-white bg-transparent"
@@ -605,6 +622,60 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
           <MessageCircle className="h-4 w-4 mr-2" />
           Contactar por WhatsApp
         </Button>
+      </div>
+    </div>
+  )
+}
+
+function EditProviderForm({ initial, onSaved }: { initial: any; onSaved: () => void }) {
+  const [form, setForm] = useState<any>({
+    first_name: initial?.first_name || '',
+    last_name: initial?.last_name || '',
+    contact_email: initial?.contact_email || '',
+    phone_e164: initial?.phone_e164 || '',
+    whatsapp_e164: initial?.whatsapp_e164 || '',
+    description: initial?.description || '',
+    province: initial?.province || '',
+    city: initial?.city || '',
+    years_experience: initial?.years_experience || 0,
+    emergency_available: !!initial?.emergency_available,
+    price_hint: initial?.price_hint || undefined,
+  })
+  const [saving, setSaving] = useState(false)
+  const { toast } = useToast()
+
+  async function save() {
+    try {
+      setSaving(true)
+      await ProvidersService.updateMyProviderProfile(form)
+      toast({ title: 'Perfil actualizado' })
+      onSaved()
+    } catch (e: any) {
+      let msg = 'No se pudo actualizar el perfil'
+      try { msg = JSON.parse(e?.message)?.error?.message || msg } catch {}
+      toast({ title: 'Error', description: msg })
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <div className="space-y-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <Input placeholder="Nombre" value={form.first_name} onChange={(e) => setForm({ ...form, first_name: e.target.value })} />
+        <Input placeholder="Apellido" value={form.last_name} onChange={(e) => setForm({ ...form, last_name: e.target.value })} />
+        <Input placeholder="Email de contacto" value={form.contact_email} onChange={(e) => setForm({ ...form, contact_email: e.target.value })} />
+        <Input placeholder="Teléfono" value={form.phone_e164} onChange={(e) => setForm({ ...form, phone_e164: e.target.value })} />
+        <Input placeholder="WhatsApp" value={form.whatsapp_e164} onChange={(e) => setForm({ ...form, whatsapp_e164: e.target.value })} />
+        <Input placeholder="Provincia" value={form.province} onChange={(e) => setForm({ ...form, province: e.target.value })} />
+        <Input placeholder="Ciudad" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} />
+        <Input type="number" min={0} max={80} placeholder="Años de experiencia" value={form.years_experience} onChange={(e) => setForm({ ...form, years_experience: Number(e.target.value) })} />
+        <Input type="number" min={0} placeholder="Precio orientativo" value={form.price_hint ?? ''} onChange={(e) => setForm({ ...form, price_hint: Number(e.target.value) || undefined })} />
+      </div>
+      <Textarea placeholder="Descripción" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={4} />
+      <div className="flex justify-end gap-2">
+        <Button variant="outline" onClick={() => onSaved()}>Cerrar</Button>
+        <Button className="bg-[#2563EB] text-white" onClick={save} disabled={saving}>{saving ? 'Guardando…' : 'Guardar cambios'}</Button>
       </div>
     </div>
   )
