@@ -94,6 +94,8 @@ const HowItWorks = () => {
 
   useEffect(() => {
     const id = setInterval(() => handleNext(), 3500)
+    // position at the first slide on mount
+    scrollToIndex(0)
     return () => clearInterval(id)
   }, [])
 
@@ -146,9 +148,9 @@ const HowItWorks = () => {
               </svg>
             </button>
           </div>
-          <div className="flex snap-x snap-mandatory snap-always items-center justify-center">
+          <div className="flex snap-x snap-mandatory snap-always items-center">
             {steps.map((step, index) => (
-              <div key={step.title} className="min-w-full snap-center">
+              <div key={step.title} className="min-w-full snap-start">
                 <div className="group flex flex-col items-center text-center">
                   <div className="relative w-fit mx-auto">
                     <div
