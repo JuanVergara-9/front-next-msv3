@@ -626,6 +626,8 @@ function EditProviderForm({ initial, onSaved }: { initial: any; onSaved: () => v
     price_hint: initial?.price_hint || undefined,
   })
   const [saving, setSaving] = useState(false)
+  const [avatarFile, setAvatarFile] = useState<File | null>(null)
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(initial?.avatar_url || null)
   const { toast } = useToast()
 
   async function save() {
@@ -645,6 +647,66 @@ function EditProviderForm({ initial, onSaved }: { initial: any; onSaved: () => v
 
   return (
     <div className="space-y-3">
+      {/* Avatar */}
+      <div className="flex items-center gap-3">
+        <img
+          src={avatarPreview || '/placeholder.svg'}
+          alt="Avatar"
+          className="h-16 w-16 rounded-full object-cover border"
+        />
+        <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <Input
+            type="file"
+            accept="image/*"
+            onChange={(e) => {
+              const f = e.target.files?.[0] || null
+              setAvatarFile(f)
+              if (f) setAvatarPreview(URL.createObjectURL(f))
+            }}
+          />
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={async () => {
+                if (!avatarFile) { toast({ title: 'Elegí una imagen' }); return }
+                try {
+                  setSaving(true)
+                  await ProvidersService.uploadMyAvatar(avatarFile)
+                  toast({ title: 'Foto actualizada' })
+                  onSaved()
+                } catch (e: any) {
+                  let msg = 'No se pudo subir la foto'
+                  try { msg = JSON.parse(e?.message)?.error?.message || msg } catch {}
+                  toast({ title: 'Error', description: msg })
+                } finally {
+                  setSaving(false)
+                }
+              }}
+            >Subir</Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={async () => {
+                try {
+                  setSaving(true)
+                  await ProvidersService.deleteMyAvatar()
+                  setAvatarPreview(null)
+                  toast({ title: 'Foto eliminada' })
+                  onSaved()
+                } catch (e: any) {
+                  let msg = 'No se pudo eliminar la foto'
+                  try { msg = JSON.parse(e?.message)?.error?.message || msg } catch {}
+                  toast({ title: 'Error', description: msg })
+                } finally {
+                  setSaving(false)
+                }
+              }}
+            >Eliminar</Button>
+          </div>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <Input placeholder="Nombre" value={form.first_name} onChange={(e) => setForm({ ...form, first_name: e.target.value })} />
         <Input placeholder="Apellido" value={form.last_name} onChange={(e) => setForm({ ...form, last_name: e.target.value })} />
