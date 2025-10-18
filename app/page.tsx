@@ -402,7 +402,7 @@ const ProviderSignupSection = () => (
           </div>
           <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-4">¿Ofrecés servicios profesionales?</h3>
           <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto text-pretty">
-            Únete a miles de profesionales que ya confían en MiServicio. Crea tu perfil gratis y empieza a recibir
+            Únete a miles de profesionales que ya confían en miservicio. Crea tu perfil gratis y empieza a recibir
             clientes hoy mismo.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-6">
@@ -446,7 +446,7 @@ const ProviderSignupSection = () => (
   </section>
 )
 
-// New subcomponent for "Más sobre MiServicio" section
+// New subcomponent for "Más sobre miservicio" section
 const AboutSection = () => (
   <section className="py-12 px-4">
     <div className="max-w-4xl mx-auto text-center">
@@ -475,7 +475,7 @@ const AboutSection = () => (
 )
 
 // Main component
-export default function MiServicioHome() {
+export default function MiservicioHome() {
   const [city, setCity] = useState<string>("")
   const [query, setQuery] = useState<string>("")
   const [activeCategory, setActiveCategory] = useState<string | null>(null)

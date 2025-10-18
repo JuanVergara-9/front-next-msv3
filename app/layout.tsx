@@ -8,25 +8,25 @@ import Link from 'next/link'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'MiServicio - Conectamos personas con profesionales locales',
+  title: 'miservicio - Conectamos personas con profesionales locales',
   description: 'La plataforma más confiable para encontrar servicios de calidad en tu zona. Conectamos clientes con los mejores profesionales locales.',
   keywords: 'servicios, profesionales, plomería, electricidad, gasistas, jardinería, mantenimiento, San Rafael, Mendoza, Argentina',
   generator: 'miservicio.ar',
-  authors: [{ name: 'MiServicio' }],
-  creator: 'MiServicio',
-  publisher: 'MiServicio',
+  authors: [{ name: 'miservicio' }],
+  creator: 'miservicio',
+  publisher: 'miservicio',
   robots: 'index, follow',
   openGraph: {
     type: 'website',
     locale: 'es_AR',
     url: 'https://miservicio.ar',
-    title: 'MiServicio - Conectamos personas con profesionales locales',
+    title: 'miservicio - Conectamos personas con profesionales locales',
     description: 'La plataforma más confiable para encontrar servicios de calidad en tu zona.',
-    siteName: 'MiServicio',
+    siteName: 'miservicio',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'MiServicio - Conectamos personas con profesionales locales',
+    title: 'miservicio - Conectamos personas con profesionales locales',
     description: 'La plataforma más confiable para encontrar servicios de calidad en tu zona.',
   },
 }

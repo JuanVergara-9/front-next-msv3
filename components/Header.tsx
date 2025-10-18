@@ -25,9 +25,7 @@ export const Header = ({ city }: HeaderProps) => {
       <div className="max-w-7xl mx-auto flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-start sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center premium-shadow">
-              <span className="text-white font-bold text-sm">m</span>
-            </div>
+            <img src="/logo.png" alt="miservicio" className="w-8 h-8 rounded-lg shadow-sm" />
             <span className="text-primary font-bold text-xl leading-none">miservicio</span>
           </div>
           {isAuthenticated && (

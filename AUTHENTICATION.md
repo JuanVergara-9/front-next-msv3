@@ -1,4 +1,4 @@
-# 🔐 Sistema de Autenticación - MiServicio
+# 🔐 Sistema de Autenticación - miservicio
 
 ## ✅ Funcionalidades Implementadas
 

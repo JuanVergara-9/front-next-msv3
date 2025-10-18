@@ -301,7 +301,7 @@ export function UserProfilePage() {
                     href="/sobre" 
                     className="text-[#2563EB] hover:text-[#1d4ed8] text-sm font-medium transition-colors"
                   >
-                    Más sobre MiServicio
+                    Más sobre miservicio
                   </Link>
                 </div>
               </div>

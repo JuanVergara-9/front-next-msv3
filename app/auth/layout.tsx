@@ -1,8 +1,8 @@
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Autenticación - MiServicio",
-  description: "Inicia sesión o regístrate en MiServicio para acceder a los mejores servicios profesionales",
+  title: "Autenticación - miservicio",
+  description: "Inicia sesión o regístrate en miservicio para acceder a los mejores servicios profesionales",
 }
 
 export default function AuthLayout({

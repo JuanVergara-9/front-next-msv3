@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Términos y Condiciones - MiServicio',
-  description: 'Términos y Condiciones de Uso de MiServicio - Conectamos personas con profesionales locales',
+  title: 'Términos y Condiciones - miservicio',
+  description: 'Términos y Condiciones de Uso de miservicio - Conectamos personas con profesionales locales',
 }
 
 export default function TerminosPage() {
@@ -15,7 +15,7 @@ export default function TerminosPage() {
             Términos y Condiciones de Uso
           </h1>
           <p className="text-lg text-muted-foreground">
-            <strong>MiServicio</strong>
+            <strong>miservicio</strong>
           </p>
           <p className="text-sm text-muted-foreground">
             Última actualización: Octubre 2025
@@ -26,7 +26,7 @@ export default function TerminosPage() {
         <div className="prose prose-lg max-w-none">
           <div className="bg-card rounded-2xl p-6 md:p-8 border border-border/50 shadow-sm">
             <p className="text-muted-foreground mb-6">
-              Bienvenido/a a MiServicio, una aplicación que conecta a personas que buscan un servicio con trabajadores y profesionales que los ofrecen.
+              Bienvenido/a a miservicio, una aplicación que conecta a personas que buscan un servicio con trabajadores y profesionales que los ofrecen.
               <br />
               Al registrarte o usar la aplicación, aceptás estos Términos y Condiciones. Si no estás de acuerdo, no deberás utilizar la plataforma.
             </p>
@@ -40,10 +40,10 @@ export default function TerminosPage() {
                 </h2>
                 <div className="pl-11 space-y-3">
                   <p className="text-muted-foreground">
-                    MiServicio actúa como un intermediario digital que facilita el contacto entre usuarios y trabajadores/proveedores de servicios.
+                    miservicio actúa como un intermediario digital que facilita el contacto entre usuarios y trabajadores/proveedores de servicios.
                   </p>
                   <p className="text-muted-foreground">
-                    MiServicio no presta directamente los servicios ofrecidos ni forma parte de los acuerdos que se celebren entre las partes.
+                    miservicio no presta directamente los servicios ofrecidos ni forma parte de los acuerdos que se celebren entre las partes.
                   </p>
                 </div>
               </section>
@@ -62,7 +62,7 @@ export default function TerminosPage() {
                     Sos responsable de la confidencialidad de tus credenciales de acceso.
                   </p>
                   <p className="text-muted-foreground">
-                    Está prohibido usar MiServicio para fines ilegales, fraudulentos o que afecten a otros usuarios.
+                    Está prohibido usar miservicio para fines ilegales, fraudulentos o que afecten a otros usuarios.
                   </p>
                 </div>
               </section>
@@ -75,13 +75,13 @@ export default function TerminosPage() {
                 </h2>
                 <div className="pl-11 space-y-3">
                   <p className="text-muted-foreground">
-                    MiServicio no garantiza la calidad, disponibilidad ni resultado de los servicios contratados entre usuarios y trabajadores.
+                    miservicio no garantiza la calidad, disponibilidad ni resultado de los servicios contratados entre usuarios y trabajadores.
                   </p>
                   <p className="text-muted-foreground">
                     Cualquier acuerdo, pago, conflicto o incumplimiento entre ambas partes es responsabilidad exclusiva de ellas.
                   </p>
                   <p className="text-muted-foreground">
-                    MiServicio no se hace responsable por daños, pérdidas o disputas que puedan surgir entre usuarios y proveedores.
+                    miservicio no se hace responsable por daños, pérdidas o disputas que puedan surgir entre usuarios y proveedores.
                   </p>
                 </div>
               </section>
@@ -110,7 +110,7 @@ export default function TerminosPage() {
                 </h2>
                 <div className="pl-11 space-y-3">
                   <p className="text-muted-foreground">
-                    MiServicio se reserva el derecho de modificar, suspender o interrumpir la plataforma, total o parcialmente, en cualquier momento, sin previo aviso.
+                    miservicio se reserva el derecho de modificar, suspender o interrumpir la plataforma, total o parcialmente, en cualquier momento, sin previo aviso.
                   </p>
                 </div>
               </section>
@@ -123,7 +123,7 @@ export default function TerminosPage() {
                 </h2>
                 <div className="pl-11 space-y-3">
                   <p className="text-muted-foreground">
-                    El nombre, logotipo y diseño de MiServicio son propiedad de sus creadores y no pueden ser usados sin autorización previa.
+                    El nombre, logotipo y diseño de miservicio son propiedad de sus creadores y no pueden ser usados sin autorización previa.
                   </p>
                 </div>
               </section>
@@ -160,7 +160,7 @@ export default function TerminosPage() {
                   </a>
                 </div>
                 <div className="text-sm text-muted-foreground">
-                  <p>MiServicio © 2025</p>
+                  <p>miservicio © 2025</p>
                 </div>
               </div>
             </div>

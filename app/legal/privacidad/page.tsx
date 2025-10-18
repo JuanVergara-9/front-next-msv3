@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Política de Privacidad - MiServicio',
-  description: 'Política de Privacidad de MiServicio - Cómo protegemos y usamos tu información personal',
+  title: 'Política de Privacidad - miservicio',
+  description: 'Política de Privacidad de miservicio - Cómo protegemos y usamos tu información personal',
 }
 
 export default function PrivacidadPage() {
@@ -16,7 +16,7 @@ export default function PrivacidadPage() {
             Política de Privacidad
           </h1>
           <p className="text-lg text-muted-foreground">
-            <strong>MiServicio</strong>
+            <strong>miservicio</strong>
           </p>
           <p className="text-sm text-muted-foreground">
             Última actualización: Octubre 2025
@@ -27,7 +27,7 @@ export default function PrivacidadPage() {
         <div className="prose prose-lg max-w-none">
           <div className="bg-card rounded-2xl p-6 md:p-8 border border-border/50 shadow-sm">
             <p className="text-muted-foreground mb-6">
-              En MiServicio valoramos tu privacidad. Esta Política explica cómo recolectamos, usamos y protegemos tu información personal.
+              En miservicio valoramos tu privacidad. Esta Política explica cómo recolectamos, usamos y protegemos tu información personal.
             </p>
 
             <div className="space-y-8">
@@ -67,7 +67,7 @@ export default function PrivacidadPage() {
                     <li>Mejorar la experiencia en la plataforma</li>
                   </ul>
                   <p className="text-muted-foreground font-medium">
-                    No vendemos ni compartimos tus datos personales con terceros ajenos al funcionamiento de MiServicio.
+                    No vendemos ni compartimos tus datos personales con terceros ajenos al funcionamiento de miservicio.
                   </p>
                 </div>
               </section>
@@ -170,7 +170,7 @@ export default function PrivacidadPage() {
                   </p>
                 </div>
                 <div className="text-sm text-muted-foreground">
-                  <p>MiServicio © 2025</p>
+                  <p>miservicio © 2025</p>
                 </div>
               </div>
             </div>

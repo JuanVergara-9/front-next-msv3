@@ -1,4 +1,4 @@
-# MiServicio Frontend - Configuración
+# miservicio Frontend - Configuración
 
 ## 🚀 Configuración Rápida
 

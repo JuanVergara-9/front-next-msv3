@@ -2,7 +2,7 @@
   "name": "miservicio-next",
   "private": true,
   "version": "0.1.0",
-  "description": "MiServicio — Frontend Next.js",
+  "description": "miservicio — Frontend Next.js",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
