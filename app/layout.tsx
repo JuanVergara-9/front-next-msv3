@@ -17,7 +17,10 @@ export const metadata: Metadata = {
   publisher: 'miservicio',
   robots: 'index, follow',
   icons: {
-    icon: [ { url: '/logo.png' } ],
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/logo.png' }
+    ],
     apple: [ { url: '/apple-touch-icon.png', sizes: '180x180' } ]
   },
   manifest: '/manifest.json',

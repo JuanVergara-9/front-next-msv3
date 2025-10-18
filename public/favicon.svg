@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <clipPath id="circleClip">
+      <circle cx="32" cy="32" r="30" />
+    </clipPath>
+  </defs>
+  <!-- Recorta el logo cuadrado dentro de un círculo para que el favicon se vea redondeado -->
+  <image href="/logo.png" width="64" height="64" preserveAspectRatio="xMidYMid slice" clip-path="url(#circleClip)"/>
+</svg>
+
+
