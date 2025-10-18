@@ -226,7 +226,7 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
                     <h1 className="text-2xl font-bold text-[#111827] text-balance">
                       {providerData.firstName} {providerData.lastName}
                     </h1>
-                    <div className="flex items-center gap-2 mt-2">
+                    <div className="mt-2 flex flex-col sm:flex-row sm:items-center gap-2">
                       <Badge className="bg-[#2563EB] text-white hover:bg-[#1d4ed8]">
                         <Wrench className="h-4 w-4 mr-1" />
                         {providerData.category}
