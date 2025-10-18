@@ -148,7 +148,7 @@ const HowItWorks = () => {
           La plataforma más confiable para encontrar servicios de calidad en tu zona
         </p>
 
-        <div className="md:hidden -mx-4 px-4 relative overflow-x-auto scroll-smooth snap-x snap-mandatory" ref={mobileWrapperRef}>
+        <div className="md:hidden -mx-4 px-4 pb-8 relative overflow-x-auto scroll-smooth snap-x snap-mandatory" ref={mobileWrapperRef}>
           <div className="absolute inset-y-0 left-2 flex items-center">
             <button
               onClick={handlePrev}
