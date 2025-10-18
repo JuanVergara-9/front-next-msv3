@@ -77,14 +77,12 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
       emergencyAvailable: profile.emergency_available || false,
       description: profile.description || "Descripción no disponible",
       yearsExperience: profile.years_experience || 0,
-      memberSince: profile.created_at ? new Date(profile.created_at).getFullYear().toString() : "2024",
+      memberSince: profile.created_at ? new Date(profile.created_at).getFullYear().toString() : new Date().getFullYear().toString(),
       phone: profile.phone_e164 || profile.whatsapp_e164 || "",
       whatsapp: profile.whatsapp_e164 || profile.phone_e164 || "",
       avatar: profile.avatar_url || "/placeholder.svg",
       photos: Array.isArray(profile.photos) ? profile.photos : [],
-      services: [
-        { name: "Servicio principal", price: profile.price_hint ? `Desde $${profile.price_hint.toLocaleString()}` : "Consultar precio" },
-      ],
+      services: [],
       reviews: [], // Las reseñas se cargarían por separado
     }
   }
@@ -337,25 +335,7 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
               </CardContent>
             </Card>
 
-            {/* Servicios y precios */}
-            <Card className="rounded-2xl shadow-lg border-0">
-              <CardHeader>
-                <h2 className="text-xl font-semibold text-[#111827]">Servicios y precios</h2>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {providerData.services.map((service: { name: string; price: string }, index: number) => (
-                    <div
-                      key={index}
-                      className="flex justify-between items-center py-2 border-b border-gray-100 last:border-0"
-                    >
-                      <span className="text-[#111827]">{service.name}</span>
-                      <span className="text-[#2563EB] font-semibold">{service.price}</span>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+            {/* Servicios y precios — ocultado por pedido del producto */}
 
             {/* Disponibilidad y zona */}
             <Card className="rounded-2xl shadow-lg border-0">

@@ -93,7 +93,7 @@ const HowItWorks = () => {
   }
 
   useEffect(() => {
-    const id = setInterval(() => handleNext(), 1000)
+    const id = setInterval(() => handleNext(), 3500)
     return () => clearInterval(id)
   }, [])
 
@@ -146,10 +146,10 @@ const HowItWorks = () => {
               </svg>
             </button>
           </div>
-          <div className="flex snap-x snap-mandatory snap-always">
+          <div className="flex snap-x snap-mandatory snap-always items-center justify-center">
             {steps.map((step, index) => (
               <div key={step.title} className="min-w-full snap-center">
-                <div className="group">
+                <div className="group flex flex-col items-center text-center">
                   <div className="relative w-fit mx-auto">
                     <div
                       className={`w-20 h-20 bg-gradient-to-br ${step.color} rounded-3xl flex items-center justify-center mb-6 mx-auto premium-shadow-lg group-hover:scale-110 transition-all duration-300 smooth-bounce`}
@@ -162,7 +162,7 @@ const HowItWorks = () => {
                     </div>
                   </div>
                   <h3 className="text-xl font-bold text-foreground mb-3">{step.title}</h3>
-                  <p className="text-muted-foreground text-pretty">{step.description}</p>
+                  <p className="text-muted-foreground text-pretty max-w-xs mx-auto">{step.description}</p>
                 </div>
               </div>
             ))}
