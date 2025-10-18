@@ -251,10 +251,10 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
                           {providerData.city}, {providerData.province}
                         </span>
                       </div>
-                    <div className="flex items-center gap-1">
-                      <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                      <span className="font-semibold text-[#111827]">{avgRating || providerData.ratingAvg}</span>
-                      <span>({reviewsCount || providerData.reviewsCount90d} reseñas)</span>
+                    <div className="flex items-center gap-1 bg-yellow-50 px-2 py-1 rounded-full">
+                      <Star className="h-4 w-4 text-yellow-500" />
+                      <span className="font-semibold text-[#111827]">{Number(avgRating || providerData.ratingAvg).toFixed(1)}</span>
+                      <span className="text-[#6B7280]">· {reviewsCount || providerData.reviewsCount90d} reseñas</span>
                     </div>
                     </div>
                   </div>
@@ -262,24 +262,39 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
               </div>
 
               <div className="flex flex-col gap-3 md:w-64">
-                <Button 
-                  className="bg-green-600 hover:bg-green-700 text-white shadow-lg"
-                  onClick={() => {
-                    if (providerData.whatsapp) {
-                      const message = encodeURIComponent("Hola 👋, te contacto desde miservicio. Vi tu perfil y me interesa tu servicio, quería hacerte una consulta rápida.")
-                      window.open(`https://wa.me/${providerData.whatsapp}?text=${message}`, "_blank")
-                    }
-                  }}
-                >
-                  <MessageCircle className="h-4 w-4 mr-2" />
-                  Contactar por WhatsApp
-                </Button>
+                {!isOwner && (
+                  <>
+                    <Button 
+                      className="bg-green-600 hover:bg-green-700 text-white shadow-lg"
+                      onClick={() => {
+                        if (providerData.whatsapp) {
+                          const message = encodeURIComponent("Hola 👋, te contacto desde miservicio. Vi tu perfil y me interesa tu servicio, quería hacerte una consulta rápida.")
+                          window.open(`https://wa.me/${providerData.whatsapp}?text=${message}`, "_blank")
+                        }
+                      }}
+                    >
+                      <MessageCircle className="h-4 w-4 mr-2" />
+                      Contactar por WhatsApp
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="border-[#2563EB] text-[#2563EB] hover:bg-[#2563EB] hover:text-white bg-transparent"
+                      onClick={() => {
+                        if (providerData.phone) {
+                          window.open(`tel:${providerData.phone}`, "_blank")
+                        }
+                      }}
+                    >
+                      <Phone className="h-4 w-4 mr-2" />
+                      Llamar
+                    </Button>
+                    <Button variant="outline">Enviar consulta</Button>
+                  </>
+                )}
                 {isOwner && (
                   <Dialog>
                     <DialogTrigger asChild>
-                      <Button variant="outline" className="border-amber-500 text-amber-600 hover:bg-amber-50 bg-transparent">
-                        Editar perfil
-                      </Button>
+                      <Button className="bg-[#2563EB] hover:bg-[#1d4ed8] text-white shadow-lg">Editar perfil</Button>
                     </DialogTrigger>
                     <DialogContent aria-describedby={undefined} className="max-w-lg">
                       <DialogHeader>
@@ -289,19 +304,6 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
                     </DialogContent>
                   </Dialog>
                 )}
-                <Button
-                  variant="outline"
-                  className="border-[#2563EB] text-[#2563EB] hover:bg-[#2563EB] hover:text-white bg-transparent"
-                  onClick={() => {
-                    if (providerData.phone) {
-                      window.open(`tel:${providerData.phone}`, "_blank")
-                    }
-                  }}
-                >
-                  <Phone className="h-4 w-4 mr-2" />
-                  Llamar
-                </Button>
-                <Button variant="outline">Enviar consulta</Button>
               </div>
             </div>
           </CardContent>
@@ -608,21 +610,23 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
         </div>
       </div>
 
-      {/* Botón fijo en mobile */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-200 md:hidden">
-        <Button 
-          className="w-full bg-green-600 hover:bg-green-700 text-white shadow-lg"
-          onClick={() => {
-            if (providerData.whatsapp) {
-              const message = encodeURIComponent("Hola 👋, te contacto desde miservicio. Vi tu perfil y me interesa tu servicio, quería hacerte una consulta rápida.")
-              window.open(`https://wa.me/${providerData.whatsapp}?text=${message}`, "_blank")
-            }
-          }}
-        >
-          <MessageCircle className="h-4 w-4 mr-2" />
-          Contactar por WhatsApp
-        </Button>
-      </div>
+      {/* Botón fijo en mobile: solo visible si NO es el dueño */}
+      {!isOwner && (
+        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-200 md:hidden">
+          <Button 
+            className="w-full bg-green-600 hover:bg-green-700 text-white shadow-lg"
+            onClick={() => {
+              if (providerData.whatsapp) {
+                const message = encodeURIComponent("Hola 👋, te contacto desde miservicio. Vi tu perfil y me interesa tu servicio, quería hacerte una consulta rápida.")
+                window.open(`https://wa.me/${providerData.whatsapp}?text=${message}`, "_blank")
+              }
+            }}
+          >
+            <MessageCircle className="h-4 w-4 mr-2" />
+            Contactar por WhatsApp
+          </Button>
+        </div>
+      )}
     </div>
   )
 }
