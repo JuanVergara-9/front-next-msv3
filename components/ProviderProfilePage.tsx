@@ -28,6 +28,7 @@ import {
 import { useAuth } from "@/contexts/AuthContext"
 import { ReviewsService, type ReviewItem } from "@/lib/services/reviews.service"
 import { ProvidersService } from "@/lib/services/providers.service"
+import { Header } from "@/components/Header"
 
 interface ProviderProfilePageProps {
   providerProfile?: any
@@ -180,27 +181,7 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#2F66F5] via-[#3b82f6] to-[#2563EB]">
-      {/* Header fijo con glass effect */}
-      <header className="sticky top-0 z-50 glass-effect border-b border-white/20 px-4 py-3">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <h1 className="text-xl font-bold text-[#2563EB]">miservicio</h1>
-          <div className="flex items-center gap-2">
-            <nav className="hidden sm:block text-sm text-gray-600">
-              <span>Inicio</span> / <span className="text-[#2563EB]">{providerData.firstName} {providerData.lastName}</span> / <span>{providerData.category}</span>
-            </nav>
-            <Button
-              onClick={logout}
-              variant="outline"
-              size="sm"
-              aria-label="Cerrar sesión"
-              className="flex items-center gap-2"
-            >
-              <LogOut className="h-4 w-4" />
-              <span className="hidden sm:inline">Cerrar sesión</span>
-            </Button>
-          </div>
-        </div>
-      </header>
+      <Header city={`${providerData.city}, ${providerData.province}`} />
 
       <div className="glass-effect min-h-[calc(100vh-80px)]">
         <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
