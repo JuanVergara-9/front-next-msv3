@@ -244,14 +244,14 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
                         </Badge>
                       )}
                     </div>
-                    <div className="flex items-center gap-4 mt-3 text-[#6B7280]">
+                    <div className="mt-3 text-[#6B7280] flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
                       <div className="flex items-center gap-1">
                         <MapPin className="h-4 w-4" />
                         <span>
                           {providerData.city}, {providerData.province}
                         </span>
                       </div>
-                    <div className="flex items-center gap-1 bg-yellow-50 px-2 py-1 rounded-full">
+                    <div className="flex items-center gap-1 bg-yellow-50 px-2 py-1 rounded-full w-fit">
                       <Star className="h-4 w-4 text-yellow-500" />
                       <span className="font-semibold text-[#111827]">{Number(avgRating || providerData.ratingAvg).toFixed(1)}</span>
                       <span className="text-[#6B7280]">· {reviewsCount || providerData.reviewsCount90d} reseñas</span>
