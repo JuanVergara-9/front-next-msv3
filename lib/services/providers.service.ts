@@ -21,6 +21,7 @@ export class ProvidersService {
     if (params.radius_km) usp.set('radiusKm', params.radius_km.toString());
     if (params.limit) usp.set('limit', params.limit.toString());
     if (params.offset) usp.set('offset', params.offset.toString());
+    if (params.licensed) usp.set('licensed', 'true');
 
     const url = `/api/v1/providers?${usp.toString()}`;
     // El backend responde { count, items }
@@ -49,6 +50,7 @@ export class ProvidersService {
     years_experience?: number;
     price_hint?: number;
     emergency_available?: boolean;
+    is_licensed?: boolean;
     business_hours?: any;
     category_id?: number;
     category_ids?: number[];
@@ -141,6 +143,7 @@ export class ProvidersService {
     years_experience?: number;
     price_hint?: number;
     emergency_available?: boolean;
+    is_licensed?: boolean;
     business_hours?: any;
   }): Promise<Provider> {
     return apiFetch<{ provider: Provider }>('/api/v1/providers/mine', {

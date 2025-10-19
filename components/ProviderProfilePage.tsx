@@ -16,6 +16,7 @@ import {
   Phone,
   MessageCircle,
   Shield,
+  BadgeCheck,
   Wrench,
   Camera,
   Calendar,
@@ -75,6 +76,7 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
       ratingAvg: profile.rating || 4.5,
       reviewsCount90d: profile.review_count || 0,
       isVerified: profile.status === 'active',
+      isLicensed: !!profile.is_licensed,
       emergencyAvailable: profile.emergency_available || false,
       description: profile.description || "Descripción no disponible",
       yearsExperience: profile.years_experience || 0,
@@ -210,6 +212,12 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
                         <Wrench className="h-4 w-4 mr-1" />
                         {providerData.category}
                       </Badge>
+                      {providerData.isLicensed && (
+                        <Badge variant="outline" className="border-green-500 text-green-700">
+                          <BadgeCheck className="h-3 w-3 mr-1" />
+                          Matriculado
+                        </Badge>
+                      )}
                       {providerData.isVerified && (
                         <Badge variant="outline" className="border-green-500 text-green-700">
                           <Shield className="h-3 w-3 mr-1" />
@@ -604,6 +612,7 @@ function EditProviderForm({ initial, onSaved }: { initial: any; onSaved: () => v
     city: initial?.city || '',
     years_experience: initial?.years_experience || 0,
     emergency_available: !!initial?.emergency_available,
+    is_licensed: !!initial?.is_licensed,
     price_hint: initial?.price_hint || undefined,
   })
   const [saving, setSaving] = useState(false)
@@ -698,6 +707,10 @@ function EditProviderForm({ initial, onSaved }: { initial: any; onSaved: () => v
         <Input placeholder="Ciudad" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} />
         <Input type="number" min={0} max={80} placeholder="Años de experiencia" value={form.years_experience} onChange={(e) => setForm({ ...form, years_experience: Number(e.target.value) })} />
         <Input type="number" min={0} placeholder="Precio orientativo" value={form.price_hint ?? ''} onChange={(e) => setForm({ ...form, price_hint: Number(e.target.value) || undefined })} />
+        <div className="flex items-center gap-2">
+          <input id="is_licensed" type="checkbox" checked={!!form.is_licensed} onChange={(e) => setForm({ ...form, is_licensed: e.target.checked })} />
+          <label htmlFor="is_licensed" className="text-sm text-[#111827]">Profesional matriculado</label>
+        </div>
       </div>
       <Textarea placeholder="Descripción" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={4} />
       <div className="flex justify-end gap-2">

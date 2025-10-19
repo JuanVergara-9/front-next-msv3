@@ -28,6 +28,7 @@ export interface Provider {
   years_experience?: number;
   price_hint?: number;
   emergency_available: boolean;
+  is_licensed?: boolean;
   business_hours?: Record<string, any>;
   created_at: string;
   updated_at: string;
@@ -112,6 +113,7 @@ export interface SearchProvidersRequest {
   radius_km?: number;
   limit?: number;
   offset?: number;
+  licensed?: boolean;
 }
 
 export interface SearchProvidersResponse {

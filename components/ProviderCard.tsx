@@ -1,6 +1,6 @@
 "use client"
 
-import { Star, MapPin, Eye } from "lucide-react"
+import { Star, MapPin, Eye, BadgeCheck } from "lucide-react"
 import { useRouter } from "next/navigation"
 import type { ProviderWithDetails } from "@/types/api"
 
@@ -24,8 +24,13 @@ export function ProviderCard({ provider, onContact }: { provider: ProviderWithDe
           />
         </div>
         <div className="flex-1 min-w-0">
-          <h3 className="font-bold text-lg text-foreground truncate group-hover:text-primary transition-colors">
+          <h3 className="font-bold text-lg text-foreground truncate group-hover:text-primary transition-colors flex items-center gap-2">
             {displayName}
+            {(provider as any).is_licensed && (
+              <span className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full border border-green-300 text-green-700 bg-green-50 shrink-0">
+                <BadgeCheck className="h-3 w-3" /> Matriculado
+              </span>
+            )}
           </h3>
           <div className="flex items-center gap-3 text-sm text-muted-foreground mb-2">
             <div className="flex items-center gap-1 bg-yellow-50 px-2 py-1 rounded-full">

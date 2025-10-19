@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
-import { ArrowLeft, Star, MapPin, MessageCircle, SlidersHorizontal, Eye } from "lucide-react"
+import { ArrowLeft, Star, MapPin, MessageCircle, SlidersHorizontal, Eye, BadgeCheck } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -19,6 +19,7 @@ export default function ProvidersByCategoryPage() {
   const [providers, setProviders] = useState<ProviderWithDetails[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [onlyLicensed, setOnlyLicensed] = useState<boolean>(false)
 
   const activeCategory = useMemo(() => {
     const slug = (params?.slug || "").toString()
@@ -42,7 +43,7 @@ export default function ProvidersByCategoryPage() {
           return
         }
 
-        const res = await ProvidersService.searchProviders({ category_slug: slug, limit: 24, offset: 0 })
+        const res = await ProvidersService.searchProviders({ category_slug: slug, limit: 24, offset: 0, licensed: onlyLicensed })
         const raw = Array.isArray((res as any)?.providers) ? (res as any).providers : []
         // Normalizar: asegurar categories como string[] y full_name presente
         const normalized = raw.map((p: any) => {
@@ -65,7 +66,7 @@ export default function ProvidersByCategoryPage() {
     }
 
     load()
-  }, [params?.slug])
+  }, [params?.slug, onlyLicensed])
 
   const title = activeCategory ? `${activeCategory.name} en tu zona` : "Profesionales"
   const totalText = providers?.length ? `${providers.length} profesionales disponibles` : undefined
@@ -86,10 +87,12 @@ export default function ProvidersByCategoryPage() {
                 {totalText && <p className="text-muted-foreground">{totalText}</p>}
               </div>
             </div>
-            <Button variant="outline" size="sm" className="gap-2 bg-transparent">
-              <SlidersHorizontal className="h-4 w-4" />
-              Filtros
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" className="gap-2 bg-transparent" onClick={() => setOnlyLicensed(v => !v)}>
+                <BadgeCheck className="h-4 w-4" />
+                {onlyLicensed ? 'Solo matriculados: ON' : 'Solo matriculados'}
+              </Button>
+            </div>
           </div>
         </div>
       </div>
