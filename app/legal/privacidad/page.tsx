@@ -98,10 +98,10 @@ export default function PrivacidadPage() {
                   <p className="text-muted-foreground">
                     Podés acceder, modificar o eliminar tus datos en cualquier momento enviando una solicitud a{' '}
                     <a 
-                      href="mailto:contacto@miservicio.ar" 
+                      href="mailto:app.miservicio@gmail.com" 
                       className="text-primary hover:text-primary/80 transition-colors font-medium"
                     >
-                      contacto@miservicio.ar
+                      app.miservicio@gmail.com
                     </a>
                   </p>
                 </div>

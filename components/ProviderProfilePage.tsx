@@ -66,11 +66,23 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
   const mapProviderData = (profile: any) => {
     if (!profile) return null
     
+    // Obtener todas las categorías (principal + múltiples)
+    const allCategories = []
+    if (profile.category) allCategories.push(profile.category)
+    if (profile.categories && Array.isArray(profile.categories)) {
+      allCategories.push(...profile.categories)
+    }
+    // Eliminar duplicados por ID
+    const uniqueCategories = allCategories.filter((cat, index, self) => 
+      index === self.findIndex(c => c.id === cat.id)
+    )
+    
     return {
       id: profile.id?.toString() || "1",
       firstName: profile.first_name || "Usuario",
       lastName: profile.last_name || "Proveedor",
-      category: profile.category?.name || "Servicio",
+      category: uniqueCategories[0]?.name || "Servicio", // Categoría principal para compatibilidad
+      categories: uniqueCategories, // Todas las categorías
       city: profile.city || "Ciudad",
       province: profile.province || "Provincia",
       ratingAvg: profile.rating || 4.5,
@@ -208,10 +220,19 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
                       {providerData.firstName} {providerData.lastName}
                     </h1>
                     <div className="mt-2 flex flex-col sm:flex-row sm:items-center gap-2">
-                      <Badge className="bg-[#2563EB] text-white hover:bg-[#1d4ed8]">
-                        <Wrench className="h-4 w-4 mr-1" />
-                        {providerData.category}
-                      </Badge>
+                      {providerData.categories && providerData.categories.length > 0 ? (
+                        providerData.categories.map((cat: any, index: number) => (
+                          <Badge key={cat.id || index} className="bg-[#2563EB] text-white hover:bg-[#1d4ed8]">
+                            <Wrench className="h-4 w-4 mr-1" />
+                            {cat.name}
+                          </Badge>
+                        ))
+                      ) : (
+                        <Badge className="bg-[#2563EB] text-white hover:bg-[#1d4ed8]">
+                          <Wrench className="h-4 w-4 mr-1" />
+                          {providerData.category}
+                        </Badge>
+                      )}
                       {providerData.isLicensed && (
                         <Badge variant="outline" className="border-green-500 text-green-700">
                           <BadgeCheck className="h-3 w-3 mr-1" />
@@ -614,13 +635,38 @@ function EditProviderForm({ initial, onSaved }: { initial: any; onSaved: () => v
     emergency_available: !!initial?.emergency_available,
     is_licensed: !!initial?.is_licensed,
     price_hint: initial?.price_hint || undefined,
+    category_ids: initial?.categories?.map((c: any) => c.id) || initial?.category_id ? [initial.category_id] : [],
   })
   const [saving, setSaving] = useState(false)
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
   const [avatarPreview, setAvatarPreview] = useState<string | null>(initial?.avatar_url || null)
+  const [categories, setCategories] = useState<any[]>([])
+  const [loadingCategories, setLoadingCategories] = useState(false)
   const { toast } = useToast()
 
+  // Cargar categorías disponibles
+  useEffect(() => {
+    async function loadCategories() {
+      try {
+        setLoadingCategories(true)
+        const cats = await ProvidersService.getCategories()
+        setCategories(cats)
+      } catch (e) {
+        console.error('Error loading categories:', e)
+        toast({ title: 'Error', description: 'No se pudieron cargar las categorías' })
+      } finally {
+        setLoadingCategories(false)
+      }
+    }
+    loadCategories()
+  }, [toast])
+
   async function save() {
+    if (form.category_ids.length === 0) {
+      toast({ title: 'Error', description: 'Seleccioná al menos una categoría' })
+      return
+    }
+    
     try {
       setSaving(true)
       await ProvidersService.updateMyProviderProfile(form)
@@ -695,6 +741,40 @@ function EditProviderForm({ initial, onSaved }: { initial: any; onSaved: () => v
             >Eliminar</Button>
           </div>
         </div>
+      </div>
+
+      {/* Selección de categorías */}
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-[#111827]">Categorías de servicios</label>
+        {loadingCategories ? (
+          <p className="text-sm text-[#6B7280]">Cargando categorías...</p>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            {categories.map((cat) => (
+              <div key={cat.id} className="flex items-center gap-2">
+                <input
+                  id={`category-${cat.id}`}
+                  type="checkbox"
+                  checked={form.category_ids.includes(cat.id)}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setForm({ ...form, category_ids: [...form.category_ids, cat.id] })
+                    } else {
+                      setForm({ ...form, category_ids: form.category_ids.filter((id: number) => id !== cat.id) })
+                    }
+                  }}
+                  className="rounded border-gray-300"
+                />
+                <label htmlFor={`category-${cat.id}`} className="text-sm text-[#111827] cursor-pointer">
+                  {cat.name}
+                </label>
+              </div>
+            ))}
+          </div>
+        )}
+        {form.category_ids.length === 0 && (
+          <p className="text-sm text-red-600">Seleccioná al menos una categoría</p>
+        )}
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
