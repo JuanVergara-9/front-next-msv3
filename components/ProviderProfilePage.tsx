@@ -66,16 +66,39 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
   const mapProviderData = (profile: any) => {
     if (!profile) return null
     
+    // Debug: ver qué datos recibimos del backend
+    console.log('🔍 ProviderProfilePage - Datos recibidos del backend:', {
+      category: profile.category,
+      categories: profile.categories,
+      hasCategory: !!profile.category,
+      hasCategories: !!profile.categories,
+      categoriesLength: profile.categories?.length
+    })
+    
     // Obtener todas las categorías (principal + múltiples)
     const allCategories = []
-    if (profile.category) allCategories.push(profile.category)
-    if (profile.categories && Array.isArray(profile.categories)) {
-      allCategories.push(...profile.categories)
+    
+    // Agregar categoría principal si existe
+    if (profile.category && profile.category.id) {
+      allCategories.push(profile.category)
     }
-    // Eliminar duplicados por ID
-    const uniqueCategories = allCategories.filter((cat, index, self) => 
-      index === self.findIndex(c => c.id === cat.id)
-    )
+    
+    // Agregar categorías múltiples si existen
+    if (profile.categories && Array.isArray(profile.categories)) {
+      profile.categories.forEach(cat => {
+        if (cat && cat.id && !allCategories.find(c => c.id === cat.id)) {
+          allCategories.push(cat)
+        }
+      })
+    }
+    
+    const uniqueCategories = allCategories
+    
+    console.log('🔍 ProviderProfilePage - Categorías procesadas:', {
+      allCategories,
+      uniqueCategories,
+      finalCount: uniqueCategories.length
+    })
     
     return {
       id: profile.id?.toString() || "1",
