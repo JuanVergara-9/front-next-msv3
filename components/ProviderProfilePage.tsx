@@ -76,7 +76,7 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
     })
     
     // Obtener todas las categorías (principal + múltiples)
-    const allCategories = []
+    const allCategories: any[] = []
     
     // Agregar categoría principal si existe
     if (profile.category && profile.category.id) {
