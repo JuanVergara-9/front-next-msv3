@@ -85,7 +85,7 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
     
     // Agregar categorías múltiples si existen
     if (profile.categories && Array.isArray(profile.categories)) {
-      profile.categories.forEach(cat => {
+      profile.categories.forEach((cat: any) => {
         if (cat && cat.id && !allCategories.find(c => c.id === cat.id)) {
           allCategories.push(cat)
         }
