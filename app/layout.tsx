@@ -8,14 +8,16 @@ import Link from 'next/link'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'miservicio',
+  metadataBase: new URL('https://miservicio.ar'),
+  title: { default: 'miservicio', template: '%s | miservicio' },
   description: 'La plataforma más confiable para encontrar servicios de calidad en tu zona. Conectamos clientes con los mejores profesionales locales.',
   keywords: 'servicios, profesionales, plomería, electricidad, gasistas, jardinería, mantenimiento, San Rafael, Mendoza, Argentina',
   generator: 'miservicio.ar',
   authors: [{ name: 'miservicio' }],
   creator: 'miservicio',
   publisher: 'miservicio',
-  robots: 'index, follow',
+  robots: { index: true, follow: true },
+  alternates: { canonical: '/' },
   icons: {
     icon: [ { url: '/logo-transparente-wuachin.png' } ],
     apple: [ { url: '/apple-touch-icon.png', sizes: '180x180' } ]
@@ -24,7 +26,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'es_AR',
-    url: 'https://miservicio.ar',
+    url: '/',
     title: 'miservicio - Conectamos personas con profesionales locales',
     description: 'La plataforma más confiable para encontrar servicios de calidad en tu zona.',
     siteName: 'miservicio',
@@ -42,7 +44,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
+    <html lang="es">
       <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable}`}>
         <AuthProvider>
           <div className="min-h-screen flex flex-col">
