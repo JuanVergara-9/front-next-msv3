@@ -226,7 +226,7 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
         <Card className="rounded-2xl shadow-xl border-0 overflow-hidden">
           <CardContent className="p-6">
             <div className="flex flex-col md:flex-row gap-6">
-              <div className="flex-1">
+              <div className="flex-1 min-w-0">
                 <div className="flex items-start gap-4 mb-4">
                   <Avatar className="h-20 w-20 border-4 border-white shadow-lg">
                     <AvatarImage
@@ -242,7 +242,7 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
                     <h1 className="text-2xl font-bold text-[#111827] text-balance">
                       {providerData.firstName} {providerData.lastName}
                     </h1>
-                    <div className="mt-2 flex flex-col sm:flex-row sm:items-center gap-2">
+                    <div className="mt-2 flex flex-wrap items-center gap-2">
                       {providerData.categories && providerData.categories.length > 0 ? (
                         providerData.categories.map((cat: any, index: number) => (
                           <Badge key={cat.id || index} className="bg-[#2563EB] text-white hover:bg-[#1d4ed8]">
@@ -292,7 +292,7 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
                 </div>
               </div>
 
-              <div className="flex flex-col gap-3 md:w-64">
+              <div className="flex flex-col gap-3 md:w-64 md:flex-none md:shrink-0">
                 {!isOwner && (
                   <>
                     <Button 
