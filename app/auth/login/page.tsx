@@ -9,11 +9,12 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Eye, EyeOff, Mail, Lock, Building2 } from "lucide-react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useAuth } from "@/contexts/AuthContext"
 
 export default function LoginPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { login } = useAuth()
   const [showPassword, setShowPassword] = useState(false)
   const [formData, setFormData] = useState({
@@ -50,9 +51,8 @@ export default function LoginPage() {
     
     try {
       await login(formData.email, formData.password)
-      
-      // Redirect to home page after successful login
-      router.push('/')
+      const next = searchParams.get('next')
+      router.push(next && next.startsWith('/') ? next : '/')
     } catch (error: any) {
       console.error('Login error:', error)
       setErrors({ 
@@ -183,7 +183,7 @@ export default function LoginPage() {
 
             <p className="text-center text-sm text-gray-600 mt-6">
               ¿No tienes una cuenta?{" "}
-              <Link href="/auth/register" className="text-blue-600 hover:text-blue-800 font-medium">
+              <Link href={`/auth/register${searchParams.get('next') ? `?next=${encodeURIComponent(searchParams.get('next') as string)}` : ''}`} className="text-blue-600 hover:text-blue-800 font-medium">
                 Regístrate
               </Link>
             </p>

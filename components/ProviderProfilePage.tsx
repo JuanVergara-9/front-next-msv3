@@ -30,6 +30,7 @@ import { useAuth } from "@/contexts/AuthContext"
 import { ReviewsService, type ReviewItem } from "@/lib/services/reviews.service"
 import { ProvidersService } from "@/lib/services/providers.service"
 import { Header } from "@/components/Header"
+import { useRouter } from "next/navigation"
 
 interface ProviderProfilePageProps {
   providerProfile?: any
@@ -37,6 +38,7 @@ interface ProviderProfilePageProps {
 
 export function ProviderProfilePage({ providerProfile: propProviderProfile }: ProviderProfilePageProps) {
   const { user, logout } = useAuth()
+  const router = useRouter()
   const isOwner = !!user && !!propProviderProfile && Number(user.id) === Number(propProviderProfile.user_id)
   const { toast } = useToast()
   const [reviews, setReviews] = useState<ReviewItem[]>([])
@@ -216,6 +218,8 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
 
   if (!providerData) return null
 
+  const SHOW_GALLERY = false
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#2F66F5] via-[#3b82f6] to-[#2563EB]">
       <Header city={`${providerData.city}, ${providerData.province}`} />
@@ -228,16 +232,29 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
             <div className="flex flex-col md:flex-row gap-6">
               <div className="flex-1 min-w-0">
                 <div className="flex items-start gap-4 mb-4">
-                  <Avatar className="h-20 w-20 border-4 border-white shadow-lg">
-                    <AvatarImage
-                      src={providerData.avatar || "/placeholder.svg"}
-                      alt={`${providerData.firstName} ${providerData.lastName}`}
-                    />
-                    <AvatarFallback className="text-xl bg-[#2563EB] text-white">
-                      {providerData.firstName[0]}
-                      {providerData.lastName[0]}
-                    </AvatarFallback>
-                  </Avatar>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <button type="button" aria-label="Ver foto de perfil" className="rounded-full cursor-zoom-in focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#2563EB]">
+                        <Avatar className="h-20 w-20 border-4 border-white shadow-lg">
+                          <AvatarImage
+                            src={providerData.avatar || "/placeholder.svg"}
+                            alt={`${providerData.firstName} ${providerData.lastName}`}
+                          />
+                          <AvatarFallback className="text-xl bg-[#2563EB] text-white">
+                            {providerData.firstName[0]}
+                            {providerData.lastName[0]}
+                          </AvatarFallback>
+                        </Avatar>
+                      </button>
+                    </DialogTrigger>
+                    <DialogContent aria-describedby={undefined} className="max-w-2xl p-0 bg-black border-0">
+                      <img
+                        src={providerData.avatar || "/placeholder.svg"}
+                        alt={`${providerData.firstName} ${providerData.lastName}`}
+                        className="w-full h-full object-contain max-h-[80vh] bg-black"
+                      />
+                    </DialogContent>
+                  </Dialog>
                   <div className="flex-1">
                     <h1 className="text-2xl font-bold text-[#111827] text-balance">
                       {providerData.firstName} {providerData.lastName}
@@ -298,6 +315,11 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
                     <Button 
                       className="bg-green-600 hover:bg-green-700 text-white shadow-lg"
                       onClick={() => {
+                        if (!user) {
+                          const next = window.location.pathname + window.location.search + window.location.hash
+                          router.push(`/auth/login?next=${encodeURIComponent(next)}`)
+                          return
+                        }
                         if (providerData.whatsapp) {
                           const message = encodeURIComponent("Hola 👋, te contacto desde miservicio. Vi tu perfil y me interesa tu servicio, quería hacerte una consulta rápida.")
                           window.open(`https://wa.me/${providerData.whatsapp}?text=${message}`, "_blank")
@@ -311,6 +333,11 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
                       variant="outline"
                       className="border-[#2563EB] text-[#2563EB] hover:bg-[#2563EB] hover:text-white bg-transparent"
                       onClick={() => {
+                        if (!user) {
+                          const next = window.location.pathname + window.location.search + window.location.hash
+                          router.push(`/auth/login?next=${encodeURIComponent(next)}`)
+                          return
+                        }
                         if (providerData.phone) {
                           window.open(`tel:${providerData.phone}`, "_blank")
                         }
@@ -319,7 +346,16 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
                       <Phone className="h-4 w-4 mr-2" />
                       Llamar
                     </Button>
-                    <Button variant="outline">Enviar consulta</Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        if (!user) {
+                          const next = window.location.pathname + window.location.search + window.location.hash
+                          router.push(`/auth/login?next=${encodeURIComponent(next)}`)
+                          return
+                        }
+                      }}
+                    >Enviar consulta</Button>
                   </>
                 )}
                 {isOwner && (
@@ -342,7 +378,7 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
 
         {/* Tabs de contenido */}
         <Tabs defaultValue="informacion" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 bg-white rounded-xl shadow-lg">
+          <TabsList className={`grid w-full ${SHOW_GALLERY ? 'grid-cols-3' : 'grid-cols-2'} bg-white rounded-xl shadow-lg`}>
             <TabsTrigger
               value="informacion"
               className="data-[state=active]:bg-[#2563EB] data-[state=active]:text-white"
@@ -352,9 +388,11 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
             <TabsTrigger value="resenas" className="data-[state=active]:bg-[#2563EB] data-[state=active]:text-white">
               Reseñas
             </TabsTrigger>
-            <TabsTrigger value="galeria" className="data-[state=active]:bg-[#2563EB] data-[state=active]:text-white">
-              Galería
-            </TabsTrigger>
+            {SHOW_GALLERY && (
+              <TabsTrigger value="galeria" className="data-[state=active]:bg-[#2563EB] data-[state=active]:text-white">
+                Galería
+              </TabsTrigger>
+            )}
           </TabsList>
 
           <TabsContent value="informacion" className="space-y-6">
@@ -597,26 +635,28 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
             )}
           </TabsContent>
 
-          <TabsContent value="galeria" className="space-y-6">
-            <Card className="rounded-2xl shadow-lg border-0">
-              <CardHeader>
-                <h2 className="text-xl font-semibold text-[#111827]">Galería de trabajos</h2>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {providerData.photos.map((photo: string, index: number) => (
-                    <div key={index} className="aspect-video rounded-xl overflow-hidden shadow-lg">
-                      <img
-                        src={photo || "/placeholder.svg"}
-                        alt={`Trabajo ${index + 1}`}
-                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                      />
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+          {SHOW_GALLERY && (
+            <TabsContent value="galeria" className="space-y-6">
+              <Card className="rounded-2xl shadow-lg border-0">
+                <CardHeader>
+                  <h2 className="text-xl font-semibold text-[#111827]">Galería de trabajos</h2>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {providerData.photos.map((photo: string, index: number) => (
+                      <div key={index} className="aspect-video rounded-xl overflow-hidden shadow-lg">
+                        <img
+                          src={photo || "/placeholder.svg"}
+                          alt={`Trabajo ${index + 1}`}
+                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          )}
         </Tabs>
 
         {/* Sección de proveedores similares removida para evitar datos mock */}
@@ -629,6 +669,11 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
           <Button 
             className="w-full bg-green-600 hover:bg-green-700 text-white shadow-lg"
             onClick={() => {
+              if (!user) {
+                const next = window.location.pathname + window.location.search + window.location.hash
+                router.push(`/auth/login?next=${encodeURIComponent(next)}`)
+                return
+              }
               if (providerData.whatsapp) {
                 const message = encodeURIComponent("Hola 👋, te contacto desde miservicio. Vi tu perfil y me interesa tu servicio, quería hacerte una consulta rápida.")
                 window.open(`https://wa.me/${providerData.whatsapp}?text=${message}`, "_blank")

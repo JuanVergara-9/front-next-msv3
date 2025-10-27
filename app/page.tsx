@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useRef } from "react"
 import { ProvidersService } from '@/lib/services/providers.service'
+import { useAuth } from '@/contexts/AuthContext'
+import { useRouter } from 'next/navigation'
 import { Header } from '../components/Header'
 import { ProviderCard } from '../components/ProviderCard'
 import type { ProviderWithDetails } from '../types/api'
@@ -501,6 +503,8 @@ const AboutSection = () => (
 
 // Main component
 export default function MiservicioHome() {
+  const { user } = useAuth()
+  const router = useRouter()
   const [city, setCity] = useState<string>("")
   const [query, setQuery] = useState<string>("")
   const [activeCategory, setActiveCategory] = useState<string | null>(null)
@@ -693,6 +697,11 @@ export default function MiservicioHome() {
   }
 
   const handleContact = (provider: ProviderWithDetails) => {
+    if (!user) {
+      const next = `/proveedores/${provider.id}`
+      router.push(`/auth/login?next=${encodeURIComponent(next)}`)
+      return
+    }
     if (provider.whatsapp_e164) {
       const message = encodeURIComponent("Hola 👋, te contacto desde miservicio. Vi tu perfil y me interesa tu servicio, quería hacerte una consulta rápida.")
       window.open(`https://wa.me/${provider.whatsapp_e164}?text=${message}`, "_blank")
