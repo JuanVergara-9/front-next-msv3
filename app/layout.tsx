@@ -46,6 +46,32 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable}`}>
+        {(() => {
+          const orgLd = {
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            name: "miservicio",
+            url: "https://miservicio.ar",
+            logo: "https://miservicio.ar/logo.png",
+          }
+          const websiteLd = {
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            name: "miservicio",
+            url: "https://miservicio.ar",
+            potentialAction: {
+              "@type": "SearchAction",
+              target: "https://miservicio.ar/?q={search_term_string}",
+              "query-input": "required name=search_term_string",
+            },
+          }
+          return (
+            <>
+              <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgLd) }} />
+              <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteLd) }} />
+            </>
+          )
+        })()}
         <AuthProvider>
           <div className="min-h-screen flex flex-col">
             <main className="flex-1">

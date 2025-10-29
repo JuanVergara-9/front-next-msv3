@@ -33,8 +33,10 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   }
 }
 
-export default function CategoryLayout({ children }: { children: React.ReactNode }) {
-  const breadcrumbLd = {
+export default async function CategoryLayout(
+  { children, params }: { children: React.ReactNode; params: { slug: string } }
+) {
+  let breadcrumbLd: any = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
@@ -42,6 +44,14 @@ export default function CategoryLayout({ children }: { children: React.ReactNode
       { "@type": "ListItem", position: 2, name: 'Categorías', item: '/categorias' },
     ],
   }
+  try {
+    const slug = (params?.slug || '').toString()
+    const categories = await ProvidersService.getCategories()
+    const cat = Array.isArray(categories) ? categories.find(c => c.slug === slug) : null
+    const name = cat?.name || humanize(slug)
+    breadcrumbLd.itemListElement.push({ "@type": "ListItem", position: 3, name, item: `/categorias/${slug}` })
+  } catch {}
+
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
