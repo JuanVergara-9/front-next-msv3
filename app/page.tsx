@@ -373,7 +373,7 @@ const ProvidersList = ({
           <div className="md:hidden -mx-4 px-4 overflow-x-auto">
             <div className="flex snap-x snap-mandatory snap-always space-x-4 pr-4">
               {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="min-w-full snap-center">
+                <div key={i} className="min-w-[85%] snap-center">
                   <SkeletonCard />
                 </div>
               ))}
@@ -392,7 +392,7 @@ const ProvidersList = ({
           <div className="md:hidden -mx-4 px-4 overflow-x-auto">
             <div className="flex snap-x snap-mandatory snap-always space-x-4 pr-4">
               {providers.map((provider) => (
-                <div key={provider.id} className="min-w-full snap-center">
+                <div key={provider.id} className="min-w-[85%] snap-center">
                   <ProviderCard provider={provider} onContact={onContact} />
                 </div>
               ))}
