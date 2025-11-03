@@ -55,6 +55,12 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
   const maxCommentLength = 2000
   const maxPhotos = 6
 
+  // Availability state
+  const [availability, setAvailability] = useState<{ businessHours: any, emergencyAvailable: boolean } | null>(null)
+  const [isAvailDialogOpen, setIsAvailDialogOpen] = useState<boolean>(false)
+  const [savingAvailability, setSavingAvailability] = useState<boolean>(false)
+  const dayLabels: Record<string,string> = { mon:'Lun', tue:'Mar', wed:'Mié', thu:'Jue', fri:'Vie', sat:'Sáb', sun:'Dom' }
+
   function isValidUrl(url: string): boolean {
     try {
       const u = new URL(url)
@@ -162,6 +168,48 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
       cancelled = true
     }
   }, [providerIdNum])
+
+  // Load availability for public profile display
+  useEffect(() => {
+    let cancelled = false
+    async function loadAvailability(){
+      if (!providerIdNum) return
+      try {
+        const a = await ProvidersService.getProviderAvailability(providerIdNum)
+        if (!cancelled) setAvailability(a)
+      } catch (e) {
+        console.warn('Error loading availability', e)
+      }
+    }
+    loadAvailability()
+    return () => { cancelled = true }
+  }, [providerIdNum])
+
+  function minutesToTime(m: number){
+    const h = Math.floor(m/60).toString().padStart(2,'0')
+    const mi = (m%60).toString().padStart(2,'0')
+    return `${h}:${mi}`
+  }
+
+  function formatChipsFromBH(bh: any): string[] {
+    const chips: string[] = []
+    if (!bh) return chips
+    const weekdays = ['mon','tue','wed','thu','fri']
+    const sameWeek = weekdays.every(d => (bh[d]?.length||0)===1 && bh[d][0].start===480 && bh[d][0].end===1080)
+    const satDefault = Array.isArray(bh.sat) && bh.sat.length===1 && bh.sat[0].start===540 && bh.sat[0].end===780
+    const sunEmpty = !Array.isArray(bh.sun) || bh.sun.length===0
+    if (sameWeek && satDefault && sunEmpty){
+      return ['Lun-Vie 8:00-18:00','Sáb 9:00-13:00']
+    }
+    const order = ['mon','tue','wed','thu','fri','sat','sun']
+    for (const d of order){
+      const ranges = Array.isArray(bh[d]) ? bh[d] : []
+      if (ranges.length===0) continue
+      const txt = ranges.map((r:any)=>`${minutesToTime(r.start)}-${minutesToTime(r.end)}`).join(', ')
+      chips.push(`${dayLabels[d]} ${txt}`)
+    }
+    return chips
+  }
 
   async function handleSubmitReview() {
     if (!providerIdNum) return
@@ -359,17 +407,47 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
                   </>
                 )}
                 {isOwner && (
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button className="bg-[#2563EB] hover:bg-[#1d4ed8] text-white shadow-lg">Editar perfil</Button>
-                    </DialogTrigger>
-                    <DialogContent aria-describedby={undefined} className="max-w-lg">
-                      <DialogHeader>
-                        <DialogTitle>Editar perfil</DialogTitle>
-                      </DialogHeader>
-                      <EditProviderForm initial={propProviderProfile} onSaved={() => window.location.reload()} />
-                    </DialogContent>
-                  </Dialog>
+                  <div className="flex flex-col gap-2">
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button className="bg-[#2563EB] hover:bg-[#1d4ed8] text-white shadow-lg">Editar perfil</Button>
+                      </DialogTrigger>
+                      <DialogContent aria-describedby={undefined} className="max-w-lg">
+                        <DialogHeader>
+                          <DialogTitle>Editar perfil</DialogTitle>
+                        </DialogHeader>
+                        <EditProviderForm initial={propProviderProfile} onSaved={() => window.location.reload()} />
+                      </DialogContent>
+                    </Dialog>
+                    <Dialog open={isAvailDialogOpen} onOpenChange={setIsAvailDialogOpen}>
+                      <DialogTrigger asChild>
+                        <Button variant="outline" className="border-[#2563EB] text-[#2563EB] hover:bg-[#2563EB] hover:text-white">Editar disponibilidad</Button>
+                      </DialogTrigger>
+                      <DialogContent aria-describedby={undefined} className="max-w-lg">
+                        <DialogHeader>
+                          <DialogTitle>Disponibilidad y urgencias</DialogTitle>
+                        </DialogHeader>
+                        <AvailabilityEditor
+                          initial={availability || { businessHours: { mon:[],tue:[],wed:[],thu:[],fri:[],sat:[],sun:[] }, emergencyAvailable: !!propProviderProfile?.emergency_available }}
+                          onSave={async (payload) => {
+                            try {
+                              setSavingAvailability(true)
+                              await ProvidersService.updateMyAvailability(payload)
+                              const a = await ProvidersService.getProviderAvailability(providerIdNum || Number(propProviderProfile?.id))
+                              setAvailability(a)
+                              setIsAvailDialogOpen(false)
+                              toast({ title: 'Disponibilidad actualizada' })
+                            } catch (e:any) {
+                              let msg = 'No se pudo guardar la disponibilidad'
+                              try { msg = JSON.parse(e?.message)?.error?.message || msg } catch{}
+                              toast({ title: 'Error', description: msg })
+                            } finally { setSavingAvailability(false) }
+                          }}
+                          saving={savingAvailability}
+                        />
+                      </DialogContent>
+                    </Dialog>
+                  </div>
                 )}
               </div>
             </div>
@@ -418,9 +496,12 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
                   <div>
                     <h3 className="font-medium text-[#111827] mb-2">Horarios</h3>
                     <div className="flex flex-wrap gap-2">
-                      <Badge variant="outline">Lun-Vie 8:00-18:00</Badge>
-                      <Badge variant="outline">Sáb 9:00-13:00</Badge>
-                      <Badge variant="outline">Urgencias 24hs</Badge>
+                      {formatChipsFromBH(availability?.businessHours).map((c,idx)=> (
+                        <Badge key={idx} variant="outline">{c}</Badge>
+                      ))}
+                      {availability?.emergencyAvailable && (
+                        <Badge variant="outline" className="border-orange-500 text-orange-700">Atiende urgencias</Badge>
+                      )}
                     </div>
                   </div>
                   <div>
@@ -864,6 +945,72 @@ function EditProviderForm({ initial, onSaved }: { initial: any; onSaved: () => v
       <div className="flex justify-end gap-2">
         <Button variant="outline" onClick={() => onSaved()}>Cerrar</Button>
         <Button className="bg-[#2563EB] text-white" onClick={save} disabled={saving}>{saving ? 'Guardando…' : 'Guardar cambios'}</Button>
+      </div>
+    </div>
+  )
+}
+
+function AvailabilityEditor({ initial, onSave, saving }: { initial: { businessHours: any, emergencyAvailable: boolean }, onSave: (payload: { businessHours: any, emergencyAvailable: boolean }) => Promise<void> | void, saving?: boolean }) {
+  const [emergency, setEmergency] = useState<boolean>(!!initial?.emergencyAvailable)
+  const [days, setDays] = useState<Record<string, { enabled: boolean, start: string, end: string }>>(() => {
+    const bh = initial?.businessHours || { mon:[],tue:[],wed:[],thu:[],fri:[],sat:[],sun:[] }
+    const toHHMM = (m:number) => {
+      const h = String(Math.floor(m/60)).padStart(2,'0');
+      const mi = String(m%60).padStart(2,'0');
+      return `${h}:${mi}`
+    }
+    const getFirst = (arr:any[]) => Array.isArray(arr) && arr[0] ? { enabled:true, start: toHHMM(arr[0].start), end: toHHMM(arr[0].end) } : { enabled:false, start:'08:00', end:'18:00' }
+    return {
+      mon: getFirst(bh.mon),
+      tue: getFirst(bh.tue),
+      wed: getFirst(bh.wed),
+      thu: getFirst(bh.thu),
+      fri: getFirst(bh.fri),
+      sat: getFirst(bh.sat),
+      sun: getFirst(bh.sun),
+    }
+  })
+
+  const labels: Record<string,string> = { mon:'Lunes', tue:'Martes', wed:'Miércoles', thu:'Jueves', fri:'Viernes', sat:'Sábado', sun:'Domingo' }
+
+  function timeToMinutes(t: string): number { const [h,m] = t.split(':').map(Number); return Math.max(0, Math.min(1440, (h*60)+(m||0))) }
+
+  async function handleSave(){
+    const bh: any = { mon:[],tue:[],wed:[],thu:[],fri:[],sat:[],sun:[] }
+    for (const k of Object.keys(bh)){
+      const d = (days as any)[k]
+      if (d && d.enabled){
+        const start = timeToMinutes(d.start)
+        const end = timeToMinutes(d.end)
+        if (start >= end){
+          alert(`Revisá ${labels[k]}: la hora de inicio debe ser menor que la de fin`)
+          return
+        }
+        bh[k] = [{ start, end }]
+      }
+    }
+    await onSave({ businessHours: bh, emergencyAvailable: emergency })
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center gap-2">
+        <input id="emergency" type="checkbox" checked={emergency} onChange={(e)=>setEmergency(e.target.checked)} />
+        <label htmlFor="emergency" className="text-sm text-[#111827]">Ofrezco urgencias (atiendo rápido)</label>
+      </div>
+      <div className="grid grid-cols-1 gap-2">
+        {Object.keys(labels).map((k) => (
+          <div key={k} className="flex items-center gap-3">
+            <div className="w-24 text-sm text-[#111827]">{labels[k]}</div>
+            <input type="checkbox" checked={days[k].enabled} onChange={(e)=>setDays(prev=>({ ...prev, [k]: { ...prev[k], enabled: e.target.checked } }))} />
+            <input type="time" value={days[k].start} onChange={(e)=>setDays(prev=>({ ...prev, [k]: { ...prev[k], start: e.target.value } }))} className="border rounded px-2 py-1" />
+            <span className="text-[#6B7280]">a</span>
+            <input type="time" value={days[k].end} onChange={(e)=>setDays(prev=>({ ...prev, [k]: { ...prev[k], end: e.target.value } }))} className="border rounded px-2 py-1" />
+          </div>
+        ))}
+      </div>
+      <div className="flex justify-end gap-2">
+        <Button variant="outline" type="button" onClick={()=>handleSave()} disabled={!!saving}>{saving ? 'Guardando…' : 'Guardar'}</Button>
       </div>
     </div>
   )

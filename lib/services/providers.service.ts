@@ -200,4 +200,23 @@ export class ProvidersService {
     const data = await res.json()
     return data.provider as Provider
   }
+
+  // ---- Availability ----
+  static async getProviderAvailability(id: number): Promise<{ businessHours: any; emergencyAvailable: boolean }> {
+    const res = await apiFetch<{ availability: { businessHours: any; emergencyAvailable: boolean } }>(`/api/v1/providers/${id}/availability`, { cacheTtlMs: 0 });
+    return res.availability;
+  }
+
+  static async getMyAvailability(): Promise<{ businessHours: any; emergencyAvailable: boolean }> {
+    const res = await apiFetch<{ availability: { businessHours: any; emergencyAvailable: boolean } }>(`/api/v1/providers/mine/availability`, { cacheTtlMs: 0 });
+    return res.availability;
+  }
+
+  static async updateMyAvailability(payload: { businessHours?: any; emergencyAvailable?: boolean }): Promise<{ businessHours: any; emergencyAvailable: boolean }> {
+    const res = await apiFetch<{ availability: { businessHours: any; emergencyAvailable: boolean } }>(`/api/v1/providers/mine/availability`, {
+      method: 'PUT',
+      body: JSON.stringify(payload)
+    });
+    return res.availability;
+  }
 }
