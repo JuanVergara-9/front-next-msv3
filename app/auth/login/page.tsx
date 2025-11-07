@@ -25,6 +25,17 @@ export default function LoginPage() {
   const [errors, setErrors] = useState<{ [key: string]: string }>({})
   const [isLoading, setIsLoading] = useState(false)
 
+  // Validar dominio de email
+  const validateEmailDomain = (email: string): boolean => {
+    const invalidDomains = ['correo.com', 'email.com', 'mail.com', 'test.com', 'example.com']
+    const domain = email.split('@')[1]?.toLowerCase()
+    if (!domain) return false
+    if (invalidDomains.includes(domain)) {
+      return false
+    }
+    return domain.includes('.') && domain.split('.').length >= 2
+  }
+
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {}
 
@@ -32,6 +43,8 @@ export default function LoginPage() {
       newErrors.email = "El correo electrónico es requerido"
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = "Ingresa un correo electrónico válido"
+    } else if (!validateEmailDomain(formData.email)) {
+      newErrors.email = "El dominio del correo electrónico no es válido"
     }
 
     if (!formData.password) {
@@ -126,7 +139,7 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
@@ -145,7 +158,7 @@ export default function LoginPage() {
                   checked={formData.rememberMe}
                   onCheckedChange={(checked) => setFormData({ ...formData, rememberMe: !!checked })}
                 />
-                <Label htmlFor="remember" className="text-sm text-gray-600">
+                <Label htmlFor="remember" className="text-sm text-gray-600 cursor-pointer">
                   Recordarme
                 </Label>
               </div>
@@ -173,10 +186,10 @@ export default function LoginPage() {
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <Button type="button" variant="outline" className="h-12 border-gray-300 hover:bg-gray-50 bg-transparent">
+              <Button type="button" variant="outline" className="h-12 border-gray-300 hover:bg-gray-50 hover:text-gray-900 bg-transparent text-gray-700">
                 Google
               </Button>
-              <Button type="button" variant="outline" className="h-12 border-gray-300 hover:bg-gray-50 bg-transparent">
+              <Button type="button" variant="outline" className="h-12 border-gray-300 hover:bg-gray-50 hover:text-gray-900 bg-transparent text-gray-700">
                 Facebook
               </Button>
             </div>

@@ -291,7 +291,7 @@ const SearchSection = ({
             </div>
             <button
               onClick={onSearch}
-              className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-primary text-white rounded-2xl hover:bg-primary/90 hover:shadow-lg transition-all duration-200 font-semibold text-base md:text-lg premium-shadow"
+              className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-primary text-white rounded-2xl hover:bg-primary/90 hover:shadow-lg transition-all duration-200 font-semibold text-base md:text-lg premium-shadow cursor-pointer"
             >
               Buscar
             </button>
@@ -339,10 +339,10 @@ const EmptyState = ({ onSearchCityWide, onViewCategories }: { onSearchCityWide: 
       Mientras tanto, probá con otros términos de búsqueda.
     </p>
     <div className="flex flex-col sm:flex-row gap-3 justify-center">
-      <button onClick={onSearchCityWide} className="px-6 py-3 bg-primary text-white rounded-xl hover:bg-primary/90 transition-colors font-medium">
+      <button onClick={onSearchCityWide} className="px-6 py-3 bg-primary text-white rounded-xl hover:bg-primary/90 transition-colors font-medium cursor-pointer">
         Buscar en toda la ciudad
       </button>
-      <button onClick={onViewCategories} className="px-6 py-3 border border-primary text-primary rounded-xl hover:bg-primary/10 transition-colors font-medium">
+      <button onClick={onViewCategories} className="px-6 py-3 border border-primary text-primary rounded-xl hover:bg-primary/10 transition-colors font-medium cursor-pointer">
         Ver categorías
       </button>
     </div>
@@ -464,7 +464,7 @@ const ProviderSignupSection = () => (
               Soporte dedicado
             </div>
           </div>
-          <button className="px-8 py-4 bg-gradient-to-r from-primary to-secondary text-primary-foreground rounded-2xl hover:shadow-lg transition-all duration-200 font-bold text-lg premium-shadow-lg">
+          <button className="px-8 py-4 bg-gradient-to-r from-primary to-secondary text-primary-foreground rounded-2xl hover:shadow-lg transition-all duration-200 font-bold text-lg premium-shadow-lg cursor-pointer">
             Crear perfil profesional
           </button>
         </div>
@@ -525,7 +525,7 @@ export default function MiservicioHome() {
       const transformedProviders = response.providers.map(provider => ({
         ...provider,
         full_name: `${provider.first_name} ${provider.last_name}`,
-        rating: provider.rating || 4.5,
+        rating: provider.rating || 0,
         review_count: provider.review_count || 0,
         distance_km: undefined,
         categories: provider.category ? [provider.category.name] : [],
@@ -581,7 +581,7 @@ export default function MiservicioHome() {
         let transformedProviders = response.providers.map(provider => ({
           ...provider,
           full_name: `${provider.first_name} ${provider.last_name}`,
-          rating: provider.rating || 4.5, // Default rating if not available
+          rating: provider.rating || 0, // Solo mostrar rating si hay reseñas
           review_count: provider.review_count || 0,
           distance_km: location
             ? ProvidersService.calculateDistance(
@@ -604,7 +604,7 @@ export default function MiservicioHome() {
               transformedProviders = r2.providers.map(provider => ({
                 ...provider,
                 full_name: `${provider.first_name} ${provider.last_name}`,
-                rating: provider.rating || 4.5,
+                rating: provider.rating || 0,
                 review_count: provider.review_count || 0,
                 distance_km: undefined,
                 categories: provider.category ? [provider.category.name] : [],
@@ -655,6 +655,23 @@ export default function MiservicioHome() {
   const handleSearch = async () => {
     if (!query.trim()) return
     
+    // Si ya hay proveedores filtrados localmente, simplemente hacer scroll a los resultados
+    // El filtro en tiempo real ya está funcionando
+    if (filtered.length > 0) {
+      // Hacer scroll suave a la sección de proveedores
+      // Buscar el h2 que contiene "Cerca de mí" y hacer scroll a su sección padre
+      const headings = Array.from(document.querySelectorAll('h2'))
+      const cercaHeading = headings.find(h2 => h2.textContent?.includes('Cerca de mí'))
+      if (cercaHeading) {
+        const section = cercaHeading.closest('section')
+        if (section) {
+          section.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }
+      }
+      return
+    }
+    
+    // Si no hay proveedores filtrados, hacer búsqueda en el backend
     try {
       setLoading(true)
       const searchParams: any = {
@@ -672,7 +689,7 @@ export default function MiservicioHome() {
       const transformedProviders = response.providers.map(provider => ({
         ...provider,
         full_name: `${provider.first_name} ${provider.last_name}`,
-        rating: provider.rating || 4.5,
+        rating: provider.rating || 0,
         review_count: provider.review_count || 0,
         distance_km: userLocation ? 
           ProvidersService.calculateDistance(

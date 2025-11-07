@@ -150,4 +150,38 @@ export class AuthService {
       throw new Error('Error al obtener información del usuario')
     }
   }
+
+  // Enviar email de verificación
+  static async sendVerificationEmail(): Promise<{ success: boolean }> {
+    try {
+      const response = await apiClient.post(`${this.BASE_URL}/verify-email/send`)
+      return response.data
+    } catch (error: any) {
+      console.error('Send verification email error:', error)
+      throw new Error(
+        error.response?.data?.error?.message || 
+        'Error al enviar el email de verificación. Intenta nuevamente.'
+      )
+    }
+  }
+
+  // Verificar email con token
+  static async verifyEmail(token: string): Promise<{ success: boolean; user?: User }> {
+    try {
+      const response = await apiClient.get(`${this.BASE_URL}/verify-email`, {
+        params: { token }
+      })
+      // Actualizar usuario en localStorage si viene en la respuesta
+      if (response.data.user) {
+        localStorage.setItem(this.USER_KEY, JSON.stringify(response.data.user))
+      }
+      return response.data
+    } catch (error: any) {
+      console.error('Verify email error:', error)
+      throw new Error(
+        error.response?.data?.error?.message || 
+        'Error al verificar el email. El token puede ser inválido o haber expirado.'
+      )
+    }
+  }
 }

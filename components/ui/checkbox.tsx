@@ -15,7 +15,7 @@ function Checkbox({
       data-slot="checkbox"
       className={cn(
         // Alto contraste por defecto (desmarcado)
-        'peer size-4 shrink-0 rounded-[4px] border border-border bg-background shadow-xs outline-none transition-colors',
+        'peer size-4 shrink-0 rounded-[4px] border border-border bg-background shadow-xs outline-none transition-colors cursor-pointer',
         // Marcado
         'data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground data-[state=checked]:border-primary',
         // Enfoque y accesibilidad

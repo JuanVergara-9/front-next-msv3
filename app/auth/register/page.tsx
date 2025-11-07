@@ -17,6 +17,7 @@ import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useAuth } from "@/contexts/AuthContext"
 import { ProvidersService } from "@/lib/services/providers.service"
+import { UserProfileService } from "@/lib/services/user-profile.service"
 import Image from "next/image"
 
 const RUBROS = ["Plomería", "Gasistas", "Electricidad", "Jardinería", "Mantenimiento y limpieza de piletas", "Reparación de electrodomésticos"]
@@ -70,6 +71,19 @@ export default function RegisterPage() {
   const [errors, setErrors] = useState<{ [key: string]: string }>({})
   const [isLoading, setIsLoading] = useState(false)
 
+  // Validar dominio de email (verificar que no sea un dominio inválido común)
+  const validateEmailDomain = (email: string): boolean => {
+    const invalidDomains = ['correo.com', 'email.com', 'mail.com', 'test.com', 'example.com']
+    const domain = email.split('@')[1]?.toLowerCase()
+    if (!domain) return false
+    // Verificar que no sea un dominio obviamente inválido
+    if (invalidDomains.includes(domain)) {
+      return false
+    }
+    // Verificar formato básico de dominio (debe tener al menos un punto)
+    return domain.includes('.') && domain.split('.').length >= 2
+  }
+
   const validateClientForm = () => {
     const newErrors: { [key: string]: string } = {}
 
@@ -79,6 +93,8 @@ export default function RegisterPage() {
       newErrors.email = "El correo electrónico es requerido"
     } else if (!/\S+@\S+\.\S+/.test(clientForm.email)) {
       newErrors.email = "Ingresa un correo electrónico válido"
+    } else if (!validateEmailDomain(clientForm.email)) {
+      newErrors.email = "El dominio del correo electrónico no es válido"
     }
     if (!clientForm.password) {
       newErrors.password = "La contraseña es requerida"
@@ -103,6 +119,8 @@ export default function RegisterPage() {
       newErrors.email = "El correo electrónico es requerido"
     } else if (!/\S+@\S+\.\S+/.test(providerForm.email)) {
       newErrors.email = "Ingresa un correo electrónico válido"
+    } else if (!validateEmailDomain(providerForm.email)) {
+      newErrors.email = "El dominio del correo electrónico no es válido"
     }
     if (!providerForm.password) {
       newErrors.password = "La contraseña es requerida"
@@ -164,8 +182,20 @@ export default function RegisterPage() {
     try {
       await register(clientForm.email, clientForm.password)
       
-      // Redirect to home page after successful registration
-      router.push('/')
+      // Actualizar el perfil de usuario con nombre y apellido
+      try {
+        await UserProfileService.updateProfile({
+          first_name: clientForm.firstName,
+          last_name: clientForm.lastName,
+          phone_e164: clientForm.phone || undefined,
+        })
+      } catch (profileError) {
+        console.warn('Error updating user profile:', profileError)
+        // No bloquear el registro si falla la actualización del perfil
+      }
+      
+      // Redirect to email sent page after successful registration
+      router.push('/auth/email-sent')
     } catch (error: any) {
       console.error('Registration error:', error)
       setErrors({ 
@@ -348,7 +378,7 @@ export default function RegisterPage() {
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
                     >
                       {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
@@ -372,7 +402,7 @@ export default function RegisterPage() {
                     <button
                       type="button"
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
                     >
                       {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
@@ -387,7 +417,7 @@ export default function RegisterPage() {
                     onCheckedChange={(checked) => setClientForm({ ...clientForm, acceptTerms: !!checked })}
                     className="mt-1"
                   />
-                  <Label htmlFor="clientTerms" className="text-sm text-gray-600 leading-relaxed">
+                  <Label htmlFor="clientTerms" className="text-sm text-gray-600 leading-relaxed cursor-pointer">
                     Acepto los{" "}
                     <Link href="/legal/terminos" className="text-blue-600 hover:text-blue-800">
                       términos y condiciones
@@ -472,7 +502,7 @@ export default function RegisterPage() {
                         <button
                           type="button"
                           onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
                         >
                           {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                         </button>
@@ -496,7 +526,7 @@ export default function RegisterPage() {
                         <button
                           type="button"
                           onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
                         >
                           {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                         </button>
@@ -694,7 +724,7 @@ export default function RegisterPage() {
                         onCheckedChange={(checked) => setProviderForm({ ...providerForm, acceptTerms: !!checked })}
                         className="mt-1"
                       />
-                      <Label htmlFor="providerTerms" className="text-sm text-gray-600 leading-relaxed">
+                      <Label htmlFor="providerTerms" className="text-sm text-gray-600 leading-relaxed cursor-pointer">
                         Acepto los{" "}
                         <Link href="/legal/terminos" className="text-blue-600 hover:text-blue-800">
                           términos y condiciones

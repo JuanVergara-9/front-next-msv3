@@ -25,15 +25,92 @@ import {
   AlertCircle,
   LogOut,
   X,
+  Edit,
 } from "lucide-react"
 import { useAuth } from "@/contexts/AuthContext"
 import { ReviewsService, type ReviewItem } from "@/lib/services/reviews.service"
 import { ProvidersService } from "@/lib/services/providers.service"
 import { Header } from "@/components/Header"
 import { useRouter } from "next/navigation"
+import { isAdmin } from "@/lib/utils/admin"
+import { EditReviewPhotosDialog } from "./EditReviewPhotosDialog"
 
 interface ProviderProfilePageProps {
   providerProfile?: any
+}
+
+// Componente para mostrar imágenes de Google Photos
+function GooglePhotosImage({ photoUrl, index }: { photoUrl: string; index: number }) {
+  const isGooglePhotosLink = photoUrl.includes('photos.app.goo.gl')
+
+  if (isGooglePhotosLink) {
+    // Para enlaces de Google Photos, mostrar un preview atractivo con botón
+    // Google Photos no permite mostrar imágenes directamente por seguridad
+    return (
+      <a
+        href={photoUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="relative aspect-square rounded-lg overflow-hidden border-2 border-blue-200 hover:border-blue-400 transition-all group cursor-pointer bg-gradient-to-br from-blue-50 via-blue-100 to-blue-50"
+        aria-label={`Ver foto ${index + 1} en Google Photos`}
+      >
+        <div className="absolute inset-0 flex flex-col items-center justify-center p-4 z-10">
+          <div className="bg-white/90 rounded-full p-4 mb-3 group-hover:scale-110 transition-transform shadow-lg">
+            <Camera className="h-10 w-10 text-blue-600" />
+          </div>
+          <span className="text-sm text-blue-800 font-semibold text-center mb-1">Foto en Google Photos</span>
+          <span className="text-xs text-blue-600 text-center">Hacé clic para ver</span>
+        </div>
+        {/* Patrón de fondo decorativo */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.3),transparent_70%)]" />
+        </div>
+      </a>
+    )
+  }
+
+  // Para URLs directas de imágenes, mostrar la imagen normalmente
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <button
+          type="button"
+          className="relative aspect-square rounded-lg overflow-hidden border border-gray-200 hover:border-[#2563EB] transition-colors cursor-pointer group"
+          aria-label={`Ver foto ${index + 1}`}
+        >
+          {loading && (
+            <div className="absolute inset-0 bg-gray-100 animate-pulse flex items-center justify-center">
+              <Camera className="h-8 w-8 text-gray-400" />
+            </div>
+          )}
+          <img
+            src={photoUrl}
+            alt={`Foto de la reseña ${index + 1}`}
+            className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-200 ${loading ? 'opacity-0' : 'opacity-100'}`}
+            onLoad={() => setLoading(false)}
+            onError={(e) => {
+              const target = e.target as HTMLImageElement
+              target.src = '/placeholder.svg'
+              setImageError(true)
+              setLoading(false)
+            }}
+          />
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+        </button>
+      </DialogTrigger>
+      <DialogContent aria-describedby={undefined} className="max-w-4xl p-0 bg-black border-0">
+        <img
+          src={photoUrl}
+          alt={`Foto de la reseña ${index + 1}`}
+          className="w-full h-full object-contain max-h-[80vh] bg-black"
+          onError={(e) => {
+            const target = e.target as HTMLImageElement
+            target.src = '/placeholder.svg'
+          }}
+        />
+      </DialogContent>
+    </Dialog>
+  )
 }
 
 export function ProviderProfilePage({ providerProfile: propProviderProfile }: ProviderProfilePageProps) {
@@ -42,6 +119,7 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
   const isOwner = !!user && !!propProviderProfile && Number(user.id) === Number(propProviderProfile.user_id)
   const { toast } = useToast()
   const [reviews, setReviews] = useState<ReviewItem[]>([])
+  const [allReviews, setAllReviews] = useState<ReviewItem[]>([]) // Todas las reseñas sin filtrar
   const [reviewsCount, setReviewsCount] = useState<number>(0)
   const [avgRating, setAvgRating] = useState<number>(0)
   const [photosRate, setPhotosRate] = useState<number>(0)
@@ -52,6 +130,11 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
   const [submitting, setSubmitting] = useState<boolean>(false)
   const [photoUrls, setPhotoUrls] = useState<string[]>([])
   const [newPhotoUrl, setNewPhotoUrl] = useState<string>("")
+  const [photoFiles, setPhotoFiles] = useState<File[]>([])
+  const [uploadingPhotos, setUploadingPhotos] = useState<boolean>(false)
+  const [reviewFilter, setReviewFilter] = useState<'all' | 'positive' | 'negative'>('all')
+  const [editingReviewId, setEditingReviewId] = useState<number | null>(null)
+  const [editingReviewPhotos, setEditingReviewPhotos] = useState<string[]>([])
   const maxCommentLength = 2000
   const maxPhotos = 6
 
@@ -116,7 +199,7 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
       categories: uniqueCategories, // Todas las categorías
       city: profile.city || "Ciudad",
       province: profile.province || "Provincia",
-      ratingAvg: profile.rating || 4.5,
+      ratingAvg: profile.rating || 0,
       reviewsCount90d: profile.review_count || 0,
       isVerified: profile.status === 'active',
       isLicensed: !!profile.is_licensed,
@@ -141,32 +224,36 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
     return Number.isFinite(idNum) ? idNum : null
   }, [providerData?.id])
 
+  const loadReviews = async () => {
+    if (!providerIdNum) return
+    try {
+      setLoadingReviews(true)
+      const [list, summary] = await Promise.all([
+        ReviewsService.listByProvider(providerIdNum, { limit: 20, offset: 0 }),
+        ReviewsService.getSummary(providerIdNum),
+      ])
+      const items = list.items || []
+      
+      // Asegurar que photos sea un array
+      const normalizedItems = items.map(item => ({
+        ...item,
+        photos: Array.isArray(item.photos) ? item.photos : (item.photos ? [item.photos] : [])
+      }))
+      
+      setAllReviews(normalizedItems)
+      setReviewsCount(summary.summary.count || list.count || 0)
+      setAvgRating(summary.summary.avgRating || 0)
+      setPhotosRate(summary.summary.photosRate || 0)
+    } catch (e) {
+      // Silenciar en UI, opcionalmente loguear
+      console.warn('Error loading reviews', e)
+    } finally {
+      setLoadingReviews(false)
+    }
+  }
+
   useEffect(() => {
-    let cancelled = false
-    async function loadReviews() {
-      if (!providerIdNum) return
-      try {
-        setLoadingReviews(true)
-        const [list, summary] = await Promise.all([
-          ReviewsService.listByProvider(providerIdNum, { limit: 20, offset: 0 }),
-          ReviewsService.getSummary(providerIdNum),
-        ])
-        if (cancelled) return
-        setReviews(list.items || [])
-        setReviewsCount(summary.summary.count || list.count || 0)
-        setAvgRating(summary.summary.avgRating || 0)
-        setPhotosRate(summary.summary.photosRate || 0)
-      } catch (e) {
-        // Silenciar en UI, opcionalmente loguear
-        console.warn('Error loading reviews', e)
-      } finally {
-        if (!cancelled) setLoadingReviews(false)
-      }
-    }
     loadReviews()
-    return () => {
-      cancelled = true
-    }
   }, [providerIdNum])
 
   // Load availability for public profile display
@@ -233,18 +320,43 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
     }
     try {
       setSubmitting(true)
-      await ReviewsService.create({ providerId: providerIdNum, rating: newRating, comment: newComment || undefined, photos: photoUrls.length ? photoUrls : undefined })
+      
+      // Subir fotos a Cloudinary si hay archivos seleccionados
+      let finalPhotoUrls = [...photoUrls]
+      if (photoFiles.length > 0) {
+        setUploadingPhotos(true)
+        try {
+          const uploadResult = await ReviewsService.uploadPhotos(photoFiles)
+          finalPhotoUrls = [...finalPhotoUrls, ...uploadResult.photos.map(p => p.url)]
+        } catch (uploadError: any) {
+          toast({ title: "Error al subir fotos", description: uploadError.message || "No se pudieron subir las fotos" })
+          setUploadingPhotos(false)
+          setSubmitting(false)
+          return
+        } finally {
+          setUploadingPhotos(false)
+        }
+      }
+      
+      await ReviewsService.create({ providerId: providerIdNum, rating: newRating, comment: newComment || undefined, photos: finalPhotoUrls.length ? finalPhotoUrls : undefined })
       toast({ title: "¡Gracias!", description: "Tu reseña fue enviada" })
       setIsDialogOpen(false)
       setNewRating(0)
       setNewComment("")
       setPhotoUrls([])
+      setPhotoFiles([])
       // recargar
       const [list, summary] = await Promise.all([
         ReviewsService.listByProvider(providerIdNum, { limit: 20, offset: 0 }),
         ReviewsService.getSummary(providerIdNum),
       ])
-      setReviews(list.items || [])
+      const items = list.items || []
+      // Normalizar photos a array
+      const normalizedItems = items.map(item => ({
+        ...item,
+        photos: Array.isArray(item.photos) ? item.photos : (item.photos ? [item.photos] : [])
+      }))
+      setAllReviews(normalizedItems)
       setReviewsCount(summary.summary.count || list.count || 0)
       setAvgRating(summary.summary.avgRating || 0)
       setPhotosRate(summary.summary.photosRate || 0)
@@ -267,6 +379,14 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
   if (!providerData) return null
 
   const SHOW_GALLERY = false
+
+  // Filtrar reseñas según el filtro seleccionado
+  const filteredReviews = useMemo(() => {
+    if (reviewFilter === 'all') return allReviews
+    if (reviewFilter === 'positive') return allReviews.filter(r => r.rating >= 4)
+    if (reviewFilter === 'negative') return allReviews.filter(r => r.rating <= 2)
+    return allReviews
+  }, [allReviews, reviewFilter])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#2F66F5] via-[#3b82f6] to-[#2563EB]">
@@ -361,7 +481,7 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
                 {!isOwner && (
                   <>
                     <Button 
-                      className="bg-green-600 hover:bg-green-700 text-white shadow-lg"
+                      className="bg-green-600 hover:bg-green-700 text-white shadow-lg cursor-pointer"
                       onClick={() => {
                         if (!user) {
                           const next = window.location.pathname + window.location.search + window.location.hash
@@ -379,7 +499,7 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
                     </Button>
                     <Button
                       variant="outline"
-                      className="border-[#2563EB] text-[#2563EB] hover:bg-[#2563EB] hover:text-white bg-transparent"
+                      className="border-[#2563EB] text-[#2563EB] hover:bg-[#2563EB] hover:text-white bg-transparent cursor-pointer"
                       onClick={() => {
                         if (!user) {
                           const next = window.location.pathname + window.location.search + window.location.hash
@@ -396,6 +516,7 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
                     </Button>
                     <Button
                       variant="outline"
+                      className="cursor-pointer"
                       onClick={() => {
                         if (!user) {
                           const next = window.location.pathname + window.location.search + window.location.hash
@@ -410,7 +531,7 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
                   <div className="flex flex-col gap-2">
                     <Dialog>
                       <DialogTrigger asChild>
-                        <Button className="bg-[#2563EB] hover:bg-[#1d4ed8] text-white shadow-lg">Editar perfil</Button>
+                        <Button className="bg-[#2563EB] hover:bg-[#1d4ed8] text-white shadow-lg cursor-pointer">Editar perfil</Button>
                       </DialogTrigger>
                       <DialogContent aria-describedby={undefined} className="max-w-lg">
                         <DialogHeader>
@@ -421,7 +542,7 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
                     </Dialog>
                     <Dialog open={isAvailDialogOpen} onOpenChange={setIsAvailDialogOpen}>
                       <DialogTrigger asChild>
-                        <Button variant="outline" className="border-[#2563EB] text-[#2563EB] hover:bg-[#2563EB] hover:text-white">Editar disponibilidad</Button>
+                        <Button variant="outline" className="border-[#2563EB] text-[#2563EB] hover:bg-[#2563EB] hover:text-white cursor-pointer">Editar disponibilidad</Button>
                       </DialogTrigger>
                       <DialogContent aria-describedby={undefined} className="max-w-lg">
                         <DialogHeader>
@@ -459,15 +580,15 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
           <TabsList className={`grid w-full ${SHOW_GALLERY ? 'grid-cols-3' : 'grid-cols-2'} bg-white rounded-xl shadow-lg`}>
             <TabsTrigger
               value="informacion"
-              className="data-[state=active]:bg-[#2563EB] data-[state=active]:text-white"
+              className="data-[state=active]:bg-[#2563EB] data-[state=active]:text-white cursor-pointer"
             >
               Información
             </TabsTrigger>
-            <TabsTrigger value="resenas" className="data-[state=active]:bg-[#2563EB] data-[state=active]:text-white">
+            <TabsTrigger value="resenas" className="data-[state=active]:bg-[#2563EB] data-[state=active]:text-white cursor-pointer">
               Reseñas
             </TabsTrigger>
             {SHOW_GALLERY && (
-              <TabsTrigger value="galeria" className="data-[state=active]:bg-[#2563EB] data-[state=active]:text-white">
+              <TabsTrigger value="galeria" className="data-[state=active]:bg-[#2563EB] data-[state=active]:text-white cursor-pointer">
                 Galería
               </TabsTrigger>
             )}
@@ -551,46 +672,102 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-6">
                   <div className="text-center">
-                    <div className="text-4xl font-bold text-[#111827]">{providerData.ratingAvg}</div>
+                    <div className="text-4xl font-bold text-[#111827]">{avgRating > 0 ? avgRating.toFixed(1) : (providerData.ratingAvg || 0).toFixed(1)}</div>
                     <div className="flex items-center justify-center gap-1 mt-1">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <Star key={star} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                      ))}
+                      {[1, 2, 3, 4, 5].map((star) => {
+                        const currentRating = avgRating > 0 ? avgRating : (providerData.ratingAvg || 0)
+                        return (
+                          <Star 
+                            key={star} 
+                            className={`h-4 w-4 ${star <= Math.round(currentRating) ? "fill-yellow-400 text-yellow-400" : "text-gray-300"}`} 
+                          />
+                        )
+                      })}
                     </div>
-                    <p className="text-sm text-[#6B7280] mt-1">{providerData.reviewsCount90d} reseñas (90 días)</p>
+                    <p className="text-sm text-[#6B7280] mt-1">{reviewsCount > 0 ? reviewsCount : providerData.reviewsCount90d} reseñas (90 días)</p>
                   </div>
                   <div className="text-right">
                     <p className="text-sm text-[#6B7280]">{photosRate}% con fotos</p>
-                    <p className="text-sm text-[#6B7280]">Reseñas (90 días): {reviewsCount}</p>
+                    <p className="text-sm text-[#6B7280]">Reseñas (90 días): {reviewsCount > 0 ? reviewsCount : providerData.reviewsCount90d}</p>
                   </div>
                 </div>
 
                 <div className="flex flex-wrap gap-2 mb-4">
-                  <Badge variant="outline" className="border-[#2563EB] text-[#2563EB]">
+                  <button
+                    onClick={() => setReviewFilter('all')}
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                      reviewFilter === 'all'
+                        ? 'bg-[#2563EB] text-white border-2 border-[#2563EB]'
+                        : 'bg-white text-[#6B7280] border-2 border-gray-200 hover:border-[#2563EB] hover:text-[#2563EB]'
+                    }`}
+                  >
                     Todas
-                  </Badge>
-                  <Badge variant="outline">Con fotos</Badge>
-                  <Badge variant="outline">★ 5</Badge>
-                  <Badge variant="outline">★ 1-2</Badge>
+                  </button>
+                  <button
+                    onClick={() => setReviewFilter('positive')}
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                      reviewFilter === 'positive'
+                        ? 'bg-[#2563EB] text-white border-2 border-[#2563EB]'
+                        : 'bg-white text-[#6B7280] border-2 border-gray-200 hover:border-[#2563EB] hover:text-[#2563EB]'
+                    }`}
+                  >
+                    Positivas
+                  </button>
+                  <button
+                    onClick={() => setReviewFilter('negative')}
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                      reviewFilter === 'negative'
+                        ? 'bg-[#2563EB] text-white border-2 border-[#2563EB]'
+                        : 'bg-white text-[#6B7280] border-2 border-gray-200 hover:border-[#2563EB] hover:text-[#2563EB]'
+                    }`}
+                  >
+                    Negativas
+                  </button>
                 </div>
               </CardContent>
             </Card>
 
             {/* Lista de reseñas */}
             <div className="space-y-4">
-              {reviews.map((review) => (
+              {filteredReviews.map((review) => (
                 <Card key={review.id} className="rounded-2xl shadow-lg border-0">
                   <CardContent className="p-6">
                     <div className="flex items-start gap-4">
                       <Avatar className="h-10 w-10">
-                        <AvatarImage src={"/placeholder.svg"} alt="Usuario" />
-                        <AvatarFallback>U</AvatarFallback>
+                        <AvatarImage src={review.user_avatar || "/placeholder.svg"} alt={review.user_name || "Usuario"} />
+                        <AvatarFallback>
+                          {(review.user_name || 'Usuario').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+                        </AvatarFallback>
                       </Avatar>
                       <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="font-semibold text-[#111827]">Usuario</span>
-                          <span className="text-sm text-[#6B7280]">{new Date(review.created_at).toLocaleDateString()}</span>
-                          {(review.photos && review.photos.length > 0) && <Camera className="h-4 w-4 text-[#6B7280]" />}
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <span className="font-semibold text-[#111827]">{review.user_name || 'Usuario'}</span>
+                            <span className="text-sm text-[#6B7280]">
+                              {review.created_at ? (() => {
+                                try {
+                                  const date = new Date(review.created_at)
+                                  return isNaN(date.getTime()) ? 'Fecha no disponible' : date.toLocaleDateString('es-AR', { year: 'numeric', month: 'long', day: 'numeric' })
+                                } catch {
+                                  return 'Fecha no disponible'
+                                }
+                              })() : 'Fecha no disponible'}
+                            </span>
+                            {(review.photos && review.photos.length > 0) && <Camera className="h-4 w-4 text-[#6B7280]" />}
+                          </div>
+                          {isAdmin(user) && (
+                            <button
+                              onClick={() => {
+                                setEditingReviewPhotos(review.photos || [])
+                                setEditingReviewId(review.id)
+                              }}
+                              className="text-[#6B7280] hover:text-[#2563EB] transition-colors flex items-center gap-1 text-sm"
+                              title="Editar fotos (Admin)"
+                            >
+                              <Edit className="h-3 w-3" />
+                              <span>Editar fotos</span>
+                            </button>
+                          )}
                         </div>
                         <div className="flex items-center gap-1 mb-2">
                           {[1, 2, 3, 4, 5].map((star) => (
@@ -601,15 +778,33 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
                           ))}
                         </div>
                         {review.comment && (
-                          <p className="text-[#6B7280] leading-relaxed">{review.comment}</p>
+                          <p className="text-[#6B7280] leading-relaxed mb-3">{review.comment}</p>
                         )}
+                         {review.photos && Array.isArray(review.photos) && review.photos.length > 0 && (
+                           <div className="mt-3 grid grid-cols-2 md:grid-cols-3 gap-2">
+                             {review.photos.map((photoUrl: string, idx: number) => {
+                               // Verificar si es un enlace de Google Photos (photos.app.goo.gl)
+                               const isGooglePhotosLink = photoUrl.includes('photos.app.goo.gl');
+                               
+                               return (
+                                 <GooglePhotosImage key={idx} photoUrl={photoUrl} index={idx} />
+                               );
+                             })}
+                           </div>
+                         )}
                       </div>
                     </div>
                   </CardContent>
                 </Card>
               ))}
-              {!loadingReviews && reviews.length === 0 && (
-                <p className="text-center text-[#6B7280]">Aún no hay reseñas</p>
+              {!loadingReviews && filteredReviews.length === 0 && (
+                <p className="text-center text-[#6B7280]">
+                  {reviewFilter === 'all' 
+                    ? 'Aún no hay reseñas' 
+                    : reviewFilter === 'positive'
+                    ? 'No hay reseñas positivas'
+                    : 'No hay reseñas negativas'}
+                </p>
               )}
             </div>
 
@@ -646,12 +841,71 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
                       <div className="text-xs text-[#6B7280] text-right">{newComment.length}/{maxCommentLength}</div>
 
                       <div className="space-y-2 text-left">
-                        <label className="block text-sm font-medium text-[#111827]">Fotos (URLs, opcional)</label>
+                        <label className="block text-sm font-medium text-[#111827]">Fotos (opcional)</label>
+                        
+                        {/* Input para subir archivos */}
+                        <div className="space-y-2">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            onChange={(e) => {
+                              const files = Array.from(e.target.files || [])
+                              if (files.length + photoFiles.length + photoUrls.length > maxPhotos) {
+                                toast({ title: 'Límite de fotos', description: `Máximo ${maxPhotos} fotos en total` })
+                                return
+                              }
+                              setPhotoFiles(prev => [...prev, ...files])
+                              e.target.value = '' // Reset input
+                            }}
+                            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                          />
+                          {photoFiles.length > 0 && (
+                            <div className="flex flex-wrap gap-2">
+                              {photoFiles.map((file, idx) => (
+                                <span key={idx} className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full border border-blue-200 bg-blue-50">
+                                  <span className="max-w-[200px] truncate" title={file.name}>{file.name}</span>
+                                  <button
+                                    type="button"
+                                    aria-label={`Quitar foto ${file.name}`}
+                                    onClick={() => setPhotoFiles(prev => prev.filter((_, i) => i !== idx))}
+                                    className="text-blue-600 hover:text-blue-800"
+                                  >
+                                    <X className="h-3 w-3" />
+                                  </button>
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Input para URLs (opcional, para compatibilidad con Google Photos) */}
                         <div className="flex items-center gap-2">
                           <Input
                             value={newPhotoUrl}
                             onChange={(e) => setNewPhotoUrl(e.target.value)}
-                            placeholder="https://ejemplo.com/foto.jpg"
+                            placeholder="O ingresá una URL (ej: Google Photos)"
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault()
+                                const url = newPhotoUrl.trim()
+                                if (!url) return
+                                if (!isValidUrl(url)) {
+                                  toast({ title: 'URL inválida', description: 'Ingresá una URL http(s) válida' })
+                                  return
+                                }
+                                if (photoUrls.length + photoFiles.length >= maxPhotos) {
+                                  toast({ title: 'Límite de fotos', description: `Máximo ${maxPhotos} fotos` })
+                                  return
+                                }
+                                if (photoUrls.includes(url)) {
+                                  toast({ title: 'Foto duplicada', description: 'Esa URL ya está en la lista' })
+                                  return
+                                }
+                                setPhotoUrls(prev => [...prev, url])
+                                setNewPhotoUrl('')
+                              }
+                            }}
                           />
                           <Button
                             type="button"
@@ -663,7 +917,7 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
                                 toast({ title: 'URL inválida', description: 'Ingresá una URL http(s) válida' })
                                 return
                               }
-                              if (photoUrls.length >= maxPhotos) {
+                              if (photoUrls.length + photoFiles.length >= maxPhotos) {
                                 toast({ title: 'Límite de fotos', description: `Máximo ${maxPhotos} fotos` })
                                 return
                               }
@@ -674,7 +928,7 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
                               setPhotoUrls(prev => [...prev, url])
                               setNewPhotoUrl('')
                             }}
-                          >Agregar</Button>
+                          >Agregar URL</Button>
                         </div>
                         {photoUrls.length > 0 && (
                           <div className="flex flex-wrap gap-2">
@@ -693,15 +947,20 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
                             ))}
                           </div>
                         )}
+                        {(photoFiles.length > 0 || photoUrls.length > 0) && (
+                          <p className="text-xs text-gray-500">
+                            {photoFiles.length + photoUrls.length} de {maxPhotos} fotos seleccionadas
+                          </p>
+                        )}
                       </div>
                     </div>
                     <DialogFooter>
                       <Button
                         onClick={handleSubmitReview}
-                        disabled={submitting || !newRating}
+                        disabled={submitting || uploadingPhotos || !newRating}
                         className="bg-[#2563EB] hover:bg-[#1d4ed8] text-white"
                       >
-                        {submitting ? 'Enviando...' : 'Enviar reseña'}
+                        {uploadingPhotos ? 'Subiendo fotos...' : submitting ? 'Enviando...' : 'Enviar reseña'}
                       </Button>
                     </DialogFooter>
                   </DialogContent>
@@ -744,11 +1003,31 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
         </div>
       </div>
 
+      {/* Diálogo para editar fotos de reseña */}
+      {editingReviewId !== null && (
+        <EditReviewPhotosDialog
+          reviewId={editingReviewId}
+          currentPhotos={editingReviewPhotos}
+          open={editingReviewId !== null}
+          onOpenChange={(open) => {
+            if (!open) {
+              setEditingReviewId(null)
+              setEditingReviewPhotos([])
+            }
+          }}
+          onSuccess={() => {
+            loadReviews()
+            setEditingReviewId(null)
+            setEditingReviewPhotos([])
+          }}
+        />
+      )}
+
       {/* Botón fijo en mobile: solo visible si NO es el dueño */}
       {!isOwner && (
         <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-200 md:hidden">
           <Button 
-            className="w-full bg-green-600 hover:bg-green-700 text-white shadow-lg"
+            className="w-full bg-green-600 hover:bg-green-700 text-white shadow-lg cursor-pointer"
             onClick={() => {
               if (!user) {
                 const next = window.location.pathname + window.location.search + window.location.hash

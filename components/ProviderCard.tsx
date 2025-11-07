@@ -33,10 +33,12 @@ export function ProviderCard({ provider, onContact }: { provider: ProviderWithDe
             )}
           </h3>
           <div className="flex items-center gap-3 text-sm text-muted-foreground mb-2">
-            <div className="flex items-center gap-1 bg-yellow-50 px-2 py-1 rounded-full">
-              <Star className="h-4 w-4 text-yellow-500" />
-              <span className="font-medium text-yellow-700">{(provider as any).rating?.toFixed ? (provider as any).rating.toFixed(1) : ((provider as any).rating || 4.8)}</span>
-            </div>
+            {((provider as any).rating > 0 && (provider as any).review_count > 0) ? (
+              <div className="flex items-center gap-1 bg-yellow-50 px-2 py-1 rounded-full">
+                <Star className="h-4 w-4 text-yellow-500" />
+                <span className="font-medium text-yellow-700">{Number((provider as any).rating).toFixed(1)}</span>
+              </div>
+            ) : null}
             {(provider as any).distance_km != null && (
               <>
                 <span>•</span>
@@ -69,7 +71,7 @@ export function ProviderCard({ provider, onContact }: { provider: ProviderWithDe
       <div className="flex gap-3">
         <button
           onClick={handleViewProfile}
-          className="flex-1 py-3 bg-white border border-primary text-primary rounded-2xl hover:bg-primary/10 transition-all duration-200 font-semibold flex items-center justify-center gap-2"
+          className="flex-1 py-3 bg-white border border-primary text-primary rounded-2xl hover:bg-primary/10 transition-all duration-200 font-semibold flex items-center justify-center gap-2 cursor-pointer"
         >
           <Eye className="h-4 w-4" />
           Ver perfil
@@ -77,7 +79,7 @@ export function ProviderCard({ provider, onContact }: { provider: ProviderWithDe
         {onContact && (
           <button
             onClick={() => onContact(provider)}
-            className="flex-1 py-3 bg-gradient-to-r from-primary to-secondary text-primary-foreground rounded-2xl hover:shadow-lg transition-all duration-200 font-semibold premium-shadow"
+            className="flex-1 py-3 bg-gradient-to-r from-primary to-secondary text-primary-foreground rounded-2xl hover:shadow-lg transition-all duration-200 font-semibold premium-shadow cursor-pointer"
           >
             Contactar
           </button>

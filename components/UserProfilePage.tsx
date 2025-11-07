@@ -3,13 +3,32 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { Star, MapPin, Calendar, Shield, Eye, User as UserIcon, LogOut } from "lucide-react"
+import { Star, MapPin, Calendar, Shield, Eye, User as UserIcon, LogOut, Edit2, Camera, X, Save, Upload, Trash2, Mail } from "lucide-react"
 import { useAuth } from "@/contexts/AuthContext"
 import Link from "next/link"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { UserProfileService, UserProfileData } from "@/lib/services/user-profile.service"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { useRouter } from "next/navigation"
+import { AuthService } from "@/lib/services/auth.service"
+
+interface UserProfile {
+  id?: number
+  user_id?: number
+  first_name?: string | null
+  last_name?: string | null
+  province?: string | null
+  city?: string | null
+  locality?: string | null
+  address?: string | null
+  avatar_url?: string | null
+  phone_e164?: string | null
+  created_at?: string
+  updated_at?: string
+}
 
 export function UserProfilePage() {
   const { user, isProvider, logout, providerProfile } = useAuth()
@@ -21,7 +40,23 @@ export function UserProfilePage() {
     preferredCategories: [],
     citiesUsed: [],
   })
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [isEditing, setIsEditing] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false)
+  const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false)
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const [isDragging, setIsDragging] = useState(false)
+  const [editForm, setEditForm] = useState({
+    province: '',
+    city: '',
+    locality: '',
+    address: '',
+  })
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const dropZoneRef = useRef<HTMLDivElement>(null)
 
   // Cargar datos del perfil del usuario
   useEffect(() => {
@@ -30,8 +65,43 @@ export function UserProfilePage() {
       
       try {
         setIsLoading(true)
-        const profileData = await UserProfileService.getUserProfile(user.id)
+        const [profileData, myProfile] = await Promise.all([
+          UserProfileService.getUserProfile(user.id),
+          UserProfileService.getMyProfile()
+        ])
         setUserData(profileData)
+        if (myProfile?.profile) {
+          const profile = myProfile.profile
+          console.log('Loaded user profile:', profile)
+          console.log('Profile created_at:', profile.created_at, 'createdAt:', profile.createdAt)
+          console.log('All profile keys:', Object.keys(profile))
+          setUserProfile(profile)
+          setEditForm({
+            province: profile.province || '',
+            city: profile.city || '',
+            locality: profile.locality || '',
+            address: profile.address || '',
+          })
+          
+          // Si el perfil no tiene first_name y last_name, intentar recargar después de un breve delay
+          // Esto puede pasar si el registro aún no ha completado la actualización del perfil
+          if (!profile.first_name && !profile.last_name) {
+            console.log('Profile missing first_name/last_name, retrying after delay...')
+            setTimeout(async () => {
+              try {
+                const retryProfile = await UserProfileService.getMyProfile()
+                if (retryProfile?.profile) {
+                  console.log('Retry loaded user profile:', retryProfile.profile)
+                  setUserProfile(retryProfile.profile)
+                }
+              } catch (retryError) {
+                console.error('Error retrying profile load:', retryError)
+              }
+            }, 1000)
+          }
+        } else {
+          console.warn('No profile found in myProfile response:', myProfile)
+        }
       } catch (error) {
         console.error('Error loading user profile:', error)
       } finally {
@@ -42,13 +112,13 @@ export function UserProfilePage() {
     loadUserProfile()
   }, [user])
 
-  // Nombre a mostrar: intenta con nombres reales, luego cae al email
+  // Nombre a mostrar: usa el perfil del usuario primero
   const getDisplayName = () => {
-    const userAny: any = user as any
-    const first = (userAny && (userAny.first_name || userAny.firstName)) || (providerProfile && (providerProfile.first_name || providerProfile.firstName))
-    const last = (userAny && (userAny.last_name || userAny.lastName)) || (providerProfile && (providerProfile.last_name || providerProfile.lastName))
-    const full = `${first || ''} ${last || ''}`.trim()
-    if (full) return full
+    if (userProfile?.first_name || userProfile?.last_name) {
+      const fullName = `${userProfile.first_name || ''} ${userProfile.last_name || ''}`.trim()
+      if (fullName) return fullName
+    }
+    // Si no hay nombre en el perfil, intentar obtenerlo del email como fallback
     if (user && user.email) {
       const username = user.email.split('@')[0]
       return username.charAt(0).toUpperCase() + username.slice(1)
@@ -58,18 +128,185 @@ export function UserProfilePage() {
 
   // Iniciales: usa nombres si existen; si no, deriva del email
   const getInitials = () => {
-    const name = getDisplayName()
-    const parts = name.split(' ').filter(Boolean)
-    if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase()
-    if (parts.length === 1) return parts[0][0]?.toUpperCase() || 'U'
+    if (userProfile?.first_name && userProfile?.last_name) {
+      return `${userProfile.first_name[0]}${userProfile.last_name[0]}`.toUpperCase()
+    }
+    if (userProfile?.first_name) {
+      return userProfile.first_name[0]?.toUpperCase() || 'U'
+    }
     if (user?.email) return user.email[0]?.toUpperCase() || 'U'
     return 'U'
   }
 
-  // Función para formatear la fecha de creación
-  const formatMemberSince = (createdAt: string) => {
-    const date = new Date(createdAt)
-    return date.getFullYear().toString()
+  // Función para formatear la fecha de creación (MM/YYYY)
+  const formatMemberSince = (createdAt: string | undefined) => {
+    // Priorizar created_at del perfil de usuario, luego del user
+    // Sequelize devuelve created_at en snake_case cuando se usa underscored: true
+    const dateString = createdAt || userProfile?.created_at || (userProfile as any)?.createdAt || user?.created_at
+    
+    if (!dateString) {
+      console.warn('No created_at found:', { 
+        userProfileCreatedAt: userProfile?.created_at,
+        userCreatedAt: user?.created_at,
+        passedCreatedAt: createdAt,
+        fullUserProfile: userProfile 
+      })
+      return 'N/A'
+    }
+    
+    try {
+      console.log('Parsing date:', dateString, 'Type:', typeof dateString)
+      const date = new Date(dateString)
+      console.log('Parsed date:', date, 'isValid:', !isNaN(date.getTime()))
+      
+      if (isNaN(date.getTime())) {
+        console.error('Invalid date:', dateString)
+        return 'N/A'
+      }
+      
+      const month = String(date.getMonth() + 1).padStart(2, '0')
+      const year = date.getFullYear()
+      const formatted = `${month}/${year}`
+      console.log('Formatted date:', formatted)
+      return formatted
+    } catch (error) {
+      console.error('Error formatting date:', error, 'dateString:', dateString)
+      return 'N/A'
+    }
+  }
+
+  const handleSaveProfile = async () => {
+    if (!user) return
+    try {
+      setIsSaving(true)
+      const updated = await UserProfileService.updateProfile(editForm)
+      console.log('Profile updated:', updated)
+      if (updated?.profile) {
+        setUserProfile(updated.profile)
+        setIsEditing(false)
+      } else {
+        // Recargar el perfil completo después de actualizar
+        const myProfile = await UserProfileService.getMyProfile()
+        if (myProfile?.profile) {
+          setUserProfile(myProfile.profile)
+          setIsEditing(false)
+        }
+      }
+    } catch (error) {
+      console.error('Error saving profile:', error)
+      alert('Error al guardar el perfil. Intenta nuevamente.')
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  const handleFileSelect = (file: File) => {
+    if (!file.type.startsWith('image/')) {
+      alert('Por favor selecciona un archivo de imagen válido')
+      return
+    }
+    setSelectedFile(file)
+    const reader = new FileReader()
+    reader.onloadend = () => {
+      setPreviewUrl(reader.result as string)
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      handleFileSelect(file)
+    }
+  }
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(true)
+  }
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(false)
+  }
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragging(false)
+    
+    const file = e.dataTransfer.files?.[0]
+    if (file) {
+      handleFileSelect(file)
+    }
+  }
+
+  const handleUploadAvatar = async () => {
+    if (!selectedFile || !user) return
+
+    try {
+      setIsUploadingAvatar(true)
+      const updated = await UserProfileService.uploadAvatar(selectedFile)
+      console.log('Avatar upload response:', updated)
+      if (updated) {
+        // El backend devuelve { profile: {...} }, así que updated ya es el perfil
+        console.log('Setting userProfile with:', updated)
+        setUserProfile(updated)
+        // También recargar el perfil completo para asegurar que todo esté actualizado
+        try {
+          const myProfile = await UserProfileService.getMyProfile()
+          console.log('Reloaded profile after upload:', myProfile)
+          if (myProfile?.profile) {
+            setUserProfile(myProfile.profile)
+            console.log('Updated userProfile avatar_url:', myProfile.profile.avatar_url)
+          }
+        } catch (reloadError) {
+          console.error('Error reloading profile:', reloadError)
+          // Si falla el reload, al menos usar lo que vino en la respuesta
+        }
+        // Cerrar modal y limpiar estado
+        setIsAvatarModalOpen(false)
+        setSelectedFile(null)
+        setPreviewUrl(null)
+      }
+    } catch (error) {
+      console.error('Error uploading avatar:', error)
+      alert('Error al subir la imagen. Intenta nuevamente.')
+    } finally {
+      setIsUploadingAvatar(false)
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
+      }
+    }
+  }
+
+  const handleDeleteAvatar = async () => {
+    if (!user) return
+    try {
+      setIsUploadingAvatar(true)
+      const updated = await UserProfileService.deleteAvatar()
+      console.log('Avatar delete response:', updated)
+      if (updated) {
+        // El backend devuelve { profile: {...} }, así que updated ya es el perfil
+        setUserProfile(updated)
+        // También recargar el perfil completo para asegurar que todo esté actualizado
+        const myProfile = await UserProfileService.getMyProfile()
+        if (myProfile?.profile) {
+          setUserProfile(myProfile.profile)
+        }
+        // Cerrar modal y limpiar estado
+        setIsAvatarModalOpen(false)
+        setSelectedFile(null)
+        setPreviewUrl(null)
+      }
+    } catch (error) {
+      console.error('Error deleting avatar:', error)
+      alert('Error al eliminar la imagen. Intenta nuevamente.')
+    } finally {
+      setIsUploadingAvatar(false)
+    }
   }
 
   if (!user) {
@@ -131,17 +368,56 @@ export function UserProfilePage() {
         <Card className="rounded-2xl shadow-xl border-0 overflow-hidden">
           <CardContent className="p-6">
             <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
-              <Avatar className="h-24 w-24 border-4 border-white shadow-lg">
-                <AvatarImage src="/placeholder.svg" alt={getDisplayName()} />
-                <AvatarFallback className="text-2xl bg-[#2563EB] text-white">
-                  {getInitials()}
-                </AvatarFallback>
-              </Avatar>
+              <div className="relative inline-block">
+                <Avatar className="h-24 w-24 border-4 border-white shadow-lg" key={userProfile?.avatar_url || 'no-avatar'}>
+                  {userProfile?.avatar_url ? (
+                    <AvatarImage 
+                      src={userProfile.avatar_url} 
+                      alt={getDisplayName()}
+                      onError={(e) => {
+                        console.error('Error loading avatar image:', userProfile.avatar_url)
+                        const target = e.target as HTMLImageElement
+                        target.src = '/placeholder.svg'
+                      }}
+                      onLoad={() => {
+                        console.log('Avatar image loaded successfully:', userProfile.avatar_url)
+                      }}
+                    />
+                  ) : null}
+                  <AvatarFallback className="text-2xl bg-[#2563EB] text-white">
+                    {getInitials()}
+                  </AvatarFallback>
+                </Avatar>
+                {!isProvider && (
+                  <button
+                    onClick={() => setIsAvatarModalOpen(true)}
+                    className="absolute -bottom-1 -right-1 cursor-pointer bg-[#2563EB] text-white rounded-full p-2 shadow-lg hover:bg-[#1d4ed8] transition-colors z-10"
+                    title="Cambiar foto de perfil"
+                  >
+                    <Camera className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
 
               <div className="flex-1 text-center md:text-left">
-                <h1 className="text-3xl font-bold text-[#111827] text-balance mb-2">
-                  {getDisplayName()}
-                </h1>
+                <div className="flex items-center justify-center md:justify-start gap-2 mb-2">
+                  <h1 className="text-3xl font-bold text-[#111827] text-balance">
+                    {getDisplayName()}
+                  </h1>
+                </div>
+                {!isProvider && (
+                  <div className="flex justify-center md:justify-start mb-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setIsEditing(!isEditing)}
+                      className="h-8 px-3 cursor-pointer"
+                    >
+                      <Edit2 className="h-4 w-4 mr-1" />
+                      {isEditing ? 'Cancelar edición' : 'Editar perfil'}
+                    </Button>
+                  </div>
+                )}
                 <div className="flex items-center justify-center md:justify-start gap-4 text-[#6B7280] mb-3">
                   <div className="flex items-center gap-1">
                     <UserIcon className="h-4 w-4" />
@@ -151,11 +427,28 @@ export function UserProfilePage() {
                 <div className="flex flex-wrap gap-2 justify-center md:justify-start">
                   <Badge className="bg-[#2563EB] text-white hover:bg-[#1d4ed8]">
                     <Calendar className="h-3 w-3 mr-1" />
-                    Miembro desde {formatMemberSince(user.created_at)}
+                    Miembro desde {formatMemberSince(userProfile?.created_at || user?.created_at)}
                   </Badge>
-                  <Badge variant="outline" className="border-green-500 text-green-600">
+                  <Badge variant="outline" className={user.isEmailVerified ? "border-green-500 text-green-600" : "border-yellow-500 text-yellow-600"}>
                     {user.isEmailVerified ? 'Email verificado' : 'Email pendiente'}
                   </Badge>
+                  {!user.isEmailVerified && (
+                    <Badge 
+                      variant="outline" 
+                      className="border-blue-500 text-blue-600 cursor-pointer hover:bg-blue-50 transition-colors"
+                      onClick={async () => {
+                        try {
+                          await AuthService.sendVerificationEmail()
+                          alert('Email de verificación enviado. Revisa tu bandeja de entrada.')
+                        } catch (error: any) {
+                          alert(error.message || 'Error al enviar el email de verificación')
+                        }
+                      }}
+                    >
+                      <Mail className="h-3 w-3 mr-1" />
+                      Reenviar verificación
+                    </Badge>
+                  )}
                   <Badge variant="outline" className="border-blue-500 text-blue-600">
                     {isProvider ? 'Proveedor' : 'Usuario'}
                   </Badge>
@@ -164,6 +457,103 @@ export function UserProfilePage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Formulario de edición */}
+        {!isProvider && (
+          <div
+            className={`overflow-hidden transition-all duration-400 ease-in-out ${
+              isEditing ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'
+            }`}
+          >
+            <Card className="rounded-2xl shadow-lg border-0">
+              <CardHeader>
+                <h2 className="text-xl font-semibold text-[#111827]">Editar perfil</h2>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="province" className="block mb-2">Provincia</Label>
+                    <Input
+                      id="province"
+                      value={editForm.province}
+                      onChange={(e) => setEditForm({ ...editForm, province: e.target.value })}
+                      placeholder="Ej: Mendoza"
+                      className="bg-white"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="city" className="block mb-2">Ciudad</Label>
+                    <Input
+                      id="city"
+                      value={editForm.city}
+                      onChange={(e) => setEditForm({ ...editForm, city: e.target.value })}
+                      placeholder="Ej: San Rafael"
+                      className="bg-white"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="locality" className="block mb-2">Localidad</Label>
+                    <Input
+                      id="locality"
+                      value={editForm.locality}
+                      onChange={(e) => setEditForm({ ...editForm, locality: e.target.value })}
+                      placeholder="Ej: Centro"
+                      className="bg-white"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="address" className="block mb-2">Dirección</Label>
+                    <Input
+                      id="address"
+                      value={editForm.address}
+                      onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
+                      placeholder="Ej: Calle 123"
+                      className="bg-white"
+                    />
+                  </div>
+                </div>
+              <div className="flex gap-2 justify-end">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setIsEditing(false)
+                    // Restaurar valores originales
+                    if (userProfile) {
+                      setEditForm({
+                        province: userProfile.province || '',
+                        city: userProfile.city || '',
+                        locality: userProfile.locality || '',
+                        address: userProfile.address || '',
+                      })
+                    }
+                  }}
+                  disabled={isSaving}
+                  className="cursor-pointer"
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  onClick={handleSaveProfile}
+                  disabled={isSaving}
+                  className="bg-[#2563EB] hover:bg-[#1d4ed8] text-white cursor-pointer"
+                >
+                  {isSaving ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                      Guardando...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="h-4 w-4 mr-2" />
+                      Guardar cambios
+                    </>
+                  )}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+        )}
 
         {/* CTA: Convertirse en proveedor */}
         {!isProvider && (
@@ -310,6 +700,136 @@ export function UserProfilePage() {
         </Card>
         </div>
       </div>
+
+      {/* Modal para subir/quitar foto de perfil */}
+      <Dialog 
+        open={isAvatarModalOpen} 
+        onOpenChange={(open) => {
+          setIsAvatarModalOpen(open)
+          if (!open) {
+            // Limpiar estado al cerrar el modal
+            setSelectedFile(null)
+            setPreviewUrl(null)
+            if (fileInputRef.current) {
+              fileInputRef.current.value = ''
+            }
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Cambiar foto de perfil</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            {/* Zona de arrastrar y soltar */}
+            <div
+              ref={dropZoneRef}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              className={`
+                relative border-2 border-dashed rounded-lg p-8 text-center transition-colors
+                ${isDragging 
+                  ? 'border-[#2563EB] bg-blue-50' 
+                  : 'border-gray-300 hover:border-gray-400'
+                }
+                ${previewUrl ? 'border-solid border-[#2563EB]' : ''}
+              `}
+            >
+              {previewUrl ? (
+                <div className="space-y-4">
+                  <img
+                    src={previewUrl}
+                    alt="Vista previa"
+                    className="mx-auto max-h-48 rounded-lg object-cover"
+                  />
+                  <p className="text-sm text-gray-600">
+                    {selectedFile?.name}
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
+                    <Upload className="h-8 w-8 text-gray-400" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-700">
+                      Arrastra una imagen aquí
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      o haz clic para seleccionar
+                    </p>
+                  </div>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleAvatarChange}
+                    className="hidden"
+                    id="avatar-file-input"
+                  />
+                  <label
+                    htmlFor="avatar-file-input"
+                    className="inline-block px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-md text-sm font-medium text-gray-700 cursor-pointer transition-colors"
+                  >
+                    Seleccionar archivo
+                  </label>
+                </div>
+              )}
+            </div>
+
+            {/* Botones de acción */}
+            <div className="flex gap-3">
+              <Button
+                onClick={handleUploadAvatar}
+                disabled={!selectedFile || isUploadingAvatar}
+                className="flex-1 bg-[#2563EB] hover:bg-[#1d4ed8] text-white"
+              >
+                {isUploadingAvatar ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                    Subiendo...
+                  </>
+                ) : (
+                  <>
+                    <Upload className="h-4 w-4 mr-2" />
+                    Subir foto
+                  </>
+                )}
+              </Button>
+              
+              {userProfile?.avatar_url && (
+                <Button
+                  onClick={handleDeleteAvatar}
+                  disabled={isUploadingAvatar}
+                  variant="outline"
+                  className="flex-1 border-red-300 text-red-600 hover:bg-red-50"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Quitar foto
+                </Button>
+              )}
+            </div>
+
+            {selectedFile && (
+              <Button
+                onClick={() => {
+                  setSelectedFile(null)
+                  setPreviewUrl(null)
+                  if (fileInputRef.current) {
+                    fileInputRef.current.value = ''
+                  }
+                }}
+                variant="ghost"
+                className="w-full text-sm"
+              >
+                Cancelar selección
+              </Button>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

@@ -24,10 +24,10 @@ export const Header = ({ city }: HeaderProps) => {
     <header className="sticky top-0 z-50 glass-effect border-b border-border/50 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-background/70 bg-background/90">
       <div className="max-w-7xl mx-auto flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-start sm:items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
             <img src="/logo.png" alt="miservicio" className="w-8 h-8 rounded-lg shadow-sm" />
             <span className="text-primary font-bold text-xl leading-none">miservicio</span>
-          </div>
+          </Link>
           {isAuthenticated && (
             <Button
               onClick={handleLogout}

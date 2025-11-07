@@ -92,5 +92,63 @@ export class UserProfileService {
       }
     }
   }
+
+  // Obtener perfil completo del usuario
+  static async getMyProfile(): Promise<any> {
+    const response = await apiClient.get(`${this.BASE_URL}/me`)
+    return response.data
+  }
+
+  // Actualizar perfil de usuario
+  static async updateProfile(data: {
+    first_name?: string
+    last_name?: string
+    phone_e164?: string
+    province?: string
+    city?: string
+    locality?: string
+    address?: string
+    avatar_url?: string
+    date_of_birth?: string
+    public_profile?: boolean
+    default_location_source?: 'gps' | 'city' | 'manual'
+  }): Promise<any> {
+    return apiClient.put(`${this.BASE_URL}/me`, data)
+  }
+
+  // Subir avatar de usuario (multipart/form-data, field 'file')
+  static async uploadAvatar(file: File): Promise<any> {
+    const base = (process.env.NEXT_PUBLIC_GATEWAY_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000').replace(/\/+$/,'')
+    const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null
+    const form = new FormData()
+    form.append('file', file)
+    const res = await fetch(`${base}/api/v1/user-profile/me/avatar`, {
+      method: 'POST',
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      } as any,
+      body: form,
+      cache: 'no-store',
+    })
+    if (!res.ok) throw new Error(await res.text())
+    const data = await res.json()
+    return data.profile
+  }
+
+  // Eliminar avatar de usuario
+  static async deleteAvatar(): Promise<any> {
+    const base = (process.env.NEXT_PUBLIC_GATEWAY_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000').replace(/\/+$/,'')
+    const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null
+    const res = await fetch(`${base}/api/v1/user-profile/me/avatar`, {
+      method: 'DELETE',
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      } as any,
+      cache: 'no-store',
+    })
+    if (!res.ok) throw new Error(await res.text())
+    const data = await res.json()
+    return data.profile
+  }
 }
 
