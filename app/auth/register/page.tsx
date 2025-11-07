@@ -194,8 +194,8 @@ export default function RegisterPage() {
         // No bloquear el registro si falla la actualización del perfil
       }
       
-      // Redirect to email sent page after successful registration
-      router.push('/auth/email-sent')
+      // TODO: Rehabilitar redirección a email-sent cuando la verificación por correo esté operativa
+      router.push('/profile')
     } catch (error: any) {
       console.error('Registration error:', error)
       setErrors({ 
