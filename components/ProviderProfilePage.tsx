@@ -41,7 +41,15 @@ interface ProviderProfilePageProps {
 
 // Componente para mostrar imágenes de Google Photos
 function GooglePhotosImage({ photoUrl, index }: { photoUrl: string; index: number }) {
+  const [loading, setLoading] = useState(true)
+  const [imageError, setImageError] = useState(false)
   const isGooglePhotosLink = photoUrl.includes('photos.app.goo.gl')
+
+  // Resetear loading cuando cambia la URL
+  useEffect(() => {
+    setLoading(true)
+    setImageError(false)
+  }, [photoUrl])
 
   if (isGooglePhotosLink) {
     // Para enlaces de Google Photos, mostrar un preview atractivo con botón
