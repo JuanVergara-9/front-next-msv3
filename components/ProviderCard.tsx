@@ -13,6 +13,15 @@ export function ProviderCard({ provider, onContact }: { provider: ProviderWithDe
     router.push(`/proveedores/${provider.id}`)
   }
 
+  const handleContactClick = () => {
+    if (onContact) {
+      onContact(provider)
+    } else {
+      // Si no hay función onContact, redirigir al perfil
+      router.push(`/proveedores/${provider.id}`)
+    }
+  }
+
   return (
     <div className="bg-card rounded-3xl p-6 premium-shadow border border-border/50 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 group">
       <div className="flex gap-4 mb-4">
@@ -33,23 +42,30 @@ export function ProviderCard({ provider, onContact }: { provider: ProviderWithDe
             )}
           </h3>
           <div className="flex items-center gap-3 text-sm text-muted-foreground mb-2">
-            {((provider as any).rating > 0 && (provider as any).review_count > 0) ? (
+            {((provider as any).rating > 0) ? (
               <div className="flex items-center gap-1 bg-yellow-50 px-2 py-1 rounded-full">
-                <Star className="h-4 w-4 text-yellow-500" />
+                <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
                 <span className="font-medium text-yellow-700">{Number((provider as any).rating).toFixed(1)}</span>
+                {((provider as any).review_count > 0) && (
+                  <span className="text-xs text-yellow-600">({(provider as any).review_count})</span>
+                )}
               </div>
-            ) : null}
-            {(provider as any).distance_km != null && (
-              <>
-                <span>•</span>
-                <span>{Number((provider as any).distance_km).toFixed(1)} km</span>
-              </>
+            ) : (
+              <div className="flex items-center gap-1 bg-gray-100 px-2 py-1 rounded-full border border-gray-200">
+                <Star className="h-4 w-4 text-gray-400" />
+                <span className="text-xs font-medium text-gray-500">(0)</span>
+              </div>
             )}
-            {provider.city && (
-              <>
-                <span>•</span>
-                <span className="font-medium flex items-center gap-1"><MapPin className="h-3 w-3" />{provider.city}</span>
-              </>
+            {((provider as any).distance_km != null || provider.city) && (
+              <div className="flex items-center gap-1">
+                {provider.city && <MapPin className="h-3 w-3" />}
+                <span className="font-medium">
+                  {[
+                    (provider as any).distance_km != null && `${Number((provider as any).distance_km).toFixed(1)} km`,
+                    provider.city
+                  ].filter(Boolean).join(' • ')}
+                </span>
+              </div>
             )}
           </div>
           {provider.description && (
@@ -71,19 +87,18 @@ export function ProviderCard({ provider, onContact }: { provider: ProviderWithDe
       <div className="flex gap-3">
         <button
           onClick={handleViewProfile}
-          className="flex-1 py-3 bg-white border border-primary text-primary rounded-2xl hover:bg-primary/10 transition-all duration-200 font-semibold flex items-center justify-center gap-2 cursor-pointer"
+          className="flex-1 py-3 bg-white border border-primary text-primary rounded-2xl hover:bg-primary/10 hover:shadow-lg hover:scale-[1.02] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 transition-all duration-200 ease-out font-semibold flex items-center justify-center gap-2 cursor-pointer"
         >
           <Eye className="h-4 w-4" />
           Ver perfil
         </button>
-        {onContact && (
           <button
-            onClick={() => onContact(provider)}
-            className="flex-1 py-3 bg-gradient-to-r from-primary to-secondary text-primary-foreground rounded-2xl hover:shadow-lg transition-all duration-200 font-semibold premium-shadow cursor-pointer"
+          onClick={handleContactClick}
+          className="group/contact relative flex-1 py-3 bg-gradient-to-r from-primary to-secondary text-primary-foreground rounded-2xl font-semibold premium-shadow cursor-pointer hover:shadow-2xl hover:scale-[1.04] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 transition-all duration-200 ease-out overflow-hidden"
           >
-            Contactar
+          <span className="relative z-10">Contactar</span>
+          <div className="absolute inset-0 bg-gradient-to-r from-secondary to-primary opacity-0 group-hover/contact:opacity-100 transition-opacity duration-200"></div>
           </button>
-        )}
       </div>
     </div>
   )

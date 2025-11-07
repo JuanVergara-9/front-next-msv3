@@ -5,7 +5,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Tabs, TabsContent } from "@/components/ui/tabs"
+import { AnimatedTabSelector } from "@/components/ui/animated-tab-selector"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -34,6 +35,7 @@ import { Header } from "@/components/Header"
 import { useRouter } from "next/navigation"
 import { isAdmin } from "@/lib/utils/admin"
 import { EditReviewPhotosDialog } from "./EditReviewPhotosDialog"
+import { motion, AnimatePresence } from "framer-motion"
 
 interface ProviderProfilePageProps {
   providerProfile?: any
@@ -143,6 +145,7 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
   const [reviewFilter, setReviewFilter] = useState<'all' | 'positive' | 'negative'>('all')
   const [editingReviewId, setEditingReviewId] = useState<number | null>(null)
   const [editingReviewPhotos, setEditingReviewPhotos] = useState<string[]>([])
+  const [activeTab, setActiveTab] = useState<string>('informacion')
   const maxCommentLength = 2000
   const maxPhotos = 6
 
@@ -261,8 +264,10 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
   }
 
   useEffect(() => {
-    loadReviews()
-  }, [providerIdNum])
+    if (providerIdNum) {
+      loadReviews()
+    }
+  }, [providerIdNum]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Load availability for public profile display
   useEffect(() => {
@@ -384,9 +389,7 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
     }
   }
 
-  if (!providerData) return null
-
-  const SHOW_GALLERY = false
+  const SHOW_GALLERY = false;
 
   // Filtrar reseñas según el filtro seleccionado
   const filteredReviews = useMemo(() => {
@@ -394,7 +397,11 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
     if (reviewFilter === 'positive') return allReviews.filter(r => r.rating >= 4)
     if (reviewFilter === 'negative') return allReviews.filter(r => r.rating <= 2)
     return allReviews
-  }, [allReviews, reviewFilter])
+  }, [allReviews, reviewFilter]);
+
+  if (!providerData) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#2F66F5] via-[#3b82f6] to-[#2563EB]">
@@ -403,391 +410,569 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
       <div className="glass-effect min-h-[calc(100vh-80px)]">
         <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
         {/* Header Principal */}
-        <Card className="rounded-2xl shadow-xl border-0 overflow-hidden">
-          <CardContent className="p-6">
-            <div className="flex flex-col md:flex-row gap-6">
-              <div className="flex-1 min-w-0">
-                <div className="flex items-start gap-4 mb-4">
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <button type="button" aria-label="Ver foto de perfil" className="rounded-full cursor-zoom-in focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#2563EB]">
-                        <Avatar className="h-20 w-20 border-4 border-white shadow-lg">
-                          <AvatarImage
-                            src={providerData.avatar || "/placeholder.svg"}
-                            alt={`${providerData.firstName} ${providerData.lastName}`}
-                          />
-                          <AvatarFallback className="text-xl bg-[#2563EB] text-white">
-                            {providerData.firstName[0]}
-                            {providerData.lastName[0]}
-                          </AvatarFallback>
-                        </Avatar>
-                      </button>
-                    </DialogTrigger>
-                    <DialogContent aria-describedby={undefined} className="max-w-2xl p-0 bg-black border-0">
-                      <img
-                        src={providerData.avatar || "/placeholder.svg"}
-                        alt={`${providerData.firstName} ${providerData.lastName}`}
-                        className="w-full h-full object-contain max-h-[80vh] bg-black"
-                      />
-                    </DialogContent>
-                  </Dialog>
-                  <div className="flex-1">
-                    <h1 className="text-2xl font-bold text-[#111827] text-balance">
-                      {providerData.firstName} {providerData.lastName}
-                    </h1>
-                    <div className="mt-2 flex flex-wrap items-center gap-2">
-                      {providerData.categories && providerData.categories.length > 0 ? (
-                        providerData.categories.map((cat: any, index: number) => (
-                          <Badge key={cat.id || index} className="bg-[#2563EB] text-white hover:bg-[#1d4ed8]">
-                            <Wrench className="h-4 w-4 mr-1" />
-                            {cat.name}
-                          </Badge>
-                        ))
-                      ) : (
-                        <Badge className="bg-[#2563EB] text-white hover:bg-[#1d4ed8]">
-                          <Wrench className="h-4 w-4 mr-1" />
-                          {providerData.category}
-                        </Badge>
-                      )}
-                      {providerData.isLicensed && (
-                        <Badge variant="outline" className="border-green-500 text-green-700">
-                          <BadgeCheck className="h-3 w-3 mr-1" />
-                          Matriculado
-                        </Badge>
-                      )}
-                      {providerData.isVerified && (
-                        <Badge variant="outline" className="border-green-500 text-green-700">
-                          <Shield className="h-3 w-3 mr-1" />
-                          Verificado
-                        </Badge>
-                      )}
-                      {providerData.emergencyAvailable && (
-                        <Badge variant="outline" className="border-orange-500 text-orange-700">
-                          <AlertCircle className="h-3 w-3 mr-1" />
-                          Atiende urgencias
-                        </Badge>
-                      )}
-                    </div>
-                    <div className="mt-3 text-[#6B7280] flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-                      <div className="flex items-center gap-1">
-                        <MapPin className="h-4 w-4" />
-                        <span>
-                          {providerData.city}, {providerData.province}
-                        </span>
-                      </div>
-                    <div className="flex items-center gap-1 bg-yellow-50 px-2 py-1 rounded-full w-fit">
-                      <Star className="h-4 w-4 text-yellow-500" />
-                      <span className="font-semibold text-[#111827]">{Number(avgRating || providerData.ratingAvg).toFixed(1)}</span>
-                      <span className="text-[#6B7280]">· {reviewsCount || providerData.reviewsCount90d} reseñas</span>
-                    </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-3 md:w-64 md:flex-none md:shrink-0">
-                {!isOwner && (
-                  <>
-                    <Button 
-                      className="bg-green-600 hover:bg-green-700 text-white shadow-lg cursor-pointer"
-                      onClick={() => {
-                        if (!user) {
-                          const next = window.location.pathname + window.location.search + window.location.hash
-                          router.push(`/auth/login?next=${encodeURIComponent(next)}`)
-                          return
-                        }
-                        if (providerData.whatsapp) {
-                          const message = encodeURIComponent("Hola 👋, te contacto desde miservicio. Vi tu perfil y me interesa tu servicio, quería hacerte una consulta rápida.")
-                          window.open(`https://wa.me/${providerData.whatsapp}?text=${message}`, "_blank")
-                        }
-                      }}
-                    >
-                      <MessageCircle className="h-4 w-4 mr-2" />
-                      Contactar por WhatsApp
-                    </Button>
-                    <Button
-                      variant="outline"
-                      className="border-[#2563EB] text-[#2563EB] hover:bg-[#2563EB] hover:text-white bg-transparent cursor-pointer"
-                      onClick={() => {
-                        if (!user) {
-                          const next = window.location.pathname + window.location.search + window.location.hash
-                          router.push(`/auth/login?next=${encodeURIComponent(next)}`)
-                          return
-                        }
-                        if (providerData.phone) {
-                          window.open(`tel:${providerData.phone}`, "_blank")
-                        }
-                      }}
-                    >
-                      <Phone className="h-4 w-4 mr-2" />
-                      Llamar
-                    </Button>
-                    <Button
-                      variant="outline"
-                      className="cursor-pointer"
-                      onClick={() => {
-                        if (!user) {
-                          const next = window.location.pathname + window.location.search + window.location.hash
-                          router.push(`/auth/login?next=${encodeURIComponent(next)}`)
-                          return
-                        }
-                      }}
-                    >Enviar consulta</Button>
-                  </>
-                )}
-                {isOwner && (
-                  <div className="flex flex-col gap-2">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          <Card className="rounded-2xl shadow-xl border-0 overflow-hidden">
+            <CardContent className="p-6">
+              <div className="flex flex-col md:flex-row gap-6">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start gap-4 mb-4">
                     <Dialog>
                       <DialogTrigger asChild>
-                        <Button className="bg-[#2563EB] hover:bg-[#1d4ed8] text-white shadow-lg cursor-pointer">Editar perfil</Button>
+                        <motion.button 
+                          type="button" 
+                          aria-label="Ver foto de perfil" 
+                          className="rounded-full cursor-zoom-in focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#2563EB]"
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.9 }}
+                        >
+                          <motion.div
+                            initial={{ scale: 0, rotate: -180 }}
+                            animate={{ scale: 1, rotate: 0 }}
+                            transition={{ duration: 0.6, type: "spring", stiffness: 200 }}
+                          >
+                            <Avatar className="h-20 w-20 border-4 border-white shadow-lg">
+                              <AvatarImage
+                                src={providerData.avatar || "/placeholder.svg"}
+                                alt={`${providerData.firstName} ${providerData.lastName}`}
+                              />
+                              <AvatarFallback className="text-xl bg-[#2563EB] text-white">
+                                {providerData.firstName[0]}
+                                {providerData.lastName[0]}
+                              </AvatarFallback>
+                            </Avatar>
+                          </motion.div>
+                        </motion.button>
                       </DialogTrigger>
-                      <DialogContent aria-describedby={undefined} className="max-w-lg">
-                        <DialogHeader>
-                          <DialogTitle>Editar perfil</DialogTitle>
-                        </DialogHeader>
-                        <EditProviderForm initial={propProviderProfile} onSaved={() => window.location.reload()} />
-                      </DialogContent>
-                    </Dialog>
-                    <Dialog open={isAvailDialogOpen} onOpenChange={setIsAvailDialogOpen}>
-                      <DialogTrigger asChild>
-                        <Button variant="outline" className="border-[#2563EB] text-[#2563EB] hover:bg-[#2563EB] hover:text-white cursor-pointer">Editar disponibilidad</Button>
-                      </DialogTrigger>
-                      <DialogContent aria-describedby={undefined} className="max-w-lg">
-                        <DialogHeader>
-                          <DialogTitle>Disponibilidad y urgencias</DialogTitle>
-                        </DialogHeader>
-                        <AvailabilityEditor
-                          initial={availability || { businessHours: { mon:[],tue:[],wed:[],thu:[],fri:[],sat:[],sun:[] }, emergencyAvailable: !!propProviderProfile?.emergency_available }}
-                          onSave={async (payload) => {
-                            try {
-                              setSavingAvailability(true)
-                              await ProvidersService.updateMyAvailability(payload)
-                              const a = await ProvidersService.getProviderAvailability(providerIdNum || Number(propProviderProfile?.id))
-                              setAvailability(a)
-                              setIsAvailDialogOpen(false)
-                              toast({ title: 'Disponibilidad actualizada' })
-                            } catch (e:any) {
-                              let msg = 'No se pudo guardar la disponibilidad'
-                              try { msg = JSON.parse(e?.message)?.error?.message || msg } catch{}
-                              toast({ title: 'Error', description: msg })
-                            } finally { setSavingAvailability(false) }
-                          }}
-                          saving={savingAvailability}
+                      <DialogContent aria-describedby={undefined} className="max-w-2xl p-0 bg-black border-0">
+                        <img
+                          src={providerData.avatar || "/placeholder.svg"}
+                          alt={`${providerData.firstName} ${providerData.lastName}`}
+                          className="w-full h-full object-contain max-h-[80vh] bg-black"
                         />
                       </DialogContent>
                     </Dialog>
+                    <motion.div 
+                      className="flex-1"
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.5, delay: 0.3 }}
+                    >
+                      <h1 className="text-2xl font-bold text-[#111827] text-balance">
+                        {providerData.firstName} {providerData.lastName}
+                      </h1>
+                      <motion.div 
+                        className="mt-2 flex flex-wrap items-center gap-2"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4, delay: 0.4 }}
+                      >
+                        {providerData.categories && providerData.categories.length > 0 ? (
+                          providerData.categories.map((cat: any, index: number) => (
+                            <motion.div
+                              key={cat.id || index}
+                              initial={{ opacity: 0, scale: 0.8 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              transition={{ duration: 0.3, delay: 0.5 + index * 0.1 }}
+                              whileHover={{ scale: 1.1, y: -2 }}
+                            >
+                              <Badge className="bg-[#2563EB] text-white hover:bg-[#1d4ed8]">
+                                <Wrench className="h-4 w-4 mr-1" />
+                                {cat.name}
+                              </Badge>
+                            </motion.div>
+                          ))
+                        ) : (
+                          <Badge className="bg-[#2563EB] text-white hover:bg-[#1d4ed8]">
+                            <Wrench className="h-4 w-4 mr-1" />
+                            {providerData.category}
+                          </Badge>
+                        )}
+                        {providerData.isLicensed && (
+                          <motion.div
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.3, delay: 0.6 }}
+                            whileHover={{ scale: 1.1, y: -2 }}
+                          >
+                            <Badge variant="outline" className="border-green-500 text-green-700">
+                              <BadgeCheck className="h-3 w-3 mr-1" />
+                              Matriculado
+                            </Badge>
+                          </motion.div>
+                        )}
+                        {providerData.isVerified && (
+                          <motion.div
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.3, delay: 0.65 }}
+                            whileHover={{ scale: 1.1, y: -2 }}
+                          >
+                            <Badge variant="outline" className="border-green-500 text-green-700">
+                              <Shield className="h-3 w-3 mr-1" />
+                              Verificado
+                            </Badge>
+                          </motion.div>
+                        )}
+                        {providerData.emergencyAvailable && (
+                          <motion.div
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.3, delay: 0.7 }}
+                            whileHover={{ scale: 1.1, y: -2 }}
+                          >
+                            <Badge variant="outline" className="border-orange-500 text-orange-700">
+                              <AlertCircle className="h-3 w-3 mr-1" />
+                              Atiende urgencias
+                            </Badge>
+                          </motion.div>
+                        )}
+                      </motion.div>
+                      <motion.div 
+                        className="mt-3 text-[#6B7280] flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.4, delay: 0.8 }}
+                      >
+                        <div className="flex items-center gap-1">
+                          <MapPin className="h-4 w-4" />
+                          <span>
+                            {providerData.city}, {providerData.province}
+                          </span>
+                        </div>
+                        <motion.div 
+                          className="flex items-center gap-1 bg-yellow-50 px-2 py-1 rounded-full w-fit"
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          transition={{ duration: 0.4, delay: 0.9, type: "spring", stiffness: 200 }}
+                          whileHover={{ scale: 1.05 }}
+                        >
+                          <Star className="h-4 w-4 text-yellow-500" />
+                          <span className="font-semibold text-[#111827]">{Number(avgRating || providerData.ratingAvg).toFixed(1)}</span>
+                          <span className="text-[#6B7280]">· {reviewsCount || providerData.reviewsCount90d} reseñas</span>
+                        </motion.div>
+                      </motion.div>
+                    </motion.div>
                   </div>
-                )}
+                </div>
+
+                <motion.div 
+                  className="flex flex-col gap-3 md:w-64 md:flex-none md:shrink-0"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.5, delay: 0.4 }}
+                >
+                  {!isOwner && (
+                    <>
+                      <motion.div
+                        whileHover={{ scale: 1.05, y: -2 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <Button 
+                          className="bg-green-600 hover:bg-green-700 text-white shadow-lg cursor-pointer"
+                          onClick={() => {
+                            if (!user) {
+                              const next = window.location.pathname + window.location.search + window.location.hash
+                              router.push(`/auth/login?next=${encodeURIComponent(next)}`)
+                              return
+                            }
+                            if (providerData.whatsapp) {
+                              const message = encodeURIComponent("Hola 👋, te contacto desde miservicio. Vi tu perfil y me interesa tu servicio, quería hacerte una consulta rápida.")
+                              window.open(`https://wa.me/${providerData.whatsapp}?text=${message}`, "_blank")
+                            }
+                          }}
+                        >
+                          <MessageCircle className="h-4 w-4 mr-2" />
+                          Contactar por WhatsApp
+                        </Button>
+                      </motion.div>
+                      <motion.div
+                        whileHover={{ scale: 1.05, y: -2 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <Button
+                          variant="outline"
+                          className="border-[#2563EB] text-[#2563EB] hover:bg-[#2563EB] hover:text-white bg-transparent cursor-pointer"
+                          onClick={() => {
+                            if (!user) {
+                              const next = window.location.pathname + window.location.search + window.location.hash
+                              router.push(`/auth/login?next=${encodeURIComponent(next)}`)
+                              return
+                            }
+                            if (providerData.phone) {
+                              window.open(`tel:${providerData.phone}`, "_blank")
+                            }
+                          }}
+                        >
+                          <Phone className="h-4 w-4 mr-2" />
+                          Llamar
+                        </Button>
+                      </motion.div>
+                      <motion.div
+                        whileHover={{ scale: 1.05, y: -2 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <Button
+                          variant="outline"
+                          className="cursor-pointer"
+                          onClick={() => {
+                            if (!user) {
+                              const next = window.location.pathname + window.location.search + window.location.hash
+                              router.push(`/auth/login?next=${encodeURIComponent(next)}`)
+                              return
+                            }
+                          }}
+                        >
+                          Enviar consulta
+                        </Button>
+                      </motion.div>
+                    </>
+                  )}
+                  {isOwner && (
+                    <div className="flex flex-col gap-2">
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <motion.div
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                          >
+                            <Button className="bg-[#2563EB] hover:bg-[#1d4ed8] text-white shadow-lg cursor-pointer">Editar perfil</Button>
+                          </motion.div>
+                        </DialogTrigger>
+                        <DialogContent aria-describedby={undefined} className="max-w-lg">
+                          <DialogHeader>
+                            <DialogTitle>Editar perfil</DialogTitle>
+                          </DialogHeader>
+                          <EditProviderForm initial={propProviderProfile} onSaved={() => window.location.reload()} />
+                        </DialogContent>
+                      </Dialog>
+                      <Dialog open={isAvailDialogOpen} onOpenChange={setIsAvailDialogOpen}>
+                        <DialogTrigger asChild>
+                          <motion.div
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                          >
+                            <Button variant="outline" className="border-[#2563EB] text-[#2563EB] hover:bg-[#2563EB] hover:text-white cursor-pointer">Editar disponibilidad</Button>
+                          </motion.div>
+                        </DialogTrigger>
+                        <DialogContent aria-describedby={undefined} className="max-w-lg">
+                          <DialogHeader>
+                            <DialogTitle>Disponibilidad y urgencias</DialogTitle>
+                          </DialogHeader>
+                          <AvailabilityEditor
+                            initial={availability || { businessHours: { mon:[],tue:[],wed:[],thu:[],fri:[],sat:[],sun:[] }, emergencyAvailable: !!propProviderProfile?.emergency_available }}
+                            onSave={async (payload) => {
+                              try {
+                                setSavingAvailability(true)
+                                await ProvidersService.updateMyAvailability(payload)
+                                const a = await ProvidersService.getProviderAvailability(providerIdNum || Number(propProviderProfile?.id))
+                                setAvailability(a)
+                                setIsAvailDialogOpen(false)
+                                toast({ title: 'Disponibilidad actualizada' })
+                              } catch (e:any) {
+                                let msg = 'No se pudo guardar la disponibilidad'
+                                try { msg = JSON.parse(e?.message)?.error?.message || msg } catch{}
+                                toast({ title: 'Error', description: msg })
+                              } finally { setSavingAvailability(false) }
+                            }}
+                            saving={savingAvailability}
+                          />
+                        </DialogContent>
+                      </Dialog>
+                    </div>
+                  )}
+                </motion.div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </motion.div>
 
         {/* Tabs de contenido */}
-        <Tabs defaultValue="informacion" className="space-y-6">
-          <TabsList className={`grid w-full ${SHOW_GALLERY ? 'grid-cols-3' : 'grid-cols-2'} bg-white rounded-xl shadow-lg`}>
-            <TabsTrigger
-              value="informacion"
-              className="data-[state=active]:bg-[#2563EB] data-[state=active]:text-white cursor-pointer"
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.6 }}
+        >
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+            <motion.div 
+              className="w-full"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.7 }}
             >
-              Información
-            </TabsTrigger>
-            <TabsTrigger value="resenas" className="data-[state=active]:bg-[#2563EB] data-[state=active]:text-white cursor-pointer">
-              Reseñas
-            </TabsTrigger>
-            {SHOW_GALLERY && (
-              <TabsTrigger value="galeria" className="data-[state=active]:bg-[#2563EB] data-[state=active]:text-white cursor-pointer">
-                Galería
-              </TabsTrigger>
-            )}
-          </TabsList>
+              <AnimatedTabSelector
+                value={activeTab}
+                onValueChange={setActiveTab}
+                variant="blue-white"
+                size="default"
+                options={[
+                  { value: "informacion", label: "Información" },
+                  { value: "resenas", label: "Reseñas" },
+                  ...(SHOW_GALLERY ? [{ value: "galeria", label: "Galería" }] : [])
+                ]}
+              />
+            </motion.div>
 
-          <TabsContent value="informacion" className="space-y-6">
-            {/* Descripción */}
-            <Card className="rounded-2xl shadow-lg border-0">
-              <CardHeader>
-                <h2 className="text-xl font-semibold text-[#111827]">Descripción</h2>
-              </CardHeader>
-              <CardContent>
-                <p className="text-[#6B7280] leading-relaxed">{providerData.description}</p>
-              </CardContent>
-            </Card>
+            <AnimatePresence mode="wait">
+              <TabsContent value="informacion" key="informacion" className="space-y-6">
+                {/* Descripción */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.4 }}
+                >
+                  <Card className="rounded-2xl shadow-lg border-0">
+                    <CardHeader>
+                      <h2 className="text-xl font-semibold text-[#111827]">Descripción</h2>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-[#6B7280] leading-relaxed">{providerData.description}</p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
 
-            {/* Servicios y precios — ocultado por pedido del producto */}
+                {/* Servicios y precios — ocultado por pedido del producto */}
 
-            {/* Disponibilidad y zona */}
-            <Card className="rounded-2xl shadow-lg border-0">
-              <CardHeader>
-                <h2 className="text-xl font-semibold text-[#111827]">Disponibilidad y zona</h2>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="font-medium text-[#111827] mb-2">Horarios</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {formatChipsFromBH(availability?.businessHours).map((c,idx)=> (
-                        <Badge key={idx} variant="outline">{c}</Badge>
-                      ))}
-                      {availability?.emergencyAvailable && (
-                        <Badge variant="outline" className="border-orange-500 text-orange-700">Atiende urgencias</Badge>
-                      )}
-                    </div>
-                  </div>
-                  <div>
-                    <h3 className="font-medium text-[#111827] mb-2">Zona de trabajo</h3>
-                    <p className="text-[#6B7280]">Opera en San Rafael y alrededores (radio de 20km)</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Información adicional */}
-            <Card className="rounded-2xl shadow-lg border-0">
-              <CardHeader>
-                <h2 className="text-xl font-semibold text-[#111827]">Información</h2>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="flex items-center gap-3">
-                    <Calendar className="h-5 w-5 text-[#6B7280]" />
-                    <div>
-                      <p className="text-sm text-[#6B7280]">Años de experiencia</p>
-                      <p className="font-semibold text-[#111827]">{providerData.yearsExperience} años</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <CreditCard className="h-5 w-5 text-[#6B7280]" />
-                    <div>
-                      <p className="text-sm text-[#6B7280]">Medios de pago</p>
-                      <p className="font-semibold text-[#111827]">Efectivo, Transferencia</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <FileText className="h-5 w-5 text-[#6B7280]" />
-                    <div>
-                      <p className="text-sm text-[#6B7280]">Miembro desde</p>
-                      <p className="font-semibold text-[#111827]">{providerData.memberSince}</p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="resenas" className="space-y-6">
-            {/* Resumen de reseñas */}
-            <Card className="rounded-2xl shadow-lg border-0">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="text-center">
-                    <div className="text-4xl font-bold text-[#111827]">{avgRating > 0 ? avgRating.toFixed(1) : (providerData.ratingAvg || 0).toFixed(1)}</div>
-                    <div className="flex items-center justify-center gap-1 mt-1">
-                      {[1, 2, 3, 4, 5].map((star) => {
-                        const currentRating = avgRating > 0 ? avgRating : (providerData.ratingAvg || 0)
-                        return (
-                          <Star 
-                            key={star} 
-                            className={`h-4 w-4 ${star <= Math.round(currentRating) ? "fill-yellow-400 text-yellow-400" : "text-gray-300"}`} 
-                          />
-                        )
-                      })}
-                    </div>
-                    <p className="text-sm text-[#6B7280] mt-1">{reviewsCount > 0 ? reviewsCount : providerData.reviewsCount90d} reseñas (90 días)</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm text-[#6B7280]">{photosRate}% con fotos</p>
-                    <p className="text-sm text-[#6B7280]">Reseñas (90 días): {reviewsCount > 0 ? reviewsCount : providerData.reviewsCount90d}</p>
-                  </div>
-                </div>
-
-                <div className="flex flex-wrap gap-2 mb-4">
-                  <button
-                    onClick={() => setReviewFilter('all')}
-                    className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                      reviewFilter === 'all'
-                        ? 'bg-[#2563EB] text-white border-2 border-[#2563EB]'
-                        : 'bg-white text-[#6B7280] border-2 border-gray-200 hover:border-[#2563EB] hover:text-[#2563EB]'
-                    }`}
-                  >
-                    Todas
-                  </button>
-                  <button
-                    onClick={() => setReviewFilter('positive')}
-                    className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                      reviewFilter === 'positive'
-                        ? 'bg-[#2563EB] text-white border-2 border-[#2563EB]'
-                        : 'bg-white text-[#6B7280] border-2 border-gray-200 hover:border-[#2563EB] hover:text-[#2563EB]'
-                    }`}
-                  >
-                    Positivas
-                  </button>
-                  <button
-                    onClick={() => setReviewFilter('negative')}
-                    className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                      reviewFilter === 'negative'
-                        ? 'bg-[#2563EB] text-white border-2 border-[#2563EB]'
-                        : 'bg-white text-[#6B7280] border-2 border-gray-200 hover:border-[#2563EB] hover:text-[#2563EB]'
-                    }`}
-                  >
-                    Negativas
-                  </button>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Lista de reseñas */}
-            <div className="space-y-4">
-              {filteredReviews.map((review) => (
-                <Card key={review.id} className="rounded-2xl shadow-lg border-0">
-                  <CardContent className="p-6">
-                    <div className="flex items-start gap-4">
-                      <Avatar className="h-10 w-10">
-                        <AvatarImage src={review.user_avatar || "/placeholder.svg"} alt={review.user_name || "Usuario"} />
-                        <AvatarFallback>
-                          {(review.user_name || 'Usuario').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-2">
-                            <span className="font-semibold text-[#111827]">{review.user_name || 'Usuario'}</span>
-                            <span className="text-sm text-[#6B7280]">
-                              {review.created_at ? (() => {
-                                try {
-                                  const date = new Date(review.created_at)
-                                  return isNaN(date.getTime()) ? 'Fecha no disponible' : date.toLocaleDateString('es-AR', { year: 'numeric', month: 'long', day: 'numeric' })
-                                } catch {
-                                  return 'Fecha no disponible'
-                                }
-                              })() : 'Fecha no disponible'}
-                            </span>
-                            {(review.photos && review.photos.length > 0) && <Camera className="h-4 w-4 text-[#6B7280]" />}
+                {/* Disponibilidad y zona */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.4, delay: 0.1 }}
+                >
+                  <Card className="rounded-2xl shadow-lg border-0">
+                    <CardHeader>
+                      <h2 className="text-xl font-semibold text-[#111827]">Disponibilidad y zona</h2>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        <div>
+                          <h3 className="font-medium text-[#111827] mb-2">Horarios</h3>
+                          <div className="flex flex-wrap gap-2">
+                            {formatChipsFromBH(availability?.businessHours).map((c,idx)=> (
+                              <motion.div
+                                key={idx}
+                                initial={{ opacity: 0, scale: 0.8 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ duration: 0.3, delay: 0.2 + idx * 0.05 }}
+                                whileHover={{ scale: 1.1, y: -2 }}
+                              >
+                                <Badge variant="outline">{c}</Badge>
+                              </motion.div>
+                            ))}
+                            {availability?.emergencyAvailable && (
+                              <motion.div
+                                initial={{ opacity: 0, scale: 0.8 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ duration: 0.3, delay: 0.3 }}
+                                whileHover={{ scale: 1.1, y: -2 }}
+                              >
+                                <Badge variant="outline" className="border-orange-500 text-orange-700">Atiende urgencias</Badge>
+                              </motion.div>
+                            )}
                           </div>
-                          {isAdmin(user) && (
-                            <button
-                              onClick={() => {
-                                setEditingReviewPhotos(review.photos || [])
-                                setEditingReviewId(review.id)
-                              }}
-                              className="text-[#6B7280] hover:text-[#2563EB] transition-colors flex items-center gap-1 text-sm"
-                              title="Editar fotos (Admin)"
-                            >
-                              <Edit className="h-3 w-3" />
-                              <span>Editar fotos</span>
-                            </button>
-                          )}
                         </div>
-                        <div className="flex items-center gap-1 mb-2">
-                          {[1, 2, 3, 4, 5].map((star) => (
-                            <Star
-                              key={star}
-                              className={`h-4 w-4 ${star <= review.rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"}`}
-                            />
-                          ))}
+                        <div>
+                          <h3 className="font-medium text-[#111827] mb-2">Zona de trabajo</h3>
+                          <p className="text-[#6B7280]">Opera en San Rafael y alrededores (radio de 20km)</p>
                         </div>
-                        {review.comment && (
-                          <p className="text-[#6B7280] leading-relaxed mb-3">{review.comment}</p>
-                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+
+                {/* Información adicional */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.4, delay: 0.2 }}
+                >
+                  <Card className="rounded-2xl shadow-lg border-0">
+                    <CardHeader>
+                      <h2 className="text-xl font-semibold text-[#111827]">Información</h2>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {[
+                          { icon: Calendar, label: "Años de experiencia", value: `${providerData.yearsExperience} años` },
+                          { icon: CreditCard, label: "Medios de pago", value: "Efectivo, Transferencia" },
+                          { icon: FileText, label: "Miembro desde", value: providerData.memberSince }
+                        ].map((item, index) => (
+                          <motion.div
+                            key={index}
+                            className="flex items-center gap-3"
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ duration: 0.4, delay: 0.3 + index * 0.1 }}
+                            whileHover={{ scale: 1.05, x: 5 }}
+                          >
+                            <item.icon className="h-5 w-5 text-[#6B7280]" />
+                            <div>
+                              <p className="text-sm text-[#6B7280]">{item.label}</p>
+                              <p className="font-semibold text-[#111827]">{item.value}</p>
+                            </div>
+                          </motion.div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              </TabsContent>
+
+              <TabsContent value="resenas" key="resenas" className="space-y-6">
+                {/* Resumen de reseñas */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.4 }}
+                >
+                  <Card className="rounded-2xl shadow-lg border-0">
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between mb-6">
+                        <motion.div 
+                          className="text-center"
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          transition={{ duration: 0.5, type: "spring", stiffness: 200 }}
+                        >
+                          <motion.div 
+                            className="text-4xl font-bold text-[#111827]"
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.4, delay: 0.1 }}
+                          >
+                            {avgRating > 0 ? avgRating.toFixed(1) : (providerData.ratingAvg || 0).toFixed(1)}
+                          </motion.div>
+                          <div className="flex items-center justify-center gap-1 mt-1">
+                            {[1, 2, 3, 4, 5].map((star) => {
+                              const currentRating = avgRating > 0 ? avgRating : (providerData.ratingAvg || 0)
+                              return (
+                                <motion.div
+                                  key={star}
+                                  initial={{ opacity: 0, scale: 0 }}
+                                  animate={{ opacity: 1, scale: 1 }}
+                                  transition={{ duration: 0.3, delay: 0.2 + star * 0.1 }}
+                                >
+                                  <Star 
+                                    className={`h-4 w-4 ${star <= Math.round(currentRating) ? "fill-yellow-400 text-yellow-400" : "text-gray-300"}`} 
+                                  />
+                                </motion.div>
+                              )
+                            })}
+                          </div>
+                          <p className="text-sm text-[#6B7280] mt-1">{reviewsCount > 0 ? reviewsCount : providerData.reviewsCount90d} reseñas (90 días)</p>
+                        </motion.div>
+                        <motion.div 
+                          className="text-right"
+                          initial={{ opacity: 0, x: 20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ duration: 0.4, delay: 0.2 }}
+                        >
+                          <p className="text-sm text-[#6B7280]">{photosRate}% con fotos</p>
+                          <p className="text-sm text-[#6B7280]">Reseñas (90 días): {reviewsCount > 0 ? reviewsCount : providerData.reviewsCount90d}</p>
+                        </motion.div>
+                      </div>
+
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {['all', 'positive', 'negative'].map((filter, index) => (
+                          <motion.button
+                            key={filter}
+                            onClick={() => setReviewFilter(filter as 'all' | 'positive' | 'negative')}
+                            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                              reviewFilter === filter
+                                ? 'bg-[#2563EB] text-white border-2 border-[#2563EB]'
+                                : 'bg-white text-[#6B7280] border-2 border-gray-200 hover:border-[#2563EB] hover:text-[#2563EB]'
+                            }`}
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.3, delay: 0.3 + index * 0.1 }}
+                            whileHover={{ scale: 1.05, y: -2 }}
+                            whileTap={{ scale: 0.95 }}
+                          >
+                            {filter === 'all' ? 'Todas' : filter === 'positive' ? 'Positivas' : 'Negativas'}
+                          </motion.button>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+
+                {/* Lista de reseñas */}
+                <AnimatePresence mode="wait">
+                  <div className="space-y-4">
+                    {filteredReviews.map((review, index) => (
+                      <motion.div
+                        key={review.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        transition={{ duration: 0.4, delay: index * 0.05 }}
+                        whileHover={{ scale: 1.02, y: -2 }}
+                      >
+                        <Card className="rounded-2xl shadow-lg border-0">
+                          <CardContent className="p-6">
+                            <div className="flex items-start gap-4">
+                              <motion.div
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                transition={{ duration: 0.3, delay: 0.4 + index * 0.05 }}
+                              >
+                                <Avatar className="h-10 w-10">
+                                  <AvatarImage src={review.user_avatar || "/placeholder.svg"} alt={review.user_name || "Usuario"} />
+                                  <AvatarFallback>
+                                    {(review.user_name || 'Usuario').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+                                  </AvatarFallback>
+                                </Avatar>
+                              </motion.div>
+                              <div className="flex-1">
+                                <div className="flex items-center justify-between mb-2">
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-semibold text-[#111827]">{review.user_name || 'Usuario'}</span>
+                                    <span className="text-sm text-[#6B7280]">
+                                      {review.created_at ? (() => {
+                                        try {
+                                          const date = new Date(review.created_at)
+                                          return isNaN(date.getTime()) ? 'Fecha no disponible' : date.toLocaleDateString('es-AR', { year: 'numeric', month: 'long', day: 'numeric' })
+                                        } catch {
+                                          return 'Fecha no disponible'
+                                        }
+                                      })() : 'Fecha no disponible'}
+                                    </span>
+                                    {(review.photos && review.photos.length > 0) && <Camera className="h-4 w-4 text-[#6B7280]" />}
+                                  </div>
+                                  {isAdmin(user) && (
+                                    <motion.button
+                                      onClick={() => {
+                                        setEditingReviewPhotos(review.photos || [])
+                                        setEditingReviewId(review.id)
+                                      }}
+                                      className="text-[#6B7280] hover:text-[#2563EB] transition-colors flex items-center gap-1 text-sm"
+                                      title="Editar fotos (Admin)"
+                                      whileHover={{ scale: 1.1 }}
+                                      whileTap={{ scale: 0.9 }}
+                                    >
+                                      <Edit className="h-3 w-3" />
+                                      <span>Editar fotos</span>
+                                    </motion.button>
+                                  )}
+                                </div>
+                                <div className="flex items-center gap-1 mb-2">
+                                  {[1, 2, 3, 4, 5].map((star) => (
+                                    <Star
+                                      key={star}
+                                      className={`h-4 w-4 ${star <= review.rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"}`}
+                                    />
+                                  ))}
+                                </div>
+                                {review.comment && (
+                                  <p className="text-[#6B7280] leading-relaxed mb-3">{review.comment}</p>
+                                )}
                          {review.photos && Array.isArray(review.photos) && review.photos.length > 0 && (
                            <div className="mt-3 grid grid-cols-2 md:grid-cols-3 gap-2">
                              {review.photos.map((photoUrl: string, idx: number) => {
@@ -804,7 +989,8 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
                     </div>
                   </CardContent>
                 </Card>
-              ))}
+                      </motion.div>
+                    ))}
               {!loadingReviews && filteredReviews.length === 0 && (
                 <p className="text-center text-[#6B7280]">
                   {reviewFilter === 'all' 
@@ -815,14 +1001,27 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
                 </p>
               )}
             </div>
+                </AnimatePresence>
 
-            {/* Crear reseña */}
-            {user ? (
-              <div className="text-center">
-                <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button className="bg-[#2563EB] hover:bg-[#1d4ed8] text-white">Escribir una reseña</Button>
-                  </DialogTrigger>
+                {/* Crear reseña */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.4 }}
+                  className="text-center mt-6"
+                >
+                  {user ? (
+                    <div className="text-center">
+                      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                        <DialogTrigger asChild>
+                          <motion.div
+                            whileHover={{ scale: 1.05, y: -2 }}
+                            whileTap={{ scale: 0.95 }}
+                          >
+                            <Button className="bg-[#2563EB] hover:bg-[#1d4ed8] text-white">Escribir una reseña</Button>
+                          </motion.div>
+                        </DialogTrigger>
                   <DialogContent aria-describedby={undefined}>
                     <DialogHeader>
                       <DialogTitle>Escribir una reseña</DialogTitle>
@@ -974,38 +1173,60 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
                   </DialogContent>
                 </Dialog>
               </div>
-            ) : (
-              <div className="text-center">
-                <Button asChild className="bg-[#2563EB] hover:bg-[#1d4ed8] text-white">
-                  <a href="/auth/login">Iniciar sesión para escribir una reseña</a>
-                </Button>
-              </div>
-            )}
-          </TabsContent>
-
-          {SHOW_GALLERY && (
-            <TabsContent value="galeria" className="space-y-6">
-              <Card className="rounded-2xl shadow-lg border-0">
-                <CardHeader>
-                  <h2 className="text-xl font-semibold text-[#111827]">Galería de trabajos</h2>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {providerData.photos.map((photo: string, index: number) => (
-                      <div key={index} className="aspect-video rounded-xl overflow-hidden shadow-lg">
-                        <img
-                          src={photo || "/placeholder.svg"}
-                          alt={`Trabajo ${index + 1}`}
-                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                        />
+                    ) : (
+                      <div className="text-center">
+                        <motion.div
+                          whileHover={{ scale: 1.05, y: -2 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          <Button asChild className="bg-[#2563EB] hover:bg-[#1d4ed8] text-white">
+                            <a href="/auth/login">Iniciar sesión para escribir una reseña</a>
+                          </Button>
+                        </motion.div>
                       </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          )}
-        </Tabs>
+                    )}
+                  </motion.div>
+                </TabsContent>
+
+                {SHOW_GALLERY && (
+                  <TabsContent value="galeria" key="galeria" className="space-y-6">
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -20 }}
+                      transition={{ duration: 0.4 }}
+                    >
+                      <Card className="rounded-2xl shadow-lg border-0">
+                        <CardHeader>
+                          <h2 className="text-xl font-semibold text-[#111827]">Galería de trabajos</h2>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {providerData.photos.map((photo: string, index: number) => (
+                              <motion.div
+                                key={index}
+                                className="aspect-video rounded-xl overflow-hidden shadow-lg"
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ duration: 0.4, delay: index * 0.1 }}
+                                whileHover={{ scale: 1.05, y: -5 }}
+                              >
+                                <img
+                                  src={photo || "/placeholder.svg"}
+                                  alt={`Trabajo ${index + 1}`}
+                                  className="w-full h-full object-cover transition-transform duration-300"
+                                />
+                              </motion.div>
+                            ))}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  </TabsContent>
+                )}
+              </AnimatePresence>
+            </Tabs>
+          </motion.div>
 
         {/* Sección de proveedores similares removida para evitar datos mock */}
         </div>

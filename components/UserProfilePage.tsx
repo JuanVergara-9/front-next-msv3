@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { useRouter } from "next/navigation"
 import { AuthService } from "@/lib/services/auth.service"
+import { motion, AnimatePresence } from "framer-motion"
 
 interface UserProfile {
   id?: number
@@ -328,144 +329,240 @@ export function UserProfilePage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#2F66F5] via-[#3b82f6] to-[#2563EB] flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
-          <p className="text-white">Cargando perfil...</p>
-        </div>
-      </div>
+      <motion.div 
+        className="min-h-screen bg-gradient-to-br from-[#2F66F5] via-[#3b82f6] to-[#2563EB] flex items-center justify-center"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3 }}
+      >
+        <motion.div 
+          className="text-center"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.4, type: "spring", stiffness: 200 }}
+        >
+          <div className="mx-auto mb-4 w-12 h-12 relative">
+            <div className="absolute inset-0 border-4 border-white/20 rounded-full"></div>
+            <div className="absolute inset-0 border-4 border-transparent border-t-white rounded-full animate-spin"></div>
+          </div>
+          <motion.p 
+            className="text-white"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.2 }}
+          >
+            Cargando perfil...
+          </motion.p>
+        </motion.div>
+      </motion.div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#2F66F5] via-[#3b82f6] to-[#2563EB]">
+    <motion.div 
+      className="min-h-screen bg-gradient-to-br from-[#2F66F5] via-[#3b82f6] to-[#2563EB]"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
       {/* Header fijo */}
-      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-white/20 px-4 py-3">
+      <motion.header 
+        className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-white/20 px-4 py-3"
+        initial={{ y: -100, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5, type: "spring", stiffness: 100 }}
+      >
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <h1 className="text-xl font-bold text-[#2563EB]">miservicio</h1>
           <div className="flex items-center gap-2">
             <nav className="hidden sm:block text-sm text-gray-600">
               <span>Inicio</span> / <span className="text-[#2563EB]">Perfil de Usuario</span>
             </nav>
-            <Button
-              onClick={logout}
-              variant="outline"
-              size="sm"
-              aria-label="Cerrar sesión"
-              className="flex items-center gap-2"
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
-              <LogOut className="h-4 w-4" />
-              <span className="hidden sm:inline">Cerrar sesión</span>
-            </Button>
+              <Button
+                onClick={logout}
+                variant="outline"
+                size="sm"
+                aria-label="Cerrar sesión"
+                className="flex items-center gap-2"
+              >
+                <LogOut className="h-4 w-4" />
+                <span className="hidden sm:inline">Cerrar sesión</span>
+              </Button>
+            </motion.div>
           </div>
         </div>
-      </header>
+      </motion.header>
 
       {/* Contenido principal con efecto glass */}
       <div className="glass-effect min-h-[calc(100vh-80px)]">
         <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
         {/* Header Principal */}
-        <Card className="rounded-2xl shadow-xl border-0 overflow-hidden">
-          <CardContent className="p-6">
-            <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
-              <div className="relative inline-block">
-                <Avatar className="h-24 w-24 border-4 border-white shadow-lg" key={userProfile?.avatar_url || 'no-avatar'}>
-                  {userProfile?.avatar_url ? (
-                    <AvatarImage 
-                      src={userProfile.avatar_url} 
-                      alt={getDisplayName()}
-                      onError={(e) => {
-                        console.error('Error loading avatar image:', userProfile.avatar_url)
-                        const target = e.target as HTMLImageElement
-                        target.src = '/placeholder.svg'
-                      }}
-                      onLoad={() => {
-                        console.log('Avatar image loaded successfully:', userProfile.avatar_url)
-                      }}
-                    />
-                  ) : null}
-                  <AvatarFallback className="text-2xl bg-[#2563EB] text-white">
-                    {getInitials()}
-                  </AvatarFallback>
-                </Avatar>
-                {!isProvider && (
-                  <button
-                    onClick={() => setIsAvatarModalOpen(true)}
-                    className="absolute -bottom-1 -right-1 cursor-pointer bg-[#2563EB] text-white rounded-full p-2 shadow-lg hover:bg-[#1d4ed8] transition-colors z-10"
-                    title="Cambiar foto de perfil"
-                  >
-                    <Camera className="h-4 w-4" />
-                  </button>
-                )}
-              </div>
-
-              <div className="flex-1 text-center md:text-left">
-                <div className="flex items-center justify-center md:justify-start gap-2 mb-2">
-                  <h1 className="text-3xl font-bold text-[#111827] text-balance">
-                    {getDisplayName()}
-                  </h1>
-                </div>
-                {!isProvider && (
-                  <div className="flex justify-center md:justify-start mb-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setIsEditing(!isEditing)}
-                      className="h-8 px-3 cursor-pointer"
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          <Card className="rounded-2xl shadow-xl border-0 overflow-hidden">
+            <CardContent className="p-6">
+              <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
+                <motion.div 
+                  className="relative inline-block"
+                  initial={{ scale: 0, rotate: -180 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  transition={{ duration: 0.6, type: "spring", stiffness: 200, delay: 0.3 }}
+                  whileHover={{ scale: 1.05 }}
+                >
+                  <Avatar className="h-24 w-24 border-4 border-white shadow-lg" key={userProfile?.avatar_url || 'no-avatar'}>
+                    {userProfile?.avatar_url ? (
+                      <AvatarImage 
+                        src={userProfile.avatar_url} 
+                        alt={getDisplayName()}
+                        onError={(e) => {
+                          console.error('Error loading avatar image:', userProfile.avatar_url)
+                          const target = e.target as HTMLImageElement
+                          target.src = '/placeholder.svg'
+                        }}
+                        onLoad={() => {
+                          console.log('Avatar image loaded successfully:', userProfile.avatar_url)
+                        }}
+                      />
+                    ) : null}
+                    <AvatarFallback className="text-2xl bg-[#2563EB] text-white">
+                      {getInitials()}
+                    </AvatarFallback>
+                  </Avatar>
+                  {!isProvider && (
+                    <motion.button
+                      onClick={() => setIsAvatarModalOpen(true)}
+                      className="absolute -bottom-1 -right-1 cursor-pointer bg-[#2563EB] text-white rounded-full p-2 shadow-lg hover:bg-[#1d4ed8] transition-colors z-10"
+                      title="Cambiar foto de perfil"
+                      whileHover={{ scale: 1.1, rotate: 90 }}
+                      whileTap={{ scale: 0.9 }}
                     >
-                      <Edit2 className="h-4 w-4 mr-1" />
-                      {isEditing ? 'Cancelar edición' : 'Editar perfil'}
-                    </Button>
-                  </div>
-                )}
-                <div className="flex items-center justify-center md:justify-start gap-4 text-[#6B7280] mb-3">
-                  <div className="flex items-center gap-1">
-                    <UserIcon className="h-4 w-4" />
-                    <span>{user.email}</span>
-                  </div>
-                </div>
-                <div className="flex flex-wrap gap-2 justify-center md:justify-start">
-                  <Badge className="bg-[#2563EB] text-white hover:bg-[#1d4ed8]">
-                    <Calendar className="h-3 w-3 mr-1" />
-                    Miembro desde {formatMemberSince(userProfile?.created_at || user?.created_at)}
-                  </Badge>
-                  <Badge variant="outline" className={user.isEmailVerified ? "border-green-500 text-green-600" : "border-yellow-500 text-yellow-600"}>
-                    {user.isEmailVerified ? 'Email verificado' : 'Email pendiente'}
-                  </Badge>
-                  {!user.isEmailVerified && (
-                    <Badge 
-                      variant="outline" 
-                      className="border-blue-500 text-blue-600 cursor-pointer hover:bg-blue-50 transition-colors"
-                      onClick={async () => {
-                        try {
-                          await AuthService.sendVerificationEmail()
-                          alert('Email de verificación enviado. Revisa tu bandeja de entrada.')
-                        } catch (error: any) {
-                          alert(error.message || 'Error al enviar el email de verificación')
-                        }
-                      }}
-                    >
-                      <Mail className="h-3 w-3 mr-1" />
-                      Reenviar verificación
-                    </Badge>
+                      <Camera className="h-4 w-4" />
+                    </motion.button>
                   )}
-                  <Badge variant="outline" className="border-blue-500 text-blue-600">
-                    {isProvider ? 'Proveedor' : 'Usuario'}
-                  </Badge>
-                </div>
+                </motion.div>
+
+                <motion.div 
+                  className="flex-1 text-center md:text-left"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.5, delay: 0.4 }}
+                >
+                  <div className="flex items-center justify-center md:justify-start gap-2 mb-2">
+                    <motion.h1 
+                      className="text-3xl font-bold text-[#111827] text-balance"
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, delay: 0.5 }}
+                    >
+                      {getDisplayName()}
+                    </motion.h1>
+                  </div>
+                  {!isProvider && (
+                    <div className="flex justify-center md:justify-start mb-2">
+                      <motion.div
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setIsEditing(!isEditing)}
+                          className="h-8 px-3 cursor-pointer"
+                        >
+                          <Edit2 className="h-4 w-4 mr-1" />
+                          {isEditing ? 'Cancelar edición' : 'Editar perfil'}
+                        </Button>
+                      </motion.div>
+                    </div>
+                  )}
+                  <motion.div 
+                    className="flex items-center justify-center md:justify-start gap-4 text-[#6B7280] mb-3"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.5, delay: 0.6 }}
+                  >
+                    <div className="flex items-center gap-1">
+                      <UserIcon className="h-4 w-4" />
+                      <span>{user.email}</span>
+                    </div>
+                  </motion.div>
+                  <motion.div 
+                    className="flex flex-wrap gap-2 justify-center md:justify-start"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.7 }}
+                  >
+                    {[
+                      <Badge key="member" className="bg-[#2563EB] text-white hover:bg-[#1d4ed8]">
+                        <Calendar className="h-3 w-3 mr-1" />
+                        Miembro desde {formatMemberSince(userProfile?.created_at || user?.created_at)}
+                      </Badge>,
+                      <Badge key="email" variant="outline" className={user.isEmailVerified ? "border-green-500 text-green-600" : "border-yellow-500 text-yellow-600"}>
+                        {user.isEmailVerified ? 'Email verificado' : 'Email pendiente'}
+                      </Badge>,
+                      !user.isEmailVerified && (
+                        <Badge 
+                          key="verify"
+                          variant="outline" 
+                          className="border-blue-500 text-blue-600 cursor-pointer hover:bg-blue-50 transition-colors"
+                          onClick={async () => {
+                            try {
+                              await AuthService.sendVerificationEmail()
+                              alert('Email de verificación enviado. Revisa tu bandeja de entrada.')
+                            } catch (error: any) {
+                              alert(error.message || 'Error al enviar el email de verificación')
+                            }
+                          }}
+                        >
+                          <Mail className="h-3 w-3 mr-1" />
+                          Reenviar verificación
+                        </Badge>
+                      ),
+                      <Badge key="type" variant="outline" className="border-blue-500 text-blue-600">
+                        {isProvider ? 'Proveedor' : 'Usuario'}
+                      </Badge>
+                    ].filter(Boolean).map((badge, index) => (
+                      <motion.div
+                        key={index}
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.3, delay: 0.8 + index * 0.1 }}
+                        whileHover={{ scale: 1.05, y: -2 }}
+                      >
+                        {badge}
+                      </motion.div>
+                    ))}
+                  </motion.div>
+                </motion.div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </motion.div>
 
         {/* Formulario de edición */}
-        {!isProvider && (
-          <div
-            className={`overflow-hidden transition-all duration-400 ease-in-out ${
-              isEditing ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'
-            }`}
-          >
-            <Card className="rounded-2xl shadow-lg border-0">
+        <AnimatePresence>
+          {!isProvider && isEditing && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.4, ease: "easeInOut" }}
+              className="overflow-hidden"
+            >
+              <motion.div
+                initial={{ y: -20 }}
+                animate={{ y: 0 }}
+                exit={{ y: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                <Card className="rounded-2xl shadow-lg border-0">
               <CardHeader>
                 <h2 className="text-xl font-semibold text-[#111827]">Editar perfil</h2>
               </CardHeader>
@@ -512,192 +609,312 @@ export function UserProfilePage() {
                     />
                   </div>
                 </div>
-              <div className="flex gap-2 justify-end">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setIsEditing(false)
-                    // Restaurar valores originales
-                    if (userProfile) {
-                      setEditForm({
-                        province: userProfile.province || '',
-                        city: userProfile.city || '',
-                        locality: userProfile.locality || '',
-                        address: userProfile.address || '',
-                      })
-                    }
-                  }}
-                  disabled={isSaving}
-                  className="cursor-pointer"
-                >
-                  Cancelar
-                </Button>
-                <Button
-                  onClick={handleSaveProfile}
-                  disabled={isSaving}
-                  className="bg-[#2563EB] hover:bg-[#1d4ed8] text-white cursor-pointer"
-                >
-                  {isSaving ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
-                      Guardando...
-                    </>
-                  ) : (
-                    <>
-                      <Save className="h-4 w-4 mr-2" />
-                      Guardar cambios
-                    </>
-                  )}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-        )}
+                <div className="flex gap-2 justify-end">
+                  <motion.div
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setIsEditing(false)
+                        // Restaurar valores originales
+                        if (userProfile) {
+                          setEditForm({
+                            province: userProfile.province || '',
+                            city: userProfile.city || '',
+                            locality: userProfile.locality || '',
+                            address: userProfile.address || '',
+                          })
+                        }
+                      }}
+                      disabled={isSaving}
+                      className="cursor-pointer"
+                    >
+                      Cancelar
+                    </Button>
+                  </motion.div>
+                  <motion.div
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <Button
+                      onClick={handleSaveProfile}
+                      disabled={isSaving}
+                      className="bg-[#2563EB] hover:bg-[#1d4ed8] text-white cursor-pointer"
+                    >
+                      {isSaving ? (
+                        <>
+                          <motion.div
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                            className="h-4 w-4 border-b-2 border-white mr-2 rounded-full"
+                          />
+                          Guardando...
+                        </>
+                      ) : (
+                        <>
+                          <Save className="h-4 w-4 mr-2" />
+                          Guardar cambios
+                        </>
+                      )}
+                    </Button>
+                  </motion.div>
+                </div>
+              </CardContent>
+            </Card>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* CTA: Convertirse en proveedor */}
-        {!isProvider && (
+        <AnimatePresence>
+          {!isProvider && (
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.5, delay: 0.9 }}
+            >
+              <Card className="rounded-2xl shadow-lg border-0">
+                <CardContent className="p-6">
+                  <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div className="text-center md:text-left">
+                      <h3 className="text-xl font-semibold text-[#111827] mb-1">¿Ofrecés servicios profesionales?</h3>
+                      <p className="text-[#6B7280]">Crea tu perfil y empezá a recibir clientes hoy mismo.</p>
+                    </div>
+                    <motion.div
+                      whileHover={{ scale: 1.05, y: -2 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <Button
+                        className="h-11 px-6 text-white"
+                        style={{ backgroundColor: "#2563EB" }}
+                        onClick={() => router.push('/auth/register?provider=1')}
+                      >
+                        Convertirme en proveedor
+                      </Button>
+                    </motion.div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Actividad */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 1.0 }}
+        >
           <Card className="rounded-2xl shadow-lg border-0">
-            <CardContent className="p-6">
-              <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-                <div className="text-center md:text-left">
-                  <h3 className="text-xl font-semibold text-[#111827] mb-1">¿Ofrecés servicios profesionales?</h3>
-                  <p className="text-[#6B7280]">Crea tu perfil y empezá a recibir clientes hoy mismo.</p>
-                </div>
-                <Button
-                  className="h-11 px-6 text-white"
-                  style={{ backgroundColor: "#2563EB" }}
-                  onClick={() => router.push('/auth/register?provider=1')}
+            <CardHeader>
+              <h2 className="text-xl font-semibold text-[#111827]">Actividad</h2>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <motion.div 
+                  className="text-center p-6 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.4, delay: 1.1 }}
+                  whileHover={{ scale: 1.05, y: -5 }}
                 >
-                  Convertirme en proveedor
-                </Button>
+                  <motion.div 
+                    className="text-3xl font-bold text-[#2563EB] mb-2"
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ duration: 0.5, delay: 1.2, type: "spring", stiffness: 200 }}
+                  >
+                    {userData.reviewsPublished}
+                  </motion.div>
+                  <div className="text-[#6B7280] font-medium">Reseñas publicadas</div>
+                </motion.div>
+                <motion.div 
+                  className="text-center p-6 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.4, delay: 1.15 }}
+                  whileHover={{ scale: 1.05, y: -5 }}
+                >
+                  <motion.div 
+                    className="text-3xl font-bold text-green-600 mb-2"
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ duration: 0.5, delay: 1.25, type: "spring", stiffness: 200 }}
+                  >
+                    {userData.contactsLast30Days}
+                  </motion.div>
+                  <div className="text-[#6B7280] font-medium">Contactos a proveedores (30 días)</div>
+                </motion.div>
+              </div>
+
+              <h3 className="text-lg font-semibold text-[#111827] mb-4">Reseñas publicadas</h3>
+              <AnimatePresence mode="wait">
+                {userData.reviews && userData.reviews.length > 0 ? (
+                  <motion.div 
+                    className="space-y-4"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                  >
+                    {userData.reviews.map((review, index) => (
+                      <motion.div
+                        key={review.id}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.4, delay: 1.3 + index * 0.1 }}
+                        whileHover={{ scale: 1.02, y: -2 }}
+                      >
+                        <Card className="rounded-xl border border-gray-200 hover:shadow-md transition-shadow">
+                          <CardContent className="p-4">
+                            <div className="flex items-start justify-between mb-3">
+                              <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-1">
+                                  {[1, 2, 3, 4, 5].map((star) => (
+                                    <Star
+                                      key={star}
+                                      className={`h-4 w-4 ${star <= review.rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"}`}
+                                    />
+                                  ))}
+                                </div>
+                                <span className="font-semibold text-[#111827]">{review.category}</span>
+                                <span className="text-[#6B7280]">•</span>
+                                <span className="text-[#6B7280]">{review.providerName}</span>
+                              </div>
+                              <span className="text-sm text-[#6B7280]">{review.date}</span>
+                            </div>
+                            <p className="text-[#6B7280] leading-relaxed mb-3 line-clamp-3">{review.comment}</p>
+                            <button className="text-[#2563EB] hover:text-[#1d4ed8] text-sm font-medium flex items-center gap-1">
+                              <Eye className="h-3 w-3" />
+                              Ver perfil del proveedor
+                            </button>
+                          </CardContent>
+                        </Card>
+                      </motion.div>
+                    ))}
+                  </motion.div>
+                ) : (
+                  <motion.div 
+                    className="text-center py-8 text-[#6B7280]"
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.4 }}
+                  >
+                    <Star className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                    <p className="text-lg font-medium mb-2">Aún no has publicado reseñas</p>
+                    <p className="text-sm">Cuando contactes con proveedores, podrás calificar su servicio aquí.</p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Preferencias */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 1.4 }}
+        >
+          <Card className="rounded-2xl shadow-lg border-0">
+            <CardHeader>
+              <h2 className="text-xl font-semibold text-[#111827]">Preferencias</h2>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div>
+                  <h3 className="font-medium text-[#111827] mb-3">Categorías más buscadas</h3>
+                  {userData.preferredCategories && userData.preferredCategories.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                      {userData.preferredCategories.map((category, index) => (
+                        <motion.div
+                          key={index}
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ duration: 0.3, delay: 1.5 + index * 0.05 }}
+                          whileHover={{ scale: 1.1, y: -2 }}
+                        >
+                          <Badge variant="outline" className="border-[#2563EB] text-[#2563EB]">
+                            {category}
+                          </Badge>
+                        </motion.div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-[#6B7280] text-sm">Aún no has buscado categorías específicas.</p>
+                  )}
+                </div>
+
+                <div>
+                  <h3 className="font-medium text-[#111827] mb-3">Ciudades utilizadas</h3>
+                  {userData.citiesUsed && userData.citiesUsed.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                      {userData.citiesUsed.map((city, index) => (
+                        <motion.div
+                          key={index}
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ duration: 0.3, delay: 1.6 + index * 0.05 }}
+                          whileHover={{ scale: 1.1, y: -2 }}
+                        >
+                          <Badge variant="outline" className="border-gray-400 text-gray-600">
+                            <MapPin className="h-3 w-3 mr-1" />
+                            {city}
+                          </Badge>
+                        </motion.div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-[#6B7280] text-sm">Aún no has buscado en ciudades específicas.</p>
+                  )}
+                </div>
               </div>
             </CardContent>
           </Card>
-        )}
-
-        {/* Actividad */}
-        <Card className="rounded-2xl shadow-lg border-0">
-          <CardHeader>
-            <h2 className="text-xl font-semibold text-[#111827]">Actividad</h2>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-              <div className="text-center p-6 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl">
-                <div className="text-3xl font-bold text-[#2563EB] mb-2">{userData.reviewsPublished}</div>
-                <div className="text-[#6B7280] font-medium">Reseñas publicadas</div>
-              </div>
-              <div className="text-center p-6 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl">
-                <div className="text-3xl font-bold text-green-600 mb-2">{userData.contactsLast30Days}</div>
-                <div className="text-[#6B7280] font-medium">Contactos a proveedores (30 días)</div>
-              </div>
-            </div>
-
-            <h3 className="text-lg font-semibold text-[#111827] mb-4">Reseñas publicadas</h3>
-            {userData.reviews && userData.reviews.length > 0 ? (
-              <div className="space-y-4">
-                {userData.reviews.map((review) => (
-                  <Card key={review.id} className="rounded-xl border border-gray-200 hover:shadow-md transition-shadow">
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex items-center gap-2">
-                          <div className="flex items-center gap-1">
-                            {[1, 2, 3, 4, 5].map((star) => (
-                              <Star
-                                key={star}
-                                className={`h-4 w-4 ${star <= review.rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"}`}
-                              />
-                            ))}
-                          </div>
-                          <span className="font-semibold text-[#111827]">{review.category}</span>
-                          <span className="text-[#6B7280]">•</span>
-                          <span className="text-[#6B7280]">{review.providerName}</span>
-                        </div>
-                        <span className="text-sm text-[#6B7280]">{review.date}</span>
-                      </div>
-                      <p className="text-[#6B7280] leading-relaxed mb-3 line-clamp-3">{review.comment}</p>
-                      <button className="text-[#2563EB] hover:text-[#1d4ed8] text-sm font-medium flex items-center gap-1">
-                        <Eye className="h-3 w-3" />
-                        Ver perfil del proveedor
-                      </button>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8 text-[#6B7280]">
-                <Star className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                <p className="text-lg font-medium mb-2">Aún no has publicado reseñas</p>
-                <p className="text-sm">Cuando contactes con proveedores, podrás calificar su servicio aquí.</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Preferencias */}
-        <Card className="rounded-2xl shadow-lg border-0">
-          <CardHeader>
-            <h2 className="text-xl font-semibold text-[#111827]">Preferencias</h2>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div>
-                <h3 className="font-medium text-[#111827] mb-3">Categorías más buscadas</h3>
-                {userData.preferredCategories && userData.preferredCategories.length > 0 ? (
-                  <div className="flex flex-wrap gap-2">
-                    {userData.preferredCategories.map((category, index) => (
-                      <Badge key={index} variant="outline" className="border-[#2563EB] text-[#2563EB]">
-                        {category}
-                      </Badge>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-[#6B7280] text-sm">Aún no has buscado categorías específicas.</p>
-                )}
-              </div>
-
-              <div>
-                <h3 className="font-medium text-[#111827] mb-3">Ciudades utilizadas</h3>
-                {userData.citiesUsed && userData.citiesUsed.length > 0 ? (
-                  <div className="flex flex-wrap gap-2">
-                    {userData.citiesUsed.map((city, index) => (
-                      <Badge key={index} variant="outline" className="border-gray-400 text-gray-600">
-                        <MapPin className="h-3 w-3 mr-1" />
-                        {city}
-                      </Badge>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-[#6B7280] text-sm">Aún no has buscado en ciudades específicas.</p>
-                )}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        </motion.div>
 
         {/* Privacidad */}
-        <Card className="rounded-2xl shadow-lg border-0 bg-gradient-to-r from-gray-50 to-blue-50">
-          <CardContent className="p-6">
-            <div className="flex items-start gap-3">
-              <Shield className="h-5 w-5 text-[#2563EB] mt-0.5" />
-              <div className="flex-1">
-                <h3 className="font-semibold text-[#111827] mb-2">Privacidad</h3>
-                <p className="text-[#6B7280] text-sm leading-relaxed mb-4">
-                  Tu email permanece privado y solo es visible para ti. Tu nombre de usuario se genera automáticamente 
-                  a partir de tu email para proteger tu identidad. Tus datos están seguros y encriptados.
-                </p>
-                <div className="flex flex-wrap gap-4">
-                  <Link 
-                    href="/sobre" 
-                    className="text-[#2563EB] hover:text-[#1d4ed8] text-sm font-medium transition-colors"
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 1.7 }}
+        >
+          <Card className="rounded-2xl shadow-lg border-0 bg-gradient-to-r from-gray-50 to-blue-50">
+            <CardContent className="p-6">
+              <div className="flex items-start gap-3">
+                <motion.div
+                  initial={{ rotate: -180, scale: 0 }}
+                  animate={{ rotate: 0, scale: 1 }}
+                  transition={{ duration: 0.5, delay: 1.8, type: "spring", stiffness: 200 }}
+                >
+                  <Shield className="h-5 w-5 text-[#2563EB] mt-0.5" />
+                </motion.div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-[#111827] mb-2">Privacidad</h3>
+                  <p className="text-[#6B7280] text-sm leading-relaxed mb-4">
+                    Tu email permanece privado y solo es visible para ti. Tu nombre de usuario se genera automáticamente 
+                    a partir de tu email para proteger tu identidad. Tus datos están seguros y encriptados.
+                  </p>
+                  <motion.div 
+                    className="flex flex-wrap gap-4"
+                    whileHover={{ scale: 1.05 }}
                   >
-                    Más sobre miservicio
-                  </Link>
+                    <Link 
+                      href="/sobre" 
+                      className="text-[#2563EB] hover:text-[#1d4ed8] text-sm font-medium transition-colors"
+                    >
+                      Más sobre miservicio
+                    </Link>
+                  </motion.div>
                 </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </motion.div>
         </div>
       </div>
 
@@ -740,7 +957,7 @@ export function UserProfilePage() {
               {previewUrl ? (
                 <div className="space-y-4">
                   <img
-                    src={previewUrl}
+                    src={previewUrl || undefined}
                     alt="Vista previa"
                     className="mx-auto max-h-48 rounded-lg object-cover"
                   />
@@ -830,7 +1047,7 @@ export function UserProfilePage() {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+      </motion.div>
   )
 }
 

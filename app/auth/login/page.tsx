@@ -11,6 +11,7 @@ import { Eye, EyeOff, Mail, Lock, Building2 } from "lucide-react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useAuth } from "@/contexts/AuthContext"
+import { motion, AnimatePresence } from "framer-motion"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -27,7 +28,7 @@ export default function LoginPage() {
 
   // Validar dominio de email
   const validateEmailDomain = (email: string): boolean => {
-    const invalidDomains = ['correo.com', 'email.com', 'mail.com', 'test.com', 'example.com']
+    const invalidDomains = ['email.com', 'mail.com', 'test.com', 'example.com']
     const domain = email.split('@')[1]?.toLowerCase()
     if (!domain) return false
     if (invalidDomains.includes(domain)) {
@@ -77,27 +78,74 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: "#2F66F5" }}>
-      <Card className="w-full max-w-[480px] shadow-2xl border-0">
-        <CardHeader className="text-center pb-6 pt-8">
-          <div className="mx-auto mb-4 w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
-            <Building2 className="w-8 h-8 text-blue-600" />
-          </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Bienvenido a miservicio</h1>
-          <p className="text-gray-600 text-sm leading-relaxed">
-            La plataforma que conecta clientes con los mejores profesionales
-          </p>
-        </CardHeader>
+    <motion.div 
+      className="min-h-screen flex items-center justify-center p-4" 
+      style={{ backgroundColor: "#2F66F5" }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
+      <motion.div
+        initial={{ opacity: 0, y: 30, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.5, type: "spring", stiffness: 100 }}
+      >
+        <Card className="w-full max-w-[500px] md:max-w-[640px] lg:max-w-[720px] shadow-2xl border-0">
+          <CardHeader className="text-center pb-6 pt-8 px-8 md:px-12">
+            <motion.div 
+              className="mx-auto mb-4 w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center"
+              initial={{ scale: 0, rotate: -180 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ duration: 0.6, type: "spring", stiffness: 200, delay: 0.2 }}
+            >
+              <Building2 className="w-8 h-8 text-blue-600" />
+            </motion.div>
+            <motion.h1 
+              className="text-2xl font-bold text-gray-900 mb-2"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+            >
+              Bienvenido a miservicio
+            </motion.h1>
+            <motion.p 
+              className="text-gray-600 text-sm leading-relaxed"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+            >
+              La plataforma que conecta clientes con los mejores profesionales
+            </motion.p>
+          </CardHeader>
 
-        <CardContent className="px-8 pb-8">
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {errors.general && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                <p className="text-red-600 text-sm">{errors.general}</p>
-              </div>
-            )}
+        <CardContent className="px-8 md:px-32 pb-10">
+          <motion.form 
+            onSubmit={handleSubmit} 
+            className="space-y-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.5 }}
+          >
+            <AnimatePresence>
+              {errors.general && (
+                <motion.div 
+                  className="bg-red-50 border border-red-200 rounded-lg p-3"
+                  initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <p className="text-red-600 text-sm">{errors.general}</p>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
-            <div className="space-y-2">
+            <motion.div 
+              className="space-y-2"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.4, delay: 0.6 }}
+            >
               <Label htmlFor="email" className="text-sm font-medium text-gray-700">
                 Correo Electrónico
               </Label>
@@ -114,14 +162,28 @@ export default function LoginPage() {
                   aria-describedby={errors.email ? "email-error" : undefined}
                 />
               </div>
-              {errors.email && (
-                <p id="email-error" className="text-red-500 text-sm mt-1">
-                  {errors.email}
-                </p>
-              )}
-            </div>
+              <AnimatePresence>
+                {errors.email && (
+                  <motion.p 
+                    id="email-error" 
+                    className="text-red-500 text-sm mt-1"
+                    initial={{ opacity: 0, y: -5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -5 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    {errors.email}
+                  </motion.p>
+                )}
+              </AnimatePresence>
+            </motion.div>
 
-            <div className="space-y-2">
+            <motion.div 
+              className="space-y-2"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.4, delay: 0.7 }}
+            >
               <Label htmlFor="password" className="text-sm font-medium text-gray-700">
                 Contraseña
               </Label>
@@ -136,20 +198,31 @@ export default function LoginPage() {
                   aria-invalid={!!errors.password}
                   aria-describedby={errors.password ? "password-error" : undefined}
                 />
-                <button
+                <motion.button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                </button>
+                </motion.button>
               </div>
-              {errors.password && (
-                <p id="password-error" className="text-red-500 text-sm mt-1">
-                  {errors.password}
-                </p>
-              )}
-            </div>
+              <AnimatePresence>
+                {errors.password && (
+                  <motion.p 
+                    id="password-error" 
+                    className="text-red-500 text-sm mt-1"
+                    initial={{ opacity: 0, y: -5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -5 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    {errors.password}
+                  </motion.p>
+                )}
+              </AnimatePresence>
+            </motion.div>
 
             <div className="flex items-center justify-between pt-2">
               <div className="flex items-center space-x-2">
@@ -167,14 +240,29 @@ export default function LoginPage() {
               </Link>
             </div>
 
-            <Button
-              type="submit"
-              className="w-full h-12 text-white font-medium mt-6"
-              style={{ backgroundColor: "#2563EB" }}
-              disabled={isLoading}
+            <motion.div
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
             >
-              {isLoading ? "Iniciando sesión..." : "Iniciar Sesión"}
-            </Button>
+              <Button
+                type="submit"
+                className="w-full h-12 text-white font-medium mt-6"
+                style={{ backgroundColor: "#2563EB" }}
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <motion.span
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ repeat: Infinity, duration: 0.8, repeatType: "reverse" }}
+                  >
+                    Iniciando sesión...
+                  </motion.span>
+                ) : (
+                  "Iniciar Sesión"
+                )}
+              </Button>
+            </motion.div>
 
             <div className="relative my-6">
               <div className="absolute inset-0 flex items-center">
@@ -200,9 +288,10 @@ export default function LoginPage() {
                 Regístrate
               </Link>
             </p>
-          </form>
+          </motion.form>
         </CardContent>
       </Card>
-    </div>
+      </motion.div>
+    </motion.div>
   )
 }

@@ -183,3 +183,71 @@
     display: none;
   }
 }
+
+/* Infinite scroll animation for provider carousel */
+@keyframes scroll-infinite {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-33.3333%);
+  }
+}
+
+.infinite-scroll {
+  display: flex;
+  animation: scroll-infinite 60s linear infinite;
+  will-change: transform;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: pan-y;
+}
+
+.infinite-scroll:active {
+  cursor: grabbing;
+  animation-play-state: paused;
+}
+
+.infinite-scroll:hover {
+  animation-play-state: paused;
+}
+
+/* Soporte para drag/swipe */
+.infinite-scroll-container {
+  overflow-x: hidden;
+  overflow-y: visible;
+  position: relative;
+  -webkit-overflow-scrolling: touch;
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 5%,
+    black 95%,
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 5%,
+    black 95%,
+    transparent 100%
+  );
+}
+
+@keyframes provider-marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.provider-marquee {
+  display: flex;
+  width: max-content;
+  animation-name: provider-marquee;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}

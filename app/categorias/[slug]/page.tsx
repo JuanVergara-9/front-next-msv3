@@ -14,7 +14,7 @@ import { ProviderCard } from "@/components/ProviderCard"
 export default function ProvidersByCategoryPage() {
   const params = useParams<{ slug: string }>()
   const router = useRouter()
-  const { isAuthenticated } = useAuth()
+  const { user, isAuthenticated } = useAuth()
   const [categories, setCategories] = useState<Category[]>([])
   const [providers, setProviders] = useState<ProviderWithDetails[]>([])
   const [loading, setLoading] = useState(true)
@@ -45,8 +45,8 @@ export default function ProvidersByCategoryPage() {
 
         const res = await ProvidersService.searchProviders({ category_slug: slug, limit: 24, offset: 0, licensed: onlyLicensed })
         const raw = Array.isArray((res as any)?.providers) ? (res as any).providers : []
-        // Normalizar: asegurar categories como string[] y full_name presente
-        const normalized = raw.map((p: any) => {
+        // Normalizar: asegurar categories como string[] y full_name presente, rating y review_count
+        let normalized = raw.map((p: any) => {
           const categoryNames = Array.isArray(p?.categories)
             ? p.categories.map((c: any) => typeof c === 'string' ? c : (c?.name || '')).filter(Boolean)
             : (p?.category && p.category.name ? [p.category.name] : [])
@@ -54,8 +54,12 @@ export default function ProvidersByCategoryPage() {
             ...p,
             full_name: p.full_name || [p.first_name, p.last_name].filter(Boolean).join(' '),
             categories: categoryNames,
+            rating: p.rating || 0,
+            review_count: p.review_count || 0,
           }
         })
+
+        normalized = await ProvidersService.enrichWithReviewSummaries(normalized)
         setProviders(normalized)
       } catch (e: any) {
         console.error(e)
@@ -67,6 +71,25 @@ export default function ProvidersByCategoryPage() {
 
     load()
   }, [params?.slug, onlyLicensed])
+
+  const handleContact = (provider: ProviderWithDetails) => {
+    if (!user) {
+      const next = `/proveedores/${provider.id}`
+      router.push(`/auth/login?next=${encodeURIComponent(next)}`)
+      return
+    }
+    if (provider.whatsapp_e164) {
+      const message = encodeURIComponent("Hola 👋, te contacto desde miservicio. Vi tu perfil y me interesa tu servicio, quería hacerte una consulta rápida.")
+      window.open(`https://wa.me/${provider.whatsapp_e164}?text=${message}`, "_blank")
+    } else if (provider.phone_e164) {
+      window.open(`tel:${provider.phone_e164}`, "_blank")
+    } else if (provider.contact_email) {
+      window.open(`mailto:${provider.contact_email}`, "_blank")
+    } else {
+      // Si no hay datos de contacto, redirigir al perfil
+      router.push(`/proveedores/${provider.id}`)
+    }
+  }
 
   const title = activeCategory ? `${activeCategory.name} en tu zona` : "Profesionales"
   const totalText = providers?.length ? `${providers.length} profesionales disponibles` : undefined
@@ -108,7 +131,7 @@ export default function ProvidersByCategoryPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {providers.map((p) => (
-              <ProviderCard key={p.id} provider={p as any} />
+              <ProviderCard key={p.id} provider={p as any} onContact={handleContact} />
             ))}
           </div>
         )}

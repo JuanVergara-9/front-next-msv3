@@ -4,6 +4,8 @@ import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { ProviderProfilePage } from "@/components/ProviderProfilePage"
 import { ProvidersService } from "@/lib/services/providers.service"
+import { motion, AnimatePresence } from "framer-motion"
+import { Loader2 } from "lucide-react"
 
 export default function ProviderPublicPage() {
   const params = useParams<{ id: string }>()
@@ -36,21 +38,71 @@ export default function ProviderPublicPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#2F66F5] via-[#3b82f6] to-[#2563EB] flex items-center justify-center text-white">
-        Cargando proveedor...
-      </div>
+      <motion.div 
+        className="min-h-screen bg-gradient-to-br from-[#2F66F5] via-[#3b82f6] to-[#2563EB] flex items-center justify-center text-white"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3 }}
+      >
+        <motion.div 
+          className="text-center"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.4, type: "spring", stiffness: 200 }}
+        >
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          >
+            <Loader2 className="h-8 w-8 mx-auto mb-4" />
+          </motion.div>
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.2 }}
+          >
+            Cargando proveedor...
+          </motion.p>
+        </motion.div>
+      </motion.div>
     )
   }
 
   if (error || !profile) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#2F66F5] via-[#3b82f6] to-[#2563EB] flex items-center justify-center text-white">
-        {error || "Proveedor no encontrado"}
-      </div>
+      <motion.div 
+        className="min-h-screen bg-gradient-to-br from-[#2F66F5] via-[#3b82f6] to-[#2563EB] flex items-center justify-center text-white"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
+        <motion.div
+          initial={{ opacity: 0, y: 30, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.5, type: "spring", stiffness: 100 }}
+          className="text-center"
+        >
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.4, delay: 0.2 }}
+          >
+            {error || "Proveedor no encontrado"}
+          </motion.p>
+        </motion.div>
+      </motion.div>
     )
   }
 
-  return <ProviderProfilePage providerProfile={profile} />
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+      <ProviderProfilePage providerProfile={profile} />
+    </motion.div>
+  )
 }
 
 

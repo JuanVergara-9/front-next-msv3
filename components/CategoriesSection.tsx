@@ -1,13 +1,75 @@
 "use client"
 
-import { useRef, useEffect, useState } from "react"
+import { useRef, useEffect, useState, useMemo } from "react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Wrench, Flame, Zap, Settings, ChevronRight, ChevronLeft, Loader2, Leaf, Droplets } from "lucide-react"
 import { ProvidersService } from "@/lib/services/providers.service"
-import { Category } from "@/types/api"
+import { Category, ProviderWithDetails } from "@/types/api"
 import { useRouter } from "next/navigation"
+import { ProviderCarouselCard } from "./ProviderCarouselCard"
+import { motion, AnimatePresence } from "framer-motion"
+
+// Componente de carrusel con scroll nativo, movimiento automático continuo y efecto infinito
+function ProviderCarousel({ providers }: { providers: ProviderWithDetails[] }) {
+  const [isPaused, setIsPaused] = useState(false)
+
+  if (providers.length === 0) {
+    return null
+  }
+
+  // Asegurar que haya suficientes proveedores para cubrir el ancho del carrusel
+  const baseProviders: ProviderWithDetails[] = []
+  while (baseProviders.length < Math.max(providers.length, 3)) {
+    baseProviders.push(...providers)
+  }
+  const normalizedProviders = baseProviders.slice(0, Math.max(providers.length, 3))
+
+  // Duplicar dos veces para lograr efecto infinito continuo
+  const loopProviders = useMemo(
+    () => [...normalizedProviders, ...normalizedProviders],
+    [normalizedProviders]
+  )
+
+  const durationSeconds = Math.max(normalizedProviders.length * 8, 30)
+
+  return (
+    <motion.div 
+      className="mb-12 relative overflow-x-hidden infinite-scroll-container"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+      <div
+        className="flex gap-6 provider-marquee px-4 -mx-4 py-2 pb-6"
+        style={{
+          animationDuration: `${durationSeconds}s`,
+          animationPlayState: isPaused ? 'paused' : 'running',
+        }}
+        onMouseEnter={() => setIsPaused(true)}
+        onMouseLeave={() => setIsPaused(false)}
+        onTouchStart={() => setIsPaused(true)}
+        onTouchEnd={() => setTimeout(() => setIsPaused(false), 800)}
+      >
+        {loopProviders.map((provider, index) => (
+          <motion.div 
+            key={`${provider.id}-${index}`} 
+            className="flex-shrink-0"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ 
+              duration: 0.3, 
+              delay: (index % normalizedProviders.length) * 0.05 
+            }}
+          >
+            <ProviderCarouselCard provider={provider} />
+          </motion.div>
+        ))}
+      </div>
+    </motion.div>
+  )
+}
 
 // Mapeo de iconos por slug de categoría
 const iconMap: Record<string, any> = {
@@ -26,11 +88,14 @@ export function CategoriesSection() {
   const scrollRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
   const [categories, setCategories] = useState<Category[]>([])
+  const [providers, setProviders] = useState<ProviderWithDetails[]>([])
+  const [providersLoaded, setProvidersLoaded] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     loadCategories()
+    loadProviders()
   }, [])
 
   useEffect(() => {
@@ -49,6 +114,97 @@ export function CategoriesSection() {
       setError('Error al cargar las categorías')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const loadProviders = async () => {
+    try {
+      let location: { lat: number; lng: number } | null = null
+
+      try {
+        location = await ProvidersService.getCurrentLocation()
+        console.log('Location obtained:', location)
+      } catch (locationError) {
+        console.warn('Could not get location:', locationError)
+      }
+
+      // Primero intentar con ubicación si está disponible
+      let searchParams: any = { limit: 20 }
+      if (location) {
+        searchParams.lat = location.lat
+        searchParams.lng = location.lng
+        searchParams.radius_km = 50
+      }
+
+      console.log('Searching providers with params:', searchParams)
+      let response = await ProvidersService.searchProviders(searchParams)
+      let providersData = Array.isArray(response.providers) ? response.providers : []
+      console.log('Providers found with location:', providersData.length)
+
+      // Si no hay resultados con ubicación, intentar sin restricciones de ubicación
+      if (providersData.length === 0 && location) {
+        console.log('No providers found with location, trying without location restrictions')
+        searchParams = { limit: 20 }
+        response = await ProvidersService.searchProviders(searchParams)
+        providersData = Array.isArray(response.providers) ? response.providers : []
+        console.log('Providers found without location:', providersData.length)
+        location = null // Reset location para no calcular distancias
+      }
+
+      let enrichedProviders = providersData
+      if (providersData.length > 0) {
+        try {
+          enrichedProviders = await ProvidersService.enrichWithReviewSummaries(providersData)
+          console.log('Providers enriched with reviews:', enrichedProviders.length)
+        } catch (summaryError) {
+          console.warn('Could not enrich providers with review summaries:', summaryError)
+        }
+      }
+
+      const transformedProviders = enrichedProviders.map((provider) => ({
+        ...provider,
+        full_name: `${provider.first_name ?? ''} ${provider.last_name ?? ''}`.trim(),
+        rating: Number((provider as any).rating) || 0,
+        review_count: Number((provider as any).review_count) || 0,
+        distance_km:
+          location && provider.lat && provider.lng
+            ? ProvidersService.calculateDistance(
+                location.lat,
+                location.lng,
+                Number(provider.lat),
+                Number(provider.lng)
+              )
+            : undefined,
+        categories: (() => {
+          const cats: string[] = []
+          // Agregar categoría principal si existe
+          if (provider.category?.name) {
+            cats.push(provider.category.name)
+          }
+          // Agregar categorías many-to-many si existen
+          if (Array.isArray((provider as any).categories)) {
+            (provider as any).categories.forEach((cat: any) => {
+              const catName = typeof cat === 'string' ? cat : cat?.name
+              if (catName && !cats.includes(catName)) {
+                cats.push(catName)
+              }
+            })
+          }
+          return cats
+        })(),
+        avatar_url: (provider as any).avatar_url,
+      }))
+
+      // Randomizar el orden de los proveedores
+      const shuffledProviders = [...transformedProviders].sort(() => Math.random() - 0.5)
+      
+      console.log('Transformed providers:', shuffledProviders.length)
+      setProviders(shuffledProviders)
+    } catch (err) {
+      console.error('Error loading providers:', err)
+      setProviders([])
+    } finally {
+      setProvidersLoaded(true)
     }
   }
 
@@ -74,14 +230,31 @@ export function CategoriesSection() {
 
   if (loading) {
     return (
-      <section className="py-12 px-4 sm:px-6 lg:px-8">
+      <motion.section 
+        className="py-12 px-4 sm:px-6 lg:px-8"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3 }}
+      >
         <div className="max-w-7xl mx-auto">
           <div className="text-center">
-            <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-            <p className="text-gray-600">Cargando categorías...</p>
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+            >
+              <Loader2 className="h-8 w-8 mx-auto mb-4" />
+            </motion.div>
+            <motion.p 
+              className="text-gray-600"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2 }}
+            >
+              Cargando categorías...
+            </motion.p>
           </div>
         </div>
-      </section>
+      </motion.section>
     )
   }
 
@@ -101,42 +274,130 @@ export function CategoriesSection() {
   }
 
   return (
-    <section className="py-12 px-4 sm:px-6 lg:px-8 overflow-x-hidden">
+    <motion.section 
+      className="py-12 px-4 sm:px-6 lg:px-8 overflow-x-hidden"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 text-balance">
+        <motion.div 
+          className="text-center mb-12"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+        >
+          <motion.h1 
+            className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 text-balance"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
             ¿Qué necesitás hoy?
-          </h1>
-          <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto text-balance">
+          </motion.h1>
+          <motion.p 
+            className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto text-balance"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+          >
             Elegí un oficio y encontrá profesionales cerca de tu zona
-          </p>
-        </div>
+          </motion.p>
+        </motion.div>
+
+        {/* Providers Carousel - Infinite Scroll */}
+        <AnimatePresence mode="wait">
+        {!providersLoaded ? (
+            <motion.div 
+              className="mb-12 flex justify-center"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+              >
+                <Loader2 className="h-6 w-6 text-gray-400" />
+              </motion.div>
+            </motion.div>
+        ) : providers.length > 0 ? (
+            <motion.div
+              key="carousel"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+          <ProviderCarousel providers={providers} />
+            </motion.div>
+        ) : (
+            <motion.div 
+              className="mb-12 text-center text-gray-500"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+            Todavía no hay profesionales destacados disponibles en tu zona.
+            </motion.div>
+        )}
+        </AnimatePresence>
 
         {/* Quick Filters */}
-        <div className="mb-8">
+        <motion.div 
+          className="mb-8"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+        >
           <Card className="p-6 bg-white/80 backdrop-blur-sm border-0 shadow-lg">
             <div className="flex items-center gap-2 mb-3">
               <span className="text-sm font-medium text-gray-700">Filtros rápidos:</span>
             </div>
             <div className="flex gap-2 overflow-x-auto pb-2">
-              {quickCategories.map((category) => (
-                <Badge
+              {quickCategories.map((category, index) => (
+                <motion.div
                   key={category}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ 
+                    duration: 0.3, 
+                    delay: 0.5 + index * 0.05 
+                  }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Badge
                   variant="secondary"
                   className="whitespace-nowrap bg-gray-100 text-gray-700 hover:bg-[#007bff] hover:text-white transition-colors cursor-pointer border-0"
                 >
                   {category}
                 </Badge>
+                </motion.div>
               ))}
             </div>
           </Card>
-        </div>
+        </motion.div>
 
         {/* Categories Carousel */}
+        <AnimatePresence mode="wait">
         {categories.length > 0 ? (
-          <div className="relative mb-12">
+            <motion.div 
+              className="relative mb-12"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.5, delay: 0.6 }}
+            >
             {/* Left Arrow */}
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.4, delay: 0.7 }}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+              >
             <Button
               variant="outline"
               size="sm"
@@ -145,8 +406,16 @@ export function CategoriesSection() {
             >
               <ChevronLeft className="h-5 w-5" />
             </Button>
+              </motion.div>
 
             {/* Right Arrow */}
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.4, delay: 0.7 }}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+              >
             <Button
               variant="outline"
               size="sm"
@@ -155,23 +424,40 @@ export function CategoriesSection() {
             >
               <ChevronRight className="h-5 w-5" />
             </Button>
+              </motion.div>
 
             {/* Carousel Container */}
-            <div ref={scrollRef} className="flex gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4 px-8">
-              {categories.map((category) => {
+            <div ref={scrollRef} className="flex gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4 pt-4 px-8">
+                {categories.map((category, index) => {
                 const IconComponent = getIconComponent(category.slug)
                 return (
+                    <motion.div
+                      key={category.id}
+                      initial={{ opacity: 0, y: 30, scale: 0.9 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      transition={{ 
+                        duration: 0.4, 
+                        delay: 0.8 + index * 0.1,
+                        type: "spring",
+                        stiffness: 100
+                      }}
+                      whileHover={{ y: -8, scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
                   <Card
-                    key={category.id}
                     onClick={() => handleCategoryClick(category)}
-                    className="group flex-shrink-0 w-72 snap-center p-6 bg-white border-0 shadow-lg hover:shadow-xl transition-all duration-200 cursor-pointer hover:-translate-y-1 hover:ring-2 hover:ring-[#007bff]/20"
+                        className="group flex-shrink-0 w-72 snap-center p-6 bg-white border border-gray-200 shadow-lg hover:shadow-xl transition-all duration-200 cursor-pointer hover:ring-2 hover:ring-[#007bff]/20"
                   >
                     {/* Icon */}
-                    <div className="flex justify-center mb-4">
+                        <motion.div 
+                          className="flex justify-center mb-4"
+                          whileHover={{ rotate: [0, -10, 10, -10, 0] }}
+                          transition={{ duration: 0.5 }}
+                        >
                       <div className="w-16 h-16 rounded-full bg-[#007bff]/10 flex items-center justify-center group-hover:bg-[#007bff]/20 transition-colors">
                         <IconComponent className="h-8 w-8 text-[#007bff] stroke-2" />
                       </div>
-                    </div>
+                        </motion.div>
 
                     {/* Content */}
                     <div className="text-center space-y-3">
@@ -182,20 +468,34 @@ export function CategoriesSection() {
 
                       {/* CTA */}
                       <div className="pt-2">
-                        <div className="inline-flex items-center gap-1 text-[#007bff] font-medium text-sm group-hover:gap-2 transition-all">
+                            <motion.div 
+                              className="inline-flex items-center gap-1 text-[#007bff] font-medium text-sm"
+                              whileHover={{ gap: 8 }}
+                              transition={{ duration: 0.2 }}
+                            >
                           Ver {category.name.toLowerCase()}
                           <ChevronRight className="h-4 w-4" />
-                        </div>
+                            </motion.div>
                       </div>
                     </div>
                   </Card>
+                    </motion.div>
                 )
               })}
             </div>
-          </div>
+            </motion.div>
         ) : (
-          <div className="text-center py-12">
+            <motion.div 
+              className="text-center py-12"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
             <p className="text-gray-500 text-lg">No hay categorías disponibles</p>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
             <Button 
               onClick={loadCategories} 
               variant="outline" 
@@ -203,11 +503,22 @@ export function CategoriesSection() {
             >
               Reintentar
             </Button>
-          </div>
+              </motion.div>
+            </motion.div>
         )}
+        </AnimatePresence>
 
         {/* View All Button */}
-        <div className="text-center">
+        <motion.div 
+          className="text-center"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 1.2 }}
+        >
+          <motion.div
+            whileHover={{ scale: 1.05, y: -2 }}
+            whileTap={{ scale: 0.95 }}
+          >
           <Button
             size="lg"
             onClick={() => router.push('/categorias')}
@@ -215,8 +526,9 @@ export function CategoriesSection() {
           >
             Ver todos los rubros
           </Button>
-        </div>
+          </motion.div>
+        </motion.div>
       </div>
-    </section>
+    </motion.section>
   )
 }

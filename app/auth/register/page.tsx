@@ -7,7 +7,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Tabs, TabsContent } from "@/components/ui/tabs"
+import { AnimatedTabSelector } from "@/components/ui/animated-tab-selector"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
@@ -19,6 +20,7 @@ import { useAuth } from "@/contexts/AuthContext"
 import { ProvidersService } from "@/lib/services/providers.service"
 import { UserProfileService } from "@/lib/services/user-profile.service"
 import Image from "next/image"
+import { motion, AnimatePresence } from "framer-motion"
 
 const RUBROS = ["Plomería", "Gasistas", "Electricidad", "Jardinería", "Mantenimiento y limpieza de piletas", "Reparación de electrodomésticos"]
 
@@ -73,7 +75,7 @@ export default function RegisterPage() {
 
   // Validar dominio de email (verificar que no sea un dominio inválido común)
   const validateEmailDomain = (email: string): boolean => {
-    const invalidDomains = ['correo.com', 'email.com', 'mail.com', 'test.com', 'example.com']
+    const invalidDomains = ['email.com', 'mail.com', 'test.com', 'example.com']
     const domain = email.split('@')[1]?.toLowerCase()
     if (!domain) return false
     // Verificar que no sea un dominio obviamente inválido
@@ -256,40 +258,95 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: "#2F66F5" }}>
-      <Card className="w-full max-w-[520px] shadow-2xl border-0">
-        <CardHeader className="text-center pb-6 pt-8">
-          <div className="mx-auto mb-4 w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
-            <Building2 className="w-8 h-8 text-blue-600" />
-          </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Únete a miservicio</h1>
-          <p className="text-gray-600 text-sm leading-relaxed">
-            Crea tu cuenta y conecta con los mejores servicios profesionales
-          </p>
-        </CardHeader>
+    <motion.div 
+      className="min-h-screen flex items-center justify-center p-4" 
+      style={{ backgroundColor: "#2F66F5" }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
+      <motion.div
+        initial={{ opacity: 0, y: 30, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.5, type: "spring", stiffness: 100 }}
+      >
+        <Card className="w-full max-w-[520px] shadow-2xl border-0">
+          <CardHeader className="text-center pb-6 pt-8">
+            <motion.div 
+              className="mx-auto mb-4 w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center"
+              initial={{ scale: 0, rotate: -180 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ duration: 0.6, type: "spring", stiffness: 200, delay: 0.2 }}
+            >
+              <Building2 className="w-8 h-8 text-blue-600" />
+            </motion.div>
+            <motion.h1 
+              className="text-2xl font-bold text-gray-900 mb-2"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+            >
+              Únete a miservicio
+            </motion.h1>
+            <motion.p 
+              className="text-gray-600 text-sm leading-relaxed"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+            >
+              Crea tu cuenta y conecta con los mejores servicios profesionales
+            </motion.p>
+          </CardHeader>
 
         <CardContent className="px-8 pb-8">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-6">
-              <TabsTrigger value="cliente" className="text-sm">
-                Cliente
-              </TabsTrigger>
-              <TabsTrigger value="proveedor" className="text-sm">
-                Proveedor de servicios
-              </TabsTrigger>
-            </TabsList>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.5 }}
+          >
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <motion.div 
+                className="mb-6"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.6 }}
+              >
+                <AnimatedTabSelector
+                  value={activeTab}
+                  onValueChange={setActiveTab}
+                  options={[
+                    { value: "cliente", label: "Cliente" },
+                    { value: "proveedor", label: "Proveedor de servicios" }
+                  ]}
+                />
+              </motion.div>
 
-            <TabsContent value="cliente">
-              <div className="mb-4">
-                <h2 className="text-lg font-semibold text-gray-900">Crear Cuenta</h2>
-              </div>
-
-              <form onSubmit={handleClientSubmit} className="space-y-4">
-                {errors.general && (
-                  <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                    <p className="text-red-600 text-sm">{errors.general}</p>
+            <AnimatePresence mode="wait">
+              <TabsContent value="cliente" key="cliente">
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <div className="mb-4">
+                    <h2 className="text-lg font-semibold text-gray-900">Crear Cuenta</h2>
                   </div>
-                )}
+
+                  <form onSubmit={handleClientSubmit} className="space-y-4">
+                    <AnimatePresence>
+                      {errors.general && (
+                        <motion.div 
+                          className="bg-red-50 border border-red-200 rounded-lg p-3"
+                          initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.95 }}
+                          transition={{ duration: 0.3 }}
+                        >
+                          <p className="text-red-600 text-sm">{errors.general}</p>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
@@ -430,41 +487,85 @@ export default function RegisterPage() {
                 </div>
                 {errors.acceptTerms && <p className="text-red-500 text-sm">{errors.acceptTerms}</p>}
 
-                <Button
-                  type="submit"
-                  className="w-full h-12 text-white font-medium mt-6"
-                  style={{ backgroundColor: "#2563EB" }}
-                  disabled={isLoading}
+                    <motion.div
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <Button
+                        type="submit"
+                        className="w-full h-12 text-white font-medium mt-6"
+                        style={{ backgroundColor: "#2563EB" }}
+                        disabled={isLoading}
+                      >
+                        {isLoading ? (
+                          <motion.span
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ repeat: Infinity, duration: 0.8, repeatType: "reverse" }}
+                          >
+                            Creando cuenta...
+                          </motion.span>
+                        ) : (
+                          "Crear cuenta"
+                        )}
+                      </Button>
+                    </motion.div>
+
+                    <p className="text-center text-sm text-gray-600 mt-4">
+                      ¿Ya tienes una cuenta?{" "}
+                      <Link href="/auth/login" className="text-blue-600 hover:text-blue-800 font-medium">
+                        Inicia sesión
+                      </Link>
+                    </p>
+                  </form>
+                </motion.div>
+              </TabsContent>
+
+              <TabsContent value="proveedor" key="proveedor">
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.3 }}
                 >
-                  {isLoading ? "Creando cuenta..." : "Crear cuenta"}
-                </Button>
-
-                <p className="text-center text-sm text-gray-600 mt-4">
-                  ¿Ya tienes una cuenta?{" "}
-                  <Link href="/auth/login" className="text-blue-600 hover:text-blue-800 font-medium">
-                    Inicia sesión
-                  </Link>
-                </p>
-              </form>
-            </TabsContent>
-
-            <TabsContent value="proveedor">
-              <div className="mb-6">
-                <div className="flex justify-between items-center mb-2">
-                  <h2 className="text-lg font-semibold text-gray-900">Crear Cuenta (Proveedor)</h2>
-                  <span className="text-sm text-gray-500">Paso {currentStep} de 2</span>
-                </div>
-                <Progress value={currentStep === 1 ? 50 : 100} className="h-2" />
-              </div>
-
-              <form onSubmit={handleProviderSubmit} className="space-y-4">
-                {errors.general && (
-                  <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                    <p className="text-red-600 text-sm">{errors.general}</p>
+                  <div className="mb-6">
+                    <div className="flex justify-between items-center mb-2">
+                      <h2 className="text-lg font-semibold text-gray-900">Crear Cuenta (Proveedor)</h2>
+                      <span className="text-sm text-gray-500">Paso {currentStep} de 2</span>
+                    </div>
+                    <motion.div
+                      initial={{ scaleX: 0 }}
+                      animate={{ scaleX: 1 }}
+                      transition={{ duration: 0.5 }}
+                    >
+                      <Progress value={currentStep === 1 ? 50 : 100} className="h-2" />
+                    </motion.div>
                   </div>
-                )}
 
-                {currentStep === 1 && (
+                  <form onSubmit={handleProviderSubmit} className="space-y-4">
+                    <AnimatePresence>
+                      {errors.general && (
+                        <motion.div 
+                          className="bg-red-50 border border-red-200 rounded-lg p-3"
+                          initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.95 }}
+                          transition={{ duration: 0.3 }}
+                        >
+                          <p className="text-red-600 text-sm">{errors.general}</p>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+
+                    <AnimatePresence mode="wait">
+                      {currentStep === 1 && (
+                        <motion.div
+                          key="step1"
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, x: 20 }}
+                          transition={{ duration: 0.3 }}
+                        >
                   <div className="space-y-4">
                     <h3 className="font-medium text-gray-900 mb-4">Información de la cuenta</h3>
 
@@ -534,28 +635,47 @@ export default function RegisterPage() {
                       {errors.confirmPassword && <p className="text-red-500 text-sm">{errors.confirmPassword}</p>}
                     </div>
 
-                    <div className="flex justify-end pt-6">
-                      <Button
-                        type="button"
-                        onClick={handleNextStep}
-                        className="h-12 px-8 text-white font-medium"
-                        style={{ backgroundColor: "#2563EB" }}
-                      >
-                        Siguiente
-                        <ArrowRight className="w-4 h-4 ml-2" />
-                      </Button>
-                    </div>
-                  </div>
-                )}
+                          <div className="flex justify-end pt-6">
+                            <motion.div
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                            >
+                              <Button
+                                type="button"
+                                onClick={handleNextStep}
+                                className="h-12 px-8 text-white font-medium"
+                                style={{ backgroundColor: "#2563EB" }}
+                              >
+                                Siguiente
+                                <ArrowRight className="w-4 h-4 ml-2" />
+                              </Button>
+                            </motion.div>
+                          </div>
+                          </div>
+                        </motion.div>
+                      )}
 
-                {currentStep === 2 && (
-                  <div className="space-y-4">
-                    <h3 className="font-medium text-gray-900 mb-4">Perfil profesional</h3>
+                      {currentStep === 2 && (
+                        <motion.div
+                          key="step2"
+                          initial={{ opacity: 0, x: 20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, x: -20 }}
+                          transition={{ duration: 0.3 }}
+                        >
+                          <div className="space-y-4">
+                            <h3 className="font-medium text-gray-900 mb-4">Perfil profesional</h3>
                     <div className="space-y-2">
                       <Label htmlFor="avatar" className="text-sm font-medium text-gray-700">
                         Foto de perfil (opcional)
                       </Label>
-                      <Input id="avatar" type="file" accept="image/*" onChange={(e) => setAvatarFile(e.target.files?.[0] || null)} />
+                      <Input 
+                        id="avatar" 
+                        type="file" 
+                        accept="image/*" 
+                        onChange={(e) => setAvatarFile(e.target.files?.[0] || null)}
+                        className="file:bg-white file:cursor-pointer file:border file:border-gray-300 file:rounded-md file:px-4 file:py-2 file:mr-4 file:hover:bg-gray-50 file:text-sm file:font-medium file:text-gray-700 cursor-pointer"
+                      />
                       <p className="text-xs text-gray-500">JPG/PNG/WEBP hasta 5MB</p>
                     </div>
 
@@ -683,6 +803,7 @@ export default function RegisterPage() {
                         id="emergency"
                         checked={providerForm.emergencyAvailable}
                         onCheckedChange={(checked) => setProviderForm({ ...providerForm, emergencyAvailable: checked })}
+                        className="cursor-pointer data-[state=unchecked]:bg-gray-200 data-[state=unchecked]:border data-[state=unchecked]:border-gray-300"
                       />
                     </div>
 
@@ -737,39 +858,65 @@ export default function RegisterPage() {
                     </div>
                     {errors.acceptTerms && <p className="text-red-500 text-sm">{errors.acceptTerms}</p>}
 
-                    <div className="flex justify-between pt-6">
-                      <Button
-                        type="button"
-                        onClick={handlePrevStep}
-                        variant="outline"
-                        className="h-12 px-8 font-medium bg-transparent"
-                      >
-                        <ArrowLeft className="w-4 h-4 mr-2" />
-                        Volver
-                      </Button>
-                      <Button
-                        type="submit"
-                        className="h-12 px-8 text-white font-medium"
-                        style={{ backgroundColor: "#2563EB" }}
-                        disabled={isLoading}
-                      >
-                        {isLoading ? "Creando cuenta..." : "Crear cuenta de proveedor"}
-                      </Button>
-                    </div>
-                  </div>
-                )}
+                          <div className="flex justify-between pt-6">
+                            <motion.div
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                            >
+                              <Button
+                                type="button"
+                                onClick={handlePrevStep}
+                                variant="outline"
+                                className="h-12 px-8 font-medium bg-transparent"
+                              >
+                                <ArrowLeft className="w-4 h-4 mr-2" />
+                                Volver
+                              </Button>
+                            </motion.div>
+                            <motion.div
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                            >
+                              <Button
+                                type="submit"
+                                className="h-12 px-8 text-white font-medium"
+                                style={{ backgroundColor: "#2563EB" }}
+                                disabled={isLoading}
+                              >
+                                {isLoading ? (
+                                  <motion.span
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ repeat: Infinity, duration: 0.8, repeatType: "reverse" }}
+                                  >
+                                    Creando cuenta...
+                                  </motion.span>
+                                ) : (
+                                  "Crear cuenta de proveedor"
+                                )}
+                              </Button>
+                            </motion.div>
+                          </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
 
-                <p className="text-center text-sm text-gray-600 mt-4">
-                  ¿Ya tienes una cuenta?{" "}
-                  <Link href="/auth/login" className="text-blue-600 hover:text-blue-800 font-medium">
-                    Inicia sesión
-                  </Link>
-                </p>
-              </form>
-            </TabsContent>
+                    <p className="text-center text-sm text-gray-600 mt-4">
+                      ¿Ya tienes una cuenta?{" "}
+                      <Link href="/auth/login" className="text-blue-600 hover:text-blue-800 font-medium">
+                        Inicia sesión
+                      </Link>
+                    </p>
+                  </form>
+                </motion.div>
+              </TabsContent>
+            </AnimatePresence>
           </Tabs>
+          </motion.div>
         </CardContent>
       </Card>
-    </div>
+      </motion.div>
+    </motion.div>
   )
 }

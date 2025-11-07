@@ -7,6 +7,7 @@ import type {
   Category,
   ContactIntent 
 } from '../../types/api';
+import { ReviewsService } from './reviews.service';
 
 export class ProvidersService {
   static async searchProviders(params: SearchProvidersRequest = {}): Promise<SearchProvidersResponse> {
@@ -27,6 +28,54 @@ export class ProvidersService {
     // El backend responde { count, items }
     const res = await apiFetch<{ count: number; items: any[] }>(url);
     return { providers: res.items as any, total: res.count, page: 1, limit: params.limit || res.items?.length || 0 };
+  }
+
+  static async enrichWithReviewSummaries<T extends { id?: number | null; rating?: number; review_count?: number }>(providers: T[]): Promise<T[]> {
+    if (!Array.isArray(providers) || providers.length === 0) return providers;
+
+    const uniqueIds = Array.from(new Set(
+      providers
+        .map((p) => (typeof p?.id === 'number' ? p.id : null))
+        .filter((id): id is number => id != null)
+    ));
+
+    if (uniqueIds.length === 0) return providers;
+
+    const summaries = await Promise.allSettled(
+      uniqueIds.map(async (id) => {
+        const summary = await ReviewsService.getSummary(id);
+        return {
+          id,
+          rating: Number(summary?.summary?.avgRating || 0) || 0,
+          review_count: Number(summary?.summary?.count || 0) || 0,
+        };
+      })
+    );
+
+    const summaryMap = new Map<number, { rating: number; review_count: number }>();
+    summaries.forEach((result, index) => {
+      if (result.status === 'fulfilled') {
+        const payload = result.value;
+        summaryMap.set(payload.id, { rating: payload.rating, review_count: payload.review_count });
+      }
+    });
+
+    if (summaryMap.size === 0) return providers;
+
+    return providers.map((provider) => {
+      if (!provider || typeof provider.id !== 'number') return provider;
+      const summary = summaryMap.get(provider.id);
+      if (!summary) return {
+        ...provider,
+        rating: provider.rating ?? 0,
+        review_count: provider.review_count ?? 0,
+      };
+      return {
+        ...provider,
+        rating: summary.rating ?? provider.rating ?? 0,
+        review_count: summary.review_count ?? provider.review_count ?? 0,
+      };
+    });
   }
 
   static async getProvider(id: number): Promise<ProviderWithDetails> {

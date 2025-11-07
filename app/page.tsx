@@ -4,9 +4,11 @@ import { useState, useEffect, useRef } from "react"
 import { ProvidersService } from '@/lib/services/providers.service'
 import { useAuth } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { Header } from '../components/Header'
 import { ProviderCard } from '../components/ProviderCard'
 import type { ProviderWithDetails } from '../types/api'
+import { motion, AnimatePresence } from "framer-motion"
 
 // Categories with icons for the UI
 const CATEGORIES_WITH_ICONS = [
@@ -125,10 +127,20 @@ const HowItWorks = () => {
   }, [])
 
   return (
-    <section className="px-4 py-12 bg-gradient-to-br from-background via-muted/30 to-background relative overflow-hidden">
+    <motion.section 
+      className="px-4 py-12 bg-gradient-to-br from-background via-muted/30 to-background relative overflow-hidden"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.6 }}
+    >
       <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-secondary/5"></div>
       <div className="max-w-7xl mx-auto text-center relative">
-        <div className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-full text-sm font-medium mb-6 premium-shadow">
+        <motion.div 
+          className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-full text-sm font-medium mb-6 premium-shadow"
+          initial={{ opacity: 0, y: -20, scale: 0.9 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.5, type: "spring", stiffness: 200 }}
+        >
           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
             <path
               fillRule="evenodd"
@@ -137,18 +149,28 @@ const HowItWorks = () => {
             />
           </svg>
           Tu punto de encuentro con servicios de calidad en tu zona
-        </div>
+        </motion.div>
 
-        <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4 text-balance">
+        <motion.h2 
+          className="text-3xl md:text-5xl font-bold text-foreground mb-4 text-balance"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+        >
           Conectamos personas con
           <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
             {" "}
             profesionales locales
           </span>
-        </h2>
-        <p className="text-lg text-muted-foreground mb-12 max-w-2xl mx-auto text-pretty">
+        </motion.h2>
+        <motion.p 
+          className="text-lg text-muted-foreground mb-12 max-w-2xl mx-auto text-pretty"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+        >
           La plataforma más confiable para encontrar servicios de calidad en tu zona
-        </p>
+        </motion.p>
 
         <div className="md:hidden -mx-4 px-4 pb-8 relative overflow-x-auto scroll-smooth snap-x snap-mandatory" ref={mobileWrapperRef}>
           <div className="absolute inset-y-0 left-2 flex items-center">
@@ -198,21 +220,35 @@ const HowItWorks = () => {
 
         <div className="hidden md:grid grid-cols-3 gap-8">
           {steps.map((step, index) => (
-            <div key={step.title} className="group">
+            <motion.div 
+              key={step.title} 
+              className="group"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 + index * 0.1 }}
+            >
               <div className="relative w-fit mx-auto">
-                <div
-                  className={`w-20 h-20 bg-gradient-to-br ${step.color} rounded-3xl flex items-center justify-center mb-6 mx-auto premium-shadow-lg group-hover:scale-110 transition-all duration-300 smooth-bounce`}
-                  style={{ animationDelay: `${index * 0.2}s` }}
+                <motion.div
+                  className={`w-20 h-20 bg-gradient-to-br ${step.color} rounded-3xl flex items-center justify-center mb-6 mx-auto premium-shadow-lg`}
+                  whileHover={{ scale: 1.1, rotate: [0, -5, 5, -5, 0] }}
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ duration: 0.5, delay: 0.5 + index * 0.1, type: "spring", stiffness: 200 }}
                 >
                   <div className="text-white">{step.icon}</div>
-                </div>
-                <div className="absolute -top-2 -right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center text-sm font-bold text-primary premium-shadow">
+                </motion.div>
+                <motion.div 
+                  className="absolute -top-2 -right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center text-sm font-bold text-primary premium-shadow"
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ duration: 0.3, delay: 0.7 + index * 0.1, type: "spring" }}
+                >
                   {index + 1}
-                </div>
+                </motion.div>
               </div>
               <h3 className="text-xl font-bold text-foreground mb-3">{step.title}</h3>
               <p className="text-muted-foreground text-pretty">{step.description}</p>
-            </div>
+            </motion.div>
           ))}
         </div>
 
@@ -249,7 +285,7 @@ const HowItWorks = () => {
         </div>
       </div>
       </div>
-    </section>
+    </motion.section>
   )
 }
 
@@ -262,11 +298,26 @@ const SearchSection = ({
   onQueryChange: (query: string) => void
   onSearch: () => void
 }) => (
-  <section className="px-4 py-8 bg-background">
+  <motion.section 
+    className="px-4 py-8 bg-background"
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.5, delay: 0.4 }}
+  >
     <div className="max-w-2xl mx-auto">
       <div className="relative">
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-3xl blur-xl"></div>
-        <div className="relative bg-card rounded-3xl p-4 md:p-6 premium-shadow-lg border border-border/50">
+        <motion.div 
+          className="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-3xl blur-xl"
+          animate={{ opacity: [0.5, 0.8, 0.5] }}
+          transition={{ duration: 3, repeat: Infinity }}
+        />
+        <motion.div 
+          className="relative bg-card rounded-3xl p-4 md:p-6 premium-shadow-lg border border-border/50"
+          initial={{ scale: 0.95 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 0.3 }}
+          whileHover={{ scale: 1.02 }}
+        >
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="flex-1 relative">
               <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
@@ -289,17 +340,19 @@ const SearchSection = ({
                 aria-label="Buscar servicios"
               />
             </div>
-            <button
+            <motion.button
               onClick={onSearch}
               className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-primary text-white rounded-2xl hover:bg-primary/90 hover:shadow-lg transition-all duration-200 font-semibold text-base md:text-lg premium-shadow cursor-pointer"
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.95 }}
             >
               Buscar
-            </button>
+            </motion.button>
           </div>
-        </div>
+        </motion.div>
       </div>
     </div>
-  </section>
+  </motion.section>
 )
 
 const SkeletonCard = () => (
@@ -364,49 +417,107 @@ const ProvidersList = ({
   onSearchCityWide: () => void
   onViewCategories: () => void
 }) => (
-  <section className="px-4 py-4 flex-1">
+  <motion.section 
+    className="px-4 py-4 flex-1"
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    transition={{ duration: 0.5, delay: 0.6 }}
+  >
     <div className="max-w-7xl mx-auto">
-      <h2 className="text-lg font-semibold text-foreground mb-4">Cerca de mí</h2>
+      <motion.h2 
+        className="text-lg font-semibold text-foreground mb-4"
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.4, delay: 0.7 }}
+      >
+        Cerca de mí
+      </motion.h2>
 
-      {loading ? (
-        <>
-          <div className="md:hidden -mx-4 px-4 overflow-x-auto">
-            <div className="flex snap-x snap-mandatory snap-always space-x-4 pr-4">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="min-w-[85%] snap-center">
+      <AnimatePresence mode="wait">
+        {loading ? (
+          <motion.div
+            key="loading"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <div className="md:hidden -mx-4 px-4 overflow-x-auto">
+              <div className="flex snap-x snap-mandatory snap-always space-x-4 pr-4">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <motion.div 
+                    key={i} 
+                    className="min-w-[85%] snap-center"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.3, delay: i * 0.1 }}
+                  >
+                    <SkeletonCard />
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+            <div className="hidden md:grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: i * 0.1 }}
+                >
                   <SkeletonCard />
-                </div>
+                </motion.div>
               ))}
             </div>
-          </div>
-          <div className="hidden md:grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <SkeletonCard key={i} />
-            ))}
-          </div>
-        </>
-      ) : providers.length === 0 ? (
-        <EmptyState onSearchCityWide={onSearchCityWide} onViewCategories={onViewCategories} />
-      ) : (
-        <>
-          <div className="md:hidden -mx-4 px-4 overflow-x-auto">
-            <div className="flex snap-x snap-mandatory snap-always space-x-4 pr-4">
-              {providers.map((provider) => (
-                <div key={provider.id} className="min-w-[85%] snap-center">
+          </motion.div>
+        ) : providers.length === 0 ? (
+          <motion.div
+            key="empty"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <EmptyState onSearchCityWide={onSearchCityWide} onViewCategories={onViewCategories} />
+          </motion.div>
+        ) : (
+          <motion.div
+            key="providers"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <div className="md:hidden -mx-4 px-4 overflow-x-auto">
+              <div className="flex snap-x snap-mandatory snap-always space-x-4 pr-4">
+                {providers.map((provider, index) => (
+                  <motion.div 
+                    key={provider.id} 
+                    className="min-w-[85%] snap-center"
+                    initial={{ opacity: 0, x: 50 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.4, delay: index * 0.1 }}
+                  >
+                    <ProviderCard provider={provider} onContact={onContact} />
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+            <div className="hidden md:grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {providers.map((provider, index) => (
+                <motion.div
+                  key={provider.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: index * 0.1, type: "spring", stiffness: 100 }}
+                >
                   <ProviderCard provider={provider} onContact={onContact} />
-                </div>
+                </motion.div>
               ))}
             </div>
-          </div>
-          <div className="hidden md:grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {providers.map((provider) => (
-              <ProviderCard key={provider.id} provider={provider} onContact={onContact} />
-            ))}
-          </div>
-        </>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
-  </section>
+  </motion.section>
 )
 
 
@@ -464,9 +575,16 @@ const ProviderSignupSection = () => (
               Soporte dedicado
             </div>
           </div>
-          <button className="px-8 py-4 bg-gradient-to-r from-primary to-secondary text-primary-foreground rounded-2xl hover:shadow-lg transition-all duration-200 font-bold text-lg premium-shadow-lg cursor-pointer">
-            Crear perfil profesional
-          </button>
+          <Link href="/auth/register?provider=1" className="inline-block">
+            <motion.div 
+              className="group/crear relative px-8 py-4 bg-gradient-to-r from-primary to-secondary text-primary-foreground rounded-2xl font-bold text-lg premium-shadow-lg cursor-pointer hover:shadow-2xl hover:scale-[1.04] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 transition-all duration-200 ease-out overflow-hidden"
+              whileHover={{ scale: 1.04, y: -2 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <span className="relative z-10">Crear perfil profesional</span>
+              <div className="absolute inset-0 bg-gradient-to-r from-secondary to-primary opacity-0 group-hover/crear:opacity-100 transition-opacity duration-200"></div>
+            </motion.div>
+          </Link>
         </div>
       </div>
     </div>
@@ -522,7 +640,7 @@ export default function MiservicioHome() {
         searchParams.city = city.split(',')[0].trim()
       }
       const response = await ProvidersService.searchProviders(searchParams)
-      const transformedProviders = response.providers.map(provider => ({
+      let transformedProviders = response.providers.map(provider => ({
         ...provider,
         full_name: `${provider.first_name} ${provider.last_name}`,
         rating: provider.rating || 0,
@@ -531,6 +649,8 @@ export default function MiservicioHome() {
         categories: provider.category ? [provider.category.name] : [],
         avatar_url: (provider as any).avatar_url,
       }))
+
+      transformedProviders = await ProvidersService.enrichWithReviewSummaries(transformedProviders)
       setProviders(transformedProviders)
       setFiltered(transformedProviders)
     } catch (e) {
@@ -581,7 +701,7 @@ export default function MiservicioHome() {
         let transformedProviders = response.providers.map(provider => ({
           ...provider,
           full_name: `${provider.first_name} ${provider.last_name}`,
-          rating: provider.rating || 0, // Solo mostrar rating si hay reseñas
+          rating: provider.rating || 0,
           review_count: provider.review_count || 0,
           distance_km: location
             ? ProvidersService.calculateDistance(
@@ -594,6 +714,8 @@ export default function MiservicioHome() {
           categories: provider.category ? [provider.category.name] : [],
           avatar_url: (provider as any).avatar_url,
         }))
+
+        transformedProviders = await ProvidersService.enrichWithReviewSummaries(transformedProviders)
 
         // 4b) Fallback: si no hay resultados cerca, probar por ciudad detectada
         if (transformedProviders.length === 0 && (cityName || '').includes(',')) {
@@ -610,6 +732,8 @@ export default function MiservicioHome() {
                 categories: provider.category ? [provider.category.name] : [],
                 avatar_url: (provider as any).avatar_url,
               }))
+
+              transformedProviders = await ProvidersService.enrichWithReviewSummaries(transformedProviders)
             }
           } catch (e) {
             console.warn('City fallback failed', e)
@@ -686,7 +810,7 @@ export default function MiservicioHome() {
       
       const response = await ProvidersService.searchProviders(searchParams)
       
-      const transformedProviders = response.providers.map(provider => ({
+      let transformedProviders = response.providers.map(provider => ({
         ...provider,
         full_name: `${provider.first_name} ${provider.last_name}`,
         rating: provider.rating || 0,
@@ -701,6 +825,8 @@ export default function MiservicioHome() {
         categories: provider.category ? [provider.category.name] : [],
         avatar_url: (provider as any).avatar_url
       }))
+
+      transformedProviders = await ProvidersService.enrichWithReviewSummaries(transformedProviders)
       
       setProviders(transformedProviders)
       setFiltered(transformedProviders)
@@ -726,6 +852,9 @@ export default function MiservicioHome() {
       window.open(`tel:${provider.phone_e164}`, "_blank")
     } else if (provider.contact_email) {
       window.open(`mailto:${provider.contact_email}`, "_blank")
+    } else {
+      // Si no hay datos de contacto, redirigir al perfil donde pueden ver más información
+      router.push(`/proveedores/${provider.id}`)
     }
   }
 
