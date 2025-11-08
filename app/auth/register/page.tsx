@@ -190,6 +190,7 @@ export default function RegisterPage() {
           first_name: clientForm.firstName,
           last_name: clientForm.lastName,
           phone_e164: clientForm.phone || undefined,
+          public_profile: true,
         })
       } catch (profileError) {
         console.warn('Error updating user profile:', profileError)
@@ -220,6 +221,17 @@ export default function RegisterPage() {
       // 1. Si es conversión de usuario existente, omitir registro
       if (!isConvertExisting) {
         await register(providerForm.email, providerForm.password)
+      }
+
+      // Actualizar perfil básico en user-service (nombre y apellido)
+      try {
+        await UserProfileService.updateProfile({
+          first_name: providerForm.firstName,
+          last_name: providerForm.lastName,
+          public_profile: true,
+        })
+      } catch (profileError) {
+        console.warn('Error updating user basic profile (provider):', profileError)
       }
       
       // 2. Crear el perfil de proveedor
