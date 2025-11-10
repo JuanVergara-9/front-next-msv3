@@ -51,6 +51,8 @@ export function UserProfilePage() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [isDragging, setIsDragging] = useState(false)
   const [editForm, setEditForm] = useState({
+    first_name: '',
+    last_name: '',
     province: '',
     city: '',
     locality: '',
@@ -78,6 +80,8 @@ export function UserProfilePage() {
           console.log('All profile keys:', Object.keys(profile))
           setUserProfile(profile)
           setEditForm({
+            first_name: profile.first_name || '',
+            last_name: profile.last_name || '',
             province: profile.province || '',
             city: profile.city || '',
             locality: profile.locality || '',
@@ -569,6 +573,26 @@ export function UserProfilePage() {
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
+                    <Label htmlFor="first_name" className="block mb-2">Nombre</Label>
+                    <Input
+                      id="first_name"
+                      value={editForm.first_name}
+                      onChange={(e) => setEditForm({ ...editForm, first_name: e.target.value })}
+                      placeholder="Ej: Juan"
+                      className="bg-white"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="last_name" className="block mb-2">Apellido</Label>
+                    <Input
+                      id="last_name"
+                      value={editForm.last_name}
+                      onChange={(e) => setEditForm({ ...editForm, last_name: e.target.value })}
+                      placeholder="Ej: Pérez"
+                      className="bg-white"
+                    />
+                  </div>
+                  <div className="space-y-2">
                     <Label htmlFor="province" className="block mb-2">Provincia</Label>
                     <Input
                       id="province"
@@ -621,6 +645,8 @@ export function UserProfilePage() {
                         // Restaurar valores originales
                         if (userProfile) {
                           setEditForm({
+                            first_name: userProfile.first_name || '',
+                            last_name: userProfile.last_name || '',
                             province: userProfile.province || '',
                             city: userProfile.city || '',
                             locality: userProfile.locality || '',
