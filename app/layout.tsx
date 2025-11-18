@@ -4,6 +4,7 @@ import { GeistMono } from 'geist/font/mono'
 import { Analytics } from '@vercel/analytics/next'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { BottomNavBar } from '@/components/BottomNavBar'
+import { Toaster } from '@/components/Toaster'
 import Link from 'next/link'
 import './globals.css'
 
@@ -80,6 +81,7 @@ export default function RootLayout({
             <BottomNavBar />
           </div>
         </AuthProvider>
+        <Toaster />
         <Analytics />
       </body>
     </html>

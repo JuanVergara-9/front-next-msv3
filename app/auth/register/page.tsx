@@ -21,6 +21,7 @@ import { ProvidersService } from "@/lib/services/providers.service"
 import { UserProfileService } from "@/lib/services/user-profile.service"
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
+import toast from "react-hot-toast"
 
 const RUBROS = ["Plomería", "Gasistas", "Electricidad", "Jardinería", "Mantenimiento y limpieza de piletas", "Reparación de electrodomésticos"]
 
@@ -176,7 +177,10 @@ export default function RegisterPage() {
 
   const handleClientSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!validateClientForm()) return
+    if (!validateClientForm()) {
+      toast.error('Por favor completa todos los campos correctamente')
+      return
+    }
 
     setIsLoading(true)
     setErrors({}) // Limpiar errores anteriores
@@ -197,13 +201,16 @@ export default function RegisterPage() {
         // No bloquear el registro si falla la actualización del perfil
       }
       
+      toast.success('¡Cuenta creada exitosamente!')
       // TODO: Rehabilitar redirección a email-sent cuando la verificación por correo esté operativa
       router.push('/profile')
     } catch (error: any) {
       console.error('Registration error:', error)
+      const errorMessage = error.message || 'Error al crear la cuenta. Intenta nuevamente.'
       setErrors({ 
-        general: error.message || 'Error al crear la cuenta. Intenta nuevamente.' 
+        general: errorMessage
       })
+      toast.error(errorMessage)
     } finally {
       setIsLoading(false)
     }
@@ -211,7 +218,10 @@ export default function RegisterPage() {
 
   const handleProviderSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!validateProviderStep2()) return
+    if (!validateProviderStep2()) {
+      toast.error('Por favor completa todos los campos correctamente')
+      return
+    }
 
     setIsLoading(true)
     setErrors({}) // Limpiar errores anteriores
@@ -257,13 +267,16 @@ export default function RegisterPage() {
       if (avatarFile) {
         try { await ProvidersService.uploadMyAvatar(avatarFile) } catch (err) { console.warn('avatar upload failed', err) }
       }
+      toast.success('¡Perfil de proveedor creado exitosamente!')
       // 4. Redirigir al perfil (mostrará vista de proveedor)
       router.push('/profile')
     } catch (error: any) {
       console.error('Registration error:', error)
+      const errorMessage = error.message || 'Error al crear la cuenta. Intenta nuevamente.'
       setErrors({ 
-        general: error.message || 'Error al crear la cuenta. Intenta nuevamente.' 
+        general: errorMessage
       })
+      toast.error(errorMessage)
     } finally {
       setIsLoading(false)
     }

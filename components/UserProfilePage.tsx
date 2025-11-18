@@ -3,10 +3,10 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { Star, MapPin, Calendar, Shield, Eye, User as UserIcon, LogOut, Edit2, Camera, X, Save, Upload, Trash2, Mail } from "lucide-react"
+import { Star, MapPin, Calendar, Shield, Eye, User as UserIcon, LogOut, Edit2, Camera, X, Save, Upload, Trash2 } from "lucide-react"
 import { useAuth } from "@/contexts/AuthContext"
 import Link from "next/link"
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { UserProfileService, UserProfileData } from "@/lib/services/user-profile.service"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -15,6 +15,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { useRouter } from "next/navigation"
 import { AuthService } from "@/lib/services/auth.service"
 import { motion, AnimatePresence } from "framer-motion"
+import toast from "react-hot-toast"
+import { ProvidersService } from "@/lib/services/providers.service"
+import { apiFetch } from "@/lib/apiClient"
 
 interface UserProfile {
   id?: number
@@ -43,6 +46,10 @@ export function UserProfilePage() {
   })
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [isLoadingStats, setIsLoadingStats] = useState(false)
+  const [isLoadingPreferences, setIsLoadingPreferences] = useState(false)
+  const [preferencesLoaded, setPreferencesLoaded] = useState(false)
+  const [preferencesRef, setPreferencesRef] = useState<HTMLDivElement | null>(null)
   const [isEditing, setIsEditing] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false)
@@ -50,6 +57,7 @@ export function UserProfilePage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [isDragging, setIsDragging] = useState(false)
+  const [isLoadingLocation, setIsLoadingLocation] = useState(false)
   const [editForm, setEditForm] = useState({
     first_name: '',
     last_name: '',
@@ -61,23 +69,18 @@ export function UserProfilePage() {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const dropZoneRef = useRef<HTMLDivElement>(null)
 
-  // Cargar datos del perfil del usuario
+  // Cargar perfil básico primero (carga rápida)
   useEffect(() => {
-    const loadUserProfile = async () => {
+    const loadBasicProfile = async () => {
       if (!user) return
       
       try {
         setIsLoading(true)
-        const [profileData, myProfile] = await Promise.all([
-          UserProfileService.getUserProfile(user.id),
-          UserProfileService.getMyProfile()
-        ])
-        setUserData(profileData)
+        // Solo cargar el perfil básico primero para mostrar la UI rápidamente
+        const myProfile = await UserProfileService.getMyProfile()
+        
         if (myProfile?.profile) {
           const profile = myProfile.profile
-          console.log('Loaded user profile:', profile)
-          console.log('Profile created_at:', profile.created_at, 'createdAt:', profile.createdAt)
-          console.log('All profile keys:', Object.keys(profile))
           setUserProfile(profile)
           setEditForm({
             first_name: profile.first_name || '',
@@ -88,34 +91,130 @@ export function UserProfilePage() {
             address: profile.address || '',
           })
           
-          // Si el perfil no tiene first_name y last_name, intentar recargar después de un breve delay
-          // Esto puede pasar si el registro aún no ha completado la actualización del perfil
+          // Si el perfil no tiene first_name y last_name, intentar recargar en background
+          // sin bloquear la UI
           if (!profile.first_name && !profile.last_name) {
-            console.log('Profile missing first_name/last_name, retrying after delay...')
-            setTimeout(async () => {
-              try {
-                const retryProfile = await UserProfileService.getMyProfile()
+            // Hacer retry en background sin bloquear
+            UserProfileService.getMyProfile()
+              .then(retryProfile => {
                 if (retryProfile?.profile) {
-                  console.log('Retry loaded user profile:', retryProfile.profile)
                   setUserProfile(retryProfile.profile)
+                  setEditForm({
+                    first_name: retryProfile.profile.first_name || '',
+                    last_name: retryProfile.profile.last_name || '',
+                    province: retryProfile.profile.province || '',
+                    city: retryProfile.profile.city || '',
+                    locality: retryProfile.profile.locality || '',
+                    address: retryProfile.profile.address || '',
+                  })
                 }
-              } catch (retryError) {
+              })
+              .catch(retryError => {
                 console.error('Error retrying profile load:', retryError)
-              }
-            }, 1000)
+              })
           }
-        } else {
-          console.warn('No profile found in myProfile response:', myProfile)
         }
       } catch (error) {
         console.error('Error loading user profile:', error)
       } finally {
+        // Mostrar la UI inmediatamente después de cargar el perfil básico
         setIsLoading(false)
       }
     }
 
-    loadUserProfile()
+    loadBasicProfile()
   }, [user])
+
+  // Cargar estadísticas en background (no bloquea la UI)
+  useEffect(() => {
+    const loadStats = async () => {
+      if (!user || isLoading) return
+      
+      try {
+        setIsLoadingStats(true)
+        // Intentar cargar solo estadísticas (más rápido que todo el perfil)
+        try {
+          const profileData = await UserProfileService.getUserProfile(user.id)
+          // Actualizar solo estadísticas, no preferencias (se cargan por separado)
+          setUserData(prev => ({
+            ...prev,
+            reviewsPublished: profileData.reviewsPublished,
+            contactsLast30Days: profileData.contactsLast30Days,
+            reviews: profileData.reviews,
+          }))
+        } catch (error) {
+          // Error silencioso
+        }
+      } catch (error) {
+        console.error('Error loading stats:', error)
+      } finally {
+        setIsLoadingStats(false)
+      }
+    }
+
+    // Esperar un poco para no competir con la carga inicial
+    const timer = setTimeout(loadStats, 100)
+    return () => clearTimeout(timer)
+  }, [user, isLoading])
+
+  // Función para cargar preferencias (memoizada)
+  const loadPreferences = useCallback(async () => {
+    if (!user || isLoadingPreferences) return
+
+    try {
+      setIsLoadingPreferences(true)
+      // Intentar cargar preferencias con endpoint específico (más rápido)
+      try {
+        const preferences = await UserProfileService.getUserPreferences(user.id)
+        setUserData(prev => ({
+          ...prev,
+          preferredCategories: preferences.preferredCategories,
+          citiesUsed: preferences.citiesUsed,
+        }))
+      } catch (error) {
+        // Si el endpoint específico falla, intentar con getUserProfile
+        try {
+          const profileData = await UserProfileService.getUserProfile(user.id)
+          setUserData(prev => ({
+            ...prev,
+            preferredCategories: profileData.preferredCategories,
+            citiesUsed: profileData.citiesUsed,
+          }))
+        } catch (fallbackError) {
+          // Error silencioso - usar datos por defecto
+        }
+      }
+    } catch (error) {
+      console.error('Error loading preferences:', error)
+    } finally {
+      setIsLoadingPreferences(false)
+    }
+  }, [user, isLoadingPreferences])
+
+  // Lazy load de preferencias cuando la sección es visible (Intersection Observer)
+  useEffect(() => {
+    if (!preferencesRef || preferencesLoaded || !user) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !preferencesLoaded) {
+            setPreferencesLoaded(true)
+            loadPreferences()
+          }
+        })
+      },
+      { threshold: 0.1, rootMargin: '100px' } // Cargar 100px antes de que sea visible
+    )
+
+    observer.observe(preferencesRef)
+
+    return () => {
+      if (preferencesRef) {
+        observer.unobserve(preferencesRef)
+      }
+    }
+  }, [preferencesRef, preferencesLoaded, user, loadPreferences])
 
   // Nombre a mostrar: usa el perfil del usuario primero
   const getDisplayName = () => {
@@ -143,6 +242,28 @@ export function UserProfilePage() {
     return 'U'
   }
 
+  // Función para detectar si faltan campos opcionales del perfil
+  const hasIncompleteProfile = () => {
+    if (isProvider && providerProfile) {
+      // Para proveedores, verificar campos de ubicación
+      const missingFields = []
+      if (!providerProfile.province) missingFields.push('provincia')
+      if (!providerProfile.city) missingFields.push('ciudad')
+      if (!providerProfile.locality) missingFields.push('localidad')
+      if (!providerProfile.address) missingFields.push('dirección')
+      return missingFields.length > 0
+    } else if (userProfile) {
+      // Para usuarios, verificar campos de ubicación
+      const missingFields = []
+      if (!userProfile.province) missingFields.push('provincia')
+      if (!userProfile.city) missingFields.push('ciudad')
+      if (!userProfile.locality) missingFields.push('localidad')
+      if (!userProfile.address) missingFields.push('dirección')
+      return missingFields.length > 0
+    }
+    return false
+  }
+
   // Función para formatear la fecha de creación (MM/YYYY)
   const formatMemberSince = (createdAt: string | undefined) => {
     // Priorizar created_at del perfil de usuario, luego del user
@@ -150,32 +271,20 @@ export function UserProfilePage() {
     const dateString = createdAt || userProfile?.created_at || (userProfile as any)?.createdAt || user?.created_at
     
     if (!dateString) {
-      console.warn('No created_at found:', { 
-        userProfileCreatedAt: userProfile?.created_at,
-        userCreatedAt: user?.created_at,
-        passedCreatedAt: createdAt,
-        fullUserProfile: userProfile 
-      })
       return 'N/A'
     }
     
     try {
-      console.log('Parsing date:', dateString, 'Type:', typeof dateString)
       const date = new Date(dateString)
-      console.log('Parsed date:', date, 'isValid:', !isNaN(date.getTime()))
       
       if (isNaN(date.getTime())) {
-        console.error('Invalid date:', dateString)
         return 'N/A'
       }
       
       const month = String(date.getMonth() + 1).padStart(2, '0')
       const year = date.getFullYear()
-      const formatted = `${month}/${year}`
-      console.log('Formatted date:', formatted)
-      return formatted
+      return `${month}/${year}`
     } catch (error) {
-      console.error('Error formatting date:', error, 'dateString:', dateString)
       return 'N/A'
     }
   }
@@ -185,21 +294,22 @@ export function UserProfilePage() {
     try {
       setIsSaving(true)
       const updated = await UserProfileService.updateProfile(editForm)
-      console.log('Profile updated:', updated)
       if (updated?.profile) {
         setUserProfile(updated.profile)
         setIsEditing(false)
+        toast.success('Perfil actualizado correctamente')
       } else {
         // Recargar el perfil completo después de actualizar
         const myProfile = await UserProfileService.getMyProfile()
         if (myProfile?.profile) {
           setUserProfile(myProfile.profile)
           setIsEditing(false)
+          toast.success('Perfil actualizado correctamente')
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving profile:', error)
-      alert('Error al guardar el perfil. Intenta nuevamente.')
+      toast.error(error?.message || 'Error al guardar el perfil. Intenta nuevamente.')
     } finally {
       setIsSaving(false)
     }
@@ -207,7 +317,7 @@ export function UserProfilePage() {
 
   const handleFileSelect = (file: File) => {
     if (!file.type.startsWith('image/')) {
-      alert('Por favor selecciona un archivo de imagen válido')
+      toast.error('Por favor selecciona un archivo de imagen válido')
       return
     }
     setSelectedFile(file)
@@ -254,18 +364,14 @@ export function UserProfilePage() {
     try {
       setIsUploadingAvatar(true)
       const updated = await UserProfileService.uploadAvatar(selectedFile)
-      console.log('Avatar upload response:', updated)
       if (updated) {
         // El backend devuelve { profile: {...} }, así que updated ya es el perfil
-        console.log('Setting userProfile with:', updated)
         setUserProfile(updated)
         // También recargar el perfil completo para asegurar que todo esté actualizado
         try {
           const myProfile = await UserProfileService.getMyProfile()
-          console.log('Reloaded profile after upload:', myProfile)
           if (myProfile?.profile) {
             setUserProfile(myProfile.profile)
-            console.log('Updated userProfile avatar_url:', myProfile.profile.avatar_url)
           }
         } catch (reloadError) {
           console.error('Error reloading profile:', reloadError)
@@ -275,10 +381,11 @@ export function UserProfilePage() {
         setIsAvatarModalOpen(false)
         setSelectedFile(null)
         setPreviewUrl(null)
+        toast.success('Avatar actualizado correctamente')
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error uploading avatar:', error)
-      alert('Error al subir la imagen. Intenta nuevamente.')
+      toast.error(error?.message || 'Error al subir la imagen. Intenta nuevamente.')
     } finally {
       setIsUploadingAvatar(false)
       if (fileInputRef.current) {
@@ -292,7 +399,6 @@ export function UserProfilePage() {
     try {
       setIsUploadingAvatar(true)
       const updated = await UserProfileService.deleteAvatar()
-      console.log('Avatar delete response:', updated)
       if (updated) {
         // El backend devuelve { profile: {...} }, así que updated ya es el perfil
         setUserProfile(updated)
@@ -305,12 +411,46 @@ export function UserProfilePage() {
         setIsAvatarModalOpen(false)
         setSelectedFile(null)
         setPreviewUrl(null)
+        toast.success('Avatar eliminado correctamente')
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error deleting avatar:', error)
-      alert('Error al eliminar la imagen. Intenta nuevamente.')
+      toast.error(error?.message || 'Error al eliminar la imagen. Intenta nuevamente.')
     } finally {
       setIsUploadingAvatar(false)
+    }
+  }
+
+  // Función para autocompletar ubicación usando geolocalización
+  const handleAutoFillLocation = async () => {
+    try {
+      setIsLoadingLocation(true)
+      // Obtener ubicación actual
+      const location = await ProvidersService.getCurrentLocation()
+      
+      // Obtener ciudad y provincia desde coordenadas usando apiFetch
+      const data = await apiFetch<{ city: string; province: string }>(
+        `/api/v1/geo/reverse?lat=${location.lat}&lng=${location.lng}`,
+        { cacheTtlMs: 0 } // No cachear para obtener datos frescos
+      )
+      
+      // Autocompletar solo si los campos están vacíos
+      setEditForm(prev => ({
+        ...prev,
+        city: prev.city || data.city || '',
+        province: prev.province || data.province || '',
+      }))
+      
+      toast.success('Ubicación autocompletada correctamente')
+    } catch (error: any) {
+      console.error('Error autocompletando ubicación:', error)
+      if (error.message?.includes('not supported') || error.message?.includes('permission') || error.message?.includes('Geolocation')) {
+        toast.error('Por favor, permite el acceso a tu ubicación para autocompletar')
+      } else {
+        toast.error('No se pudo obtener tu ubicación. Puedes completarla manualmente.')
+      }
+    } finally {
+      setIsLoadingLocation(false)
     }
   }
 
@@ -370,11 +510,8 @@ export function UserProfilePage() {
       transition={{ duration: 0.5 }}
     >
       {/* Header fijo */}
-      <motion.header 
+      <header 
         className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-white/20 px-4 py-3"
-        initial={{ y: -100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5, type: "spring", stiffness: 100 }}
       >
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <h1 className="text-xl font-bold text-[#2563EB]">miservicio</h1>
@@ -399,7 +536,7 @@ export function UserProfilePage() {
             </motion.div>
           </div>
         </div>
-      </motion.header>
+      </header>
 
       {/* Contenido principal con efecto glass */}
       <div className="glass-effect min-h-[calc(100vh-80px)]">
@@ -415,10 +552,10 @@ export function UserProfilePage() {
               <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
                 <motion.div 
                   className="relative inline-block"
-                  initial={{ scale: 0, rotate: -180 }}
-                  animate={{ scale: 1, rotate: 0 }}
-                  transition={{ duration: 0.6, type: "spring", stiffness: 200, delay: 0.3 }}
-                  whileHover={{ scale: 1.05 }}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.3, ease: "easeOut" }}
+                  whileHover={{ scale: 1.02 }}
                 >
                   <Avatar className="h-24 w-24 border-4 border-white shadow-lg" key={userProfile?.avatar_url || 'no-avatar'}>
                     {userProfile?.avatar_url ? (
@@ -426,12 +563,8 @@ export function UserProfilePage() {
                         src={userProfile.avatar_url} 
                         alt={getDisplayName()}
                         onError={(e) => {
-                          console.error('Error loading avatar image:', userProfile.avatar_url)
                           const target = e.target as HTMLImageElement
                           target.src = '/placeholder.svg'
-                        }}
-                        onLoad={() => {
-                          console.log('Avatar image loaded successfully:', userProfile.avatar_url)
                         }}
                       />
                     ) : null}
@@ -504,41 +637,19 @@ export function UserProfilePage() {
                     transition={{ duration: 0.5, delay: 0.7 }}
                   >
                     {[
-                      <Badge key="member" className="bg-[#2563EB] text-white hover:bg-[#1d4ed8]">
+                      <Badge key="member" className="bg-[#2563EB] text-white">
                         <Calendar className="h-3 w-3 mr-1" />
                         Miembro desde {formatMemberSince(userProfile?.created_at || user?.created_at)}
                       </Badge>,
-                      <Badge key="email" variant="outline" className={user.isEmailVerified ? "border-green-500 text-green-600" : "border-yellow-500 text-yellow-600"}>
-                        {user.isEmailVerified ? 'Email verificado' : 'Email pendiente'}
-                      </Badge>,
-                      !user.isEmailVerified && (
-                        <Badge 
-                          key="verify"
-                          variant="outline" 
-                          className="border-blue-500 text-blue-600 cursor-pointer hover:bg-blue-50 transition-colors"
-                          onClick={async () => {
-                            try {
-                              await AuthService.sendVerificationEmail()
-                              alert('Email de verificación enviado. Revisa tu bandeja de entrada.')
-                            } catch (error: any) {
-                              alert(error.message || 'Error al enviar el email de verificación')
-                            }
-                          }}
-                        >
-                          <Mail className="h-3 w-3 mr-1" />
-                          Reenviar verificación
-                        </Badge>
-                      ),
                       <Badge key="type" variant="outline" className="border-blue-500 text-blue-600">
                         {isProvider ? 'Proveedor' : 'Usuario'}
                       </Badge>
-                    ].filter(Boolean).map((badge, index) => (
+                    ].map((badge, index) => (
                       <motion.div
                         key={index}
                         initial={{ opacity: 0, scale: 0.8 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 0.3, delay: 0.8 + index * 0.1 }}
-                        whileHover={{ scale: 1.05, y: -2 }}
                       >
                         {badge}
                       </motion.div>
@@ -549,6 +660,58 @@ export function UserProfilePage() {
             </CardContent>
           </Card>
         </motion.div>
+
+        {/* Banner para completar perfil */}
+        {hasIncompleteProfile() && !isEditing && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.3 }}
+          >
+            <Card className="rounded-2xl shadow-lg border-2 border-yellow-400 bg-gradient-to-r from-yellow-50 to-orange-50">
+              <CardContent className="p-6">
+                <div className="flex flex-col md:flex-row items-center md:items-start gap-4">
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold text-[#111827] mb-2">
+                      Termina de configurar tu perfil
+                    </h3>
+                    <p className="text-[#6B7280] text-sm">
+                      Completa tu información de ubicación (provincia, ciudad, localidad y dirección) para mejorar tu experiencia en la plataforma.
+                    </p>
+                  </div>
+                  {!isProvider && (
+                    <motion.div
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <Button
+                        onClick={() => setIsEditing(true)}
+                        className="bg-[#2563EB] hover:bg-[#1d4ed8] text-white whitespace-nowrap"
+                      >
+                        <Edit2 className="h-4 w-4 mr-2" />
+                        Editar perfil
+                      </Button>
+                    </motion.div>
+                  )}
+                  {isProvider && (
+                    <motion.div
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <Button
+                        onClick={() => router.push('/proveedores/editar')}
+                        className="bg-[#2563EB] hover:bg-[#1d4ed8] text-white whitespace-nowrap"
+                      >
+                        <Edit2 className="h-4 w-4 mr-2" />
+                        Editar perfil
+                      </Button>
+                    </motion.div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
 
         {/* Formulario de edición */}
         <AnimatePresence>
@@ -568,7 +731,33 @@ export function UserProfilePage() {
               >
                 <Card className="rounded-2xl shadow-lg border-0">
               <CardHeader>
-                <h2 className="text-xl font-semibold text-[#111827]">Editar perfil</h2>
+                <div className="flex items-center justify-between">
+                  <h2 className="text-xl font-semibold text-[#111827]">Editar perfil</h2>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleAutoFillLocation}
+                    disabled={isLoadingLocation}
+                    className="flex items-center gap-2"
+                  >
+                    {isLoadingLocation ? (
+                      <>
+                        <motion.div
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                          className="h-4 w-4 border-b-2 border-current rounded-full"
+                        />
+                        Obteniendo...
+                      </>
+                    ) : (
+                      <>
+                        <MapPin className="h-4 w-4" />
+                        Usar mi ubicación
+                      </>
+                    )}
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -603,7 +792,7 @@ export function UserProfilePage() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="city" className="block mb-2">Ciudad</Label>
+                    <Label htmlFor="city" className="block mb-2">Ciudad o Departamento</Label>
                     <Input
                       id="city"
                       value={editForm.city}
@@ -754,7 +943,11 @@ export function UserProfilePage() {
                     animate={{ scale: 1 }}
                     transition={{ duration: 0.5, delay: 1.2, type: "spring", stiffness: 200 }}
                   >
-                    {userData.reviewsPublished}
+                    {isLoadingStats ? (
+                      <div className="inline-block h-8 w-8 border-2 border-[#2563EB] border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      userData.reviewsPublished
+                    )}
                   </motion.div>
                   <div className="text-[#6B7280] font-medium">Reseñas publicadas</div>
                 </motion.div>
@@ -771,7 +964,11 @@ export function UserProfilePage() {
                     animate={{ scale: 1 }}
                     transition={{ duration: 0.5, delay: 1.25, type: "spring", stiffness: 200 }}
                   >
-                    {userData.contactsLast30Days}
+                    {isLoadingStats ? (
+                      <div className="inline-block h-8 w-8 border-2 border-green-600 border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      userData.contactsLast30Days
+                    )}
                   </motion.div>
                   <div className="text-[#6B7280] font-medium">Contactos a proveedores (30 días)</div>
                 </motion.div>
@@ -813,7 +1010,10 @@ export function UserProfilePage() {
                               <span className="text-sm text-[#6B7280]">{review.date}</span>
                             </div>
                             <p className="text-[#6B7280] leading-relaxed mb-3 line-clamp-3">{review.comment}</p>
-                            <button className="text-[#2563EB] hover:text-[#1d4ed8] text-sm font-medium flex items-center gap-1">
+                            <button 
+                              onClick={() => router.push(`/proveedores/${review.providerId}`)}
+                              className="text-[#2563EB] hover:text-[#1d4ed8] text-sm font-medium flex items-center gap-1 transition-colors"
+                            >
                               <Eye className="h-3 w-3" />
                               Ver perfil del proveedor
                             </button>
@@ -840,11 +1040,12 @@ export function UserProfilePage() {
           </Card>
         </motion.div>
 
-        {/* Preferencias */}
+        {/* Preferencias - Lazy loaded */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          ref={setPreferencesRef}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 1.4 }}
+          transition={{ duration: 0.3 }}
         >
           <Card className="rounded-2xl shadow-lg border-0">
             <CardHeader>
@@ -854,15 +1055,24 @@ export function UserProfilePage() {
               <div className="space-y-4">
                 <div>
                   <h3 className="font-medium text-[#111827] mb-3">Categorías más buscadas</h3>
-                  {userData.preferredCategories && userData.preferredCategories.length > 0 ? (
+                  {isLoadingPreferences ? (
+                    <div className="flex flex-wrap gap-2">
+                      {[1, 2, 3].map((i) => (
+                        <div
+                          key={i}
+                          className="h-6 w-24 bg-gray-200 rounded-full animate-pulse"
+                        />
+                      ))}
+                    </div>
+                  ) : userData.preferredCategories && userData.preferredCategories.length > 0 ? (
                     <div className="flex flex-wrap gap-2">
                       {userData.preferredCategories.map((category, index) => (
                         <motion.div
                           key={index}
-                          initial={{ opacity: 0, scale: 0.8 }}
+                          initial={{ opacity: 0, scale: 0.9 }}
                           animate={{ opacity: 1, scale: 1 }}
-                          transition={{ duration: 0.3, delay: 1.5 + index * 0.05 }}
-                          whileHover={{ scale: 1.1, y: -2 }}
+                          transition={{ duration: 0.2, delay: index * 0.03 }}
+                          whileHover={{ scale: 1.05, y: -2 }}
                         >
                           <Badge variant="outline" className="border-[#2563EB] text-[#2563EB]">
                             {category}
@@ -877,15 +1087,24 @@ export function UserProfilePage() {
 
                 <div>
                   <h3 className="font-medium text-[#111827] mb-3">Ciudades utilizadas</h3>
-                  {userData.citiesUsed && userData.citiesUsed.length > 0 ? (
+                  {isLoadingPreferences ? (
+                    <div className="flex flex-wrap gap-2">
+                      {[1, 2, 3].map((i) => (
+                        <div
+                          key={i}
+                          className="h-6 w-28 bg-gray-200 rounded-full animate-pulse"
+                        />
+                      ))}
+                    </div>
+                  ) : userData.citiesUsed && userData.citiesUsed.length > 0 ? (
                     <div className="flex flex-wrap gap-2">
                       {userData.citiesUsed.map((city, index) => (
                         <motion.div
                           key={index}
-                          initial={{ opacity: 0, scale: 0.8 }}
+                          initial={{ opacity: 0, scale: 0.9 }}
                           animate={{ opacity: 1, scale: 1 }}
-                          transition={{ duration: 0.3, delay: 1.6 + index * 0.05 }}
-                          whileHover={{ scale: 1.1, y: -2 }}
+                          transition={{ duration: 0.2, delay: index * 0.03 }}
+                          whileHover={{ scale: 1.05, y: -2 }}
                         >
                           <Badge variant="outline" className="border-gray-400 text-gray-600">
                             <MapPin className="h-3 w-3 mr-1" />

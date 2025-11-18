@@ -12,6 +12,7 @@ import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useAuth } from "@/contexts/AuthContext"
 import { motion, AnimatePresence } from "framer-motion"
+import toast from "react-hot-toast"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -58,20 +59,26 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!validateForm()) return
+    if (!validateForm()) {
+      toast.error('Por favor completa todos los campos correctamente')
+      return
+    }
 
     setIsLoading(true)
     setErrors({}) // Limpiar errores anteriores
     
     try {
       await login(formData.email, formData.password)
+      toast.success('¡Bienvenido! Sesión iniciada correctamente')
       const next = searchParams.get('next')
       router.push(next && next.startsWith('/') ? next : '/')
     } catch (error: any) {
       console.error('Login error:', error)
+      const errorMessage = error.message || 'Error al iniciar sesión. Intenta nuevamente.'
       setErrors({ 
-        general: error.message || 'Error al iniciar sesión. Intenta nuevamente.' 
+        general: errorMessage
       })
+      toast.error(errorMessage)
     } finally {
       setIsLoading(false)
     }

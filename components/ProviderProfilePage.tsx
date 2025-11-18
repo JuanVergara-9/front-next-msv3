@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/components/ui/use-toast"
+import toast from "react-hot-toast"
 import {
   Star,
   MapPin,
@@ -430,9 +431,9 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
                           whileTap={{ scale: 0.9 }}
                         >
                           <motion.div
-                            initial={{ scale: 0, rotate: -180 }}
-                            animate={{ scale: 1, rotate: 0 }}
-                            transition={{ duration: 0.6, type: "spring", stiffness: 200 }}
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.3, ease: "easeOut" }}
                           >
                             <Avatar className="h-20 w-20 border-4 border-white shadow-lg">
                               <AvatarImage
@@ -1491,7 +1492,7 @@ function AvailabilityEditor({ initial, onSave, saving }: { initial: { businessHo
         const start = timeToMinutes(d.start)
         const end = timeToMinutes(d.end)
         if (start >= end){
-          alert(`Revisá ${labels[k]}: la hora de inicio debe ser menor que la de fin`)
+          toast.error(`Revisá ${labels[k]}: la hora de inicio debe ser menor que la de fin`)
           return
         }
         bh[k] = [{ start, end }]

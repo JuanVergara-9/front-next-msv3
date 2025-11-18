@@ -22,12 +22,25 @@ export class UserProfileService {
   private static readonly BASE_URL = '/api/v1/user-profile'
 
   // Obtener datos del perfil de usuario
+  // NOTA: Este endpoint puede no estar implementado aún, por lo que retorna datos por defecto
   static async getUserProfile(userId: number): Promise<UserProfileData> {
     try {
-      const response = await apiClient.get(`${this.BASE_URL}/${userId}`)
+      const response = await apiClient.get(`${this.BASE_URL}/${userId}`, {
+        timeout: 3000, // Timeout corto para no bloquear
+      })
       
-      // El endpoint actual solo devuelve el perfil básico del usuario
-      // Por ahora, retornamos datos por defecto hasta que se implemente el endpoint completo
+      // Si el endpoint devuelve datos, usarlos
+      if (response.data && typeof response.data === 'object') {
+        return {
+          reviewsPublished: response.data.reviewsPublished ?? 0,
+          contactsLast30Days: response.data.contactsLast30Days ?? 0,
+          reviews: response.data.reviews ?? [],
+          preferredCategories: response.data.preferredCategories ?? [],
+          citiesUsed: response.data.citiesUsed ?? []
+        }
+      }
+      
+      // Si no hay datos válidos, retornar por defecto
       return {
         reviewsPublished: 0,
         contactsLast30Days: 0,
@@ -36,8 +49,8 @@ export class UserProfileService {
         citiesUsed: []
       }
     } catch (error: any) {
-      console.error('Error getting user profile:', error)
-      // Retornar datos vacíos si hay error
+      // Error silencioso - el endpoint puede no estar implementado
+      // Retornar datos vacíos sin bloquear
       return {
         reviewsPublished: 0,
         contactsLast30Days: 0,
@@ -82,10 +95,15 @@ export class UserProfileService {
     citiesUsed: string[]
   }> {
     try {
-      const response = await apiClient.get(`${this.BASE_URL}/${userId}/preferences`)
-      return response.data
+      const response = await apiClient.get(`${this.BASE_URL}/${userId}/preferences`, {
+        timeout: 2000, // Timeout corto para preferencias
+      })
+      return response.data || {
+        preferredCategories: [],
+        citiesUsed: []
+      }
     } catch (error: any) {
-      console.error('Error getting user preferences:', error)
+      // Error silencioso - retornar datos vacíos
       return {
         preferredCategories: [],
         citiesUsed: []
