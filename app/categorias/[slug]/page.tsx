@@ -99,21 +99,22 @@ export default function ProvidersByCategoryPage() {
       {/* Header */}
       <div className="glass-effect border-b border-white/20 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" size="sm" className="gap-2" onClick={() => router.back()}>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div className="flex items-start sm:items-center gap-3 sm:gap-4 flex-1 min-w-0">
+              <Button variant="ghost" size="sm" className="gap-2 shrink-0" onClick={() => router.back()}>
                 <ArrowLeft className="h-4 w-4" />
-                Volver
+                <span className="hidden sm:inline">Volver</span>
               </Button>
-              <div>
-                <h1 className="text-2xl font-bold text-balance">{title}</h1>
-                {totalText && <p className="text-muted-foreground">{totalText}</p>}
+              <div className="flex-1 min-w-0">
+                <h1 className="text-xl sm:text-2xl font-bold break-words leading-tight">{title}</h1>
+                {totalText && <p className="text-sm sm:text-base text-muted-foreground mt-1">{totalText}</p>}
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" className="gap-2 bg-transparent" onClick={() => setOnlyLicensed(v => !v)}>
-                <BadgeCheck className="h-4 w-4" />
-                {onlyLicensed ? 'Solo matriculados: ON' : 'Solo matriculados'}
+            <div className="flex items-center gap-2 shrink-0">
+              <Button variant="outline" size="sm" className="gap-2 bg-transparent text-xs sm:text-sm whitespace-nowrap" onClick={() => setOnlyLicensed(v => !v)}>
+                <BadgeCheck className="h-4 w-4 shrink-0" />
+                <span className="hidden sm:inline-block">{onlyLicensed ? 'Solo matriculados: ON' : 'Solo matriculados'}</span>
+                <span className="inline-block sm:hidden">{onlyLicensed ? 'Solo matricula' : 'Solo matricula'}</span>
               </Button>
             </div>
           </div>
