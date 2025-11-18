@@ -392,17 +392,19 @@ export function CategoriesSection() {
             ¿Qué necesitás hoy?
           </motion.h1>
           <motion.p 
-            className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto text-balance"
+            className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto text-balance min-h-[3rem] sm:min-h-[2.5rem] flex items-center justify-center flex-wrap gap-1"
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
           >
-            Elegí un oficio y encontrá{" "}
-            <TypewriterText 
-              words={["plomeros", "gasistas", "electricistas", "pintores", "carpinteros", "jardineros"]}
-              className="text-[#007bff] font-semibold"
-            />{" "}
-            cerca de tu zona
+            <span>Elegí un oficio y encontrá</span>{" "}
+            <span className="inline-block min-w-[120px] sm:min-w-[140px] text-left">
+              <TypewriterText 
+                words={["plomeros", "gasistas", "electricistas", "pintores", "carpinteros", "jardineros"]}
+                className="text-[#007bff] font-semibold"
+              />
+            </span>{" "}
+            <span>cerca de tu zona</span>
           </motion.p>
         </motion.div>
 
