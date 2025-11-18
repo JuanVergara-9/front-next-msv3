@@ -168,5 +168,15 @@ export class UserProfileService {
     const data = await res.json()
     return data.profile
   }
+
+  // Reportar problema o feedback
+  static async submitFeedback(data: {
+    type: 'bug' | 'feature_request' | 'complaint' | 'other'
+    subject: string
+    message: string
+  }): Promise<{ feedback: { id: number; type: string; subject: string; status: string; created_at: string } }> {
+    const response = await apiClient.post('/api/v1/feedback', data)
+    return response.data
+  }
 }
 

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import { ProvidersService } from '@/lib/services/providers.service'
+import { UserProfileService } from '@/lib/services/user-profile.service'
 import { useAuth } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -9,6 +10,57 @@ import { Header } from '../components/Header'
 import { ProviderCard } from '../components/ProviderCard'
 import type { ProviderWithDetails } from '../types/api'
 import { motion, AnimatePresence } from "framer-motion"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import toast from "react-hot-toast"
+
+// Componente de efecto typewriter para oficios
+const TypewriterText = ({ words, className = "" }: { words: string[]; className?: string }) => {
+  const [currentWordIndex, setCurrentWordIndex] = useState(0)
+  const [currentText, setCurrentText] = useState("")
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [typingSpeed, setTypingSpeed] = useState(150)
+
+  useEffect(() => {
+    const currentWord = words[currentWordIndex]
+    
+    if (!isDeleting && currentText === currentWord) {
+      // Pausa antes de empezar a borrar
+      setTimeout(() => setIsDeleting(true), 2000)
+      return
+    }
+
+    if (isDeleting && currentText === "") {
+      // Cambiar a la siguiente palabra
+      setIsDeleting(false)
+      setCurrentWordIndex((prev) => (prev + 1) % words.length)
+      setTypingSpeed(150)
+      return
+    }
+
+    const timeout = setTimeout(() => {
+      if (isDeleting) {
+        setCurrentText(currentWord.substring(0, currentText.length - 1))
+        setTypingSpeed(75) // Más rápido al borrar
+      } else {
+        setCurrentText(currentWord.substring(0, currentText.length + 1))
+        setTypingSpeed(150) // Velocidad normal al escribir
+      }
+    }, typingSpeed)
+
+    return () => clearTimeout(timeout)
+  }, [currentText, isDeleting, currentWordIndex, words, typingSpeed])
+
+  return (
+    <span className={className}>
+      {currentText}
+    </span>
+  )
+}
 
 // Categories with icons for the UI
 const CATEGORIES_WITH_ICONS = [
@@ -157,9 +209,8 @@ const HowItWorks = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
-          Conectamos personas con
+          Conectamos personas con{" "}
           <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            {" "}
             profesionales locales
           </span>
         </motion.h2>
@@ -305,6 +356,21 @@ const SearchSection = ({
     transition={{ duration: 0.5, delay: 0.4 }}
   >
     <div className="max-w-2xl mx-auto">
+      <motion.div
+        className="text-center mb-6"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.5 }}
+      >
+        <p className="text-lg md:text-xl text-muted-foreground">
+          Encontrá{" "}
+          <TypewriterText 
+            words={["plomeros", "gasistas", "electricistas", "pintores", "carpinteros", "jardineros"]}
+            className="text-primary font-semibold"
+          />{" "}
+          cerca de ti
+        </p>
+      </motion.div>
       <div className="relative">
         <motion.div 
           className="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-3xl blur-xl"
@@ -356,20 +422,23 @@ const SearchSection = ({
 )
 
 const SkeletonCard = () => (
-  <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 animate-pulse">
-    <div className="flex gap-3">
-      <div className="w-16 h-16 bg-gray-200 rounded-xl flex-shrink-0"></div>
+  <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 animate-pulse flex flex-col h-full">
+    <div className="flex gap-4 mb-4 flex-1">
+      <div className="w-16 h-16 bg-gray-200 rounded-2xl flex-shrink-0"></div>
       <div className="flex-1 space-y-2">
-        <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-        <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-        <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+        <div className="h-5 bg-gray-200 rounded w-3/4"></div>
+        <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+        <div className="h-3 bg-gray-200 rounded w-2/3 mt-2"></div>
+        <div className="h-3 bg-gray-200 rounded w-full mt-1"></div>
       </div>
     </div>
-    <div className="mt-3 flex gap-2">
-      <div className="h-6 bg-gray-200 rounded-full w-16"></div>
+    <div className="mb-4 flex gap-2">
       <div className="h-6 bg-gray-200 rounded-full w-20"></div>
     </div>
-    <div className="mt-3 h-8 bg-gray-200 rounded-xl"></div>
+    <div className="flex gap-3 mt-auto">
+      <div className="flex-1 h-12 bg-gray-200 rounded-2xl"></div>
+      <div className="flex-1 h-12 bg-gray-200 rounded-2xl"></div>
+    </div>
   </div>
 )
 
@@ -457,7 +526,7 @@ const ProvidersList = ({
               </div>
             </div>
             <div className="hidden md:grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {Array.from({ length: 6 }).map((_, i) => (
+              {Array.from({ length: 3 }).map((_, i) => (
                 <motion.div
                   key={i}
                   initial={{ opacity: 0, y: 20 }}
@@ -522,103 +591,135 @@ const ProvidersList = ({
 )
 
 
-// New subcomponent
-const ProviderSignupSection = () => (
-  <section className="py-16 px-4">
-    <div className="max-w-4xl mx-auto">
-      <div className="relative">
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-secondary/10 rounded-3xl blur-xl"></div>
-        <div className="relative bg-gradient-to-br from-card to-muted/50 rounded-3xl p-8 md:p-12 text-center premium-shadow-lg border border-border/50">
-          <div className="w-20 h-20 bg-gradient-to-br from-primary to-secondary rounded-3xl flex items-center justify-center mx-auto mb-6 premium-shadow-lg">
-            <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-              />
-            </svg>
-          </div>
-          <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-4">¿Ofrecés servicios profesionales?</h3>
-          <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto text-pretty">
-            Únete a miles de profesionales que ya confían en miservicio. Crea tu perfil gratis y empieza a recibir
-            clientes hoy mismo.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-6">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <svg className="w-5 h-5 text-primary" fill="currentColor" viewBox="0 0 20 20">
-                <path
-                  fillRule="evenodd"
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              Registro gratuito
-            </div>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                />
-              </svg>
-              Sin comisiones ocultas
-            </div>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                />
-              </svg>
-              Soporte dedicado
-            </div>
-          </div>
-          <Link href="/auth/register?provider=1" className="inline-block">
-            <motion.div 
-              className="group/crear relative px-8 py-4 bg-gradient-to-r from-primary to-secondary text-primary-foreground rounded-2xl font-bold text-lg premium-shadow-lg cursor-pointer hover:shadow-2xl hover:scale-[1.04] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 transition-all duration-200 ease-out overflow-hidden"
-              whileHover={{ scale: 1.04, y: -2 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              <span className="relative z-10">Crear perfil profesional</span>
-              <div className="absolute inset-0 bg-gradient-to-r from-secondary to-primary opacity-0 group-hover/crear:opacity-100 transition-opacity duration-200"></div>
-            </motion.div>
-          </Link>
-        </div>
-      </div>
-    </div>
-  </section>
-)
+// Componente de botón de feedback reutilizable
+const FeedbackButton = () => {
+  const { user } = useAuth()
+  const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false)
+  const [isSubmittingFeedback, setIsSubmittingFeedback] = useState(false)
+  const [feedbackForm, setFeedbackForm] = useState({
+    type: 'bug' as 'bug' | 'feature_request' | 'complaint' | 'other',
+    subject: '',
+    message: '',
+  })
 
-// New subcomponent for "Más sobre miservicio" section
-const AboutSection = () => (
-  <section className="py-12 px-4">
-    <div className="max-w-4xl mx-auto text-center">
-      <div className="bg-card rounded-2xl p-8 border border-border/50 shadow-sm">
-        <div className="w-16 h-16 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-2xl flex items-center justify-center mx-auto mb-6">
-          <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-        </div>
-        <h3 className="text-2xl font-bold text-foreground mb-4">¿Querés saber más sobre miservicio?</h3>
-        <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
-          Conocé nuestra historia, misión y cómo estamos digitalizando los oficios locales en San Rafael, Mendoza.
-        </p>
-        <a 
-          href="/sobre"
-          className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-colors font-medium"
-        >
-          Más sobre miservicio
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
-        </a>
-      </div>
-    </div>
-  </section>
-)
+  // Si no hay usuario, no mostrar el botón
+  if (!user) return null
+
+  return (
+    <>
+      <button
+        onClick={() => setIsFeedbackModalOpen(true)}
+        className="text-sm text-muted-foreground hover:text-primary transition-colors cursor-pointer"
+      >
+        Reportar problema
+      </button>
+
+      {/* Modal para reportar problema */}
+      <Dialog 
+        open={isFeedbackModalOpen} 
+        onOpenChange={(open) => {
+          setIsFeedbackModalOpen(open)
+          if (!open) {
+            setFeedbackForm({
+              type: 'bug',
+              subject: '',
+              message: '',
+            })
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Reportar problema</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="feedback-type">Tipo de reporte</Label>
+              <Select
+                value={feedbackForm.type}
+                onValueChange={(value: 'bug' | 'feature_request' | 'complaint' | 'other') => 
+                  setFeedbackForm({ ...feedbackForm, type: value })
+                }
+              >
+                <SelectTrigger id="feedback-type">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="bug">Error o bug</SelectItem>
+                  <SelectItem value="feature_request">Solicitud de funcionalidad</SelectItem>
+                  <SelectItem value="complaint">Queja o problema</SelectItem>
+                  <SelectItem value="other">Otro</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="feedback-subject">Asunto</Label>
+              <Input
+                id="feedback-subject"
+                value={feedbackForm.subject}
+                onChange={(e) => setFeedbackForm({ ...feedbackForm, subject: e.target.value })}
+                placeholder="Describe brevemente el problema"
+                maxLength={200}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="feedback-message">Mensaje</Label>
+              <Textarea
+                id="feedback-message"
+                value={feedbackForm.message}
+                onChange={(e) => setFeedbackForm({ ...feedbackForm, message: e.target.value })}
+                placeholder="Describe el problema o sugerencia en detalle"
+                rows={6}
+              />
+            </div>
+
+            <div className="flex gap-2 justify-end">
+              <Button
+                variant="outline"
+                onClick={() => setIsFeedbackModalOpen(false)}
+                disabled={isSubmittingFeedback}
+              >
+                Cancelar
+              </Button>
+              <Button
+                onClick={async () => {
+                  if (!feedbackForm.subject.trim() || !feedbackForm.message.trim()) {
+                    toast.error('Por favor completa todos los campos')
+                    return
+                  }
+
+                  try {
+                    setIsSubmittingFeedback(true)
+                    await UserProfileService.submitFeedback(feedbackForm)
+                    toast.success('Reporte enviado correctamente. Gracias por tu feedback.')
+                    setIsFeedbackModalOpen(false)
+                    setFeedbackForm({
+                      type: 'bug',
+                      subject: '',
+                      message: '',
+                    })
+                  } catch (error: any) {
+                    console.error('Error submitting feedback:', error)
+                    toast.error(error?.message || 'Error al enviar el reporte. Intenta nuevamente.')
+                  } finally {
+                    setIsSubmittingFeedback(false)
+                  }
+                }}
+                disabled={isSubmittingFeedback || !feedbackForm.subject.trim() || !feedbackForm.message.trim()}
+                className="bg-primary hover:bg-primary/90 text-primary-foreground"
+              >
+                {isSubmittingFeedback ? 'Enviando...' : 'Enviar reporte'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
+  )
+}
 
 // Main component
 export default function MiservicioHome() {
@@ -896,8 +997,100 @@ export default function MiservicioHome() {
       <HowItWorks />
       <SearchSection query={query} onQueryChange={setQuery} onSearch={handleSearch} />
       <ProvidersList providers={isFilteredView ? filtered : filtered.slice(0, 6)} loading={loading} onContact={handleContact} onSearchCityWide={handleSearchCityWide} onViewCategories={handleViewCategories} />
-      <ProviderSignupSection />
-      <AboutSection />
+      
+      {/* Secciones combinadas - Mejor layout en desktop */}
+      <section className="py-16 px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+            {/* Card de Proveedores */}
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-secondary/10 rounded-3xl blur-xl"></div>
+              <div className="relative bg-gradient-to-br from-card to-muted/50 rounded-3xl p-8 md:p-10 text-center premium-shadow-lg border border-border/50 h-full flex flex-col">
+                <div className="w-20 h-20 bg-gradient-to-br from-primary to-secondary rounded-3xl flex items-center justify-center mx-auto mb-6 premium-shadow-lg">
+                  <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                    />
+                  </svg>
+                </div>
+                <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-4">¿Ofrecés servicios profesionales?</h3>
+                <p className="text-base text-muted-foreground mb-6 flex-grow">
+                  Únete a miles de profesionales que ya confían en miservicio. Crea tu perfil gratis y empieza a recibir clientes hoy mismo.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-3 justify-center items-center mb-6">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <svg className="w-5 h-5 text-primary" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    Registro gratuito
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Sin comisiones ocultas
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    Soporte dedicado
+                  </div>
+                </div>
+                <Link href="/auth/register?provider=1" className="inline-block">
+                  <motion.div 
+                    className="group/crear relative px-8 py-4 bg-gradient-to-r from-primary to-secondary text-primary-foreground rounded-2xl font-bold text-lg premium-shadow-lg cursor-pointer hover:shadow-2xl hover:scale-[1.04] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 transition-all duration-200 ease-out overflow-hidden"
+                    whileHover={{ scale: 1.04, y: -2 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <span className="relative z-10">Crear perfil profesional</span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-secondary to-primary opacity-0 group-hover/crear:opacity-100 transition-opacity duration-200"></div>
+                  </motion.div>
+                </Link>
+              </div>
+            </div>
+
+            {/* Card de Sobre */}
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-secondary/10 rounded-3xl blur-xl"></div>
+              <div className="relative bg-gradient-to-br from-card to-muted/50 rounded-3xl p-8 md:p-10 text-center premium-shadow-lg border border-border/50 h-full flex flex-col">
+                <div className="w-20 h-20 bg-gradient-to-br from-primary to-secondary rounded-3xl flex items-center justify-center mx-auto mb-6 premium-shadow-lg">
+                  <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-4">¿Querés saber más sobre miservicio?</h3>
+                <p className="text-base text-muted-foreground mb-6 flex-grow">
+                  Conocé nuestra historia, misión y cómo estamos digitalizando los oficios locales en San Rafael, Mendoza.
+                </p>
+                <Link href="/sobre" className="inline-block">
+                  <motion.div 
+                    className="group/sobre relative px-8 py-4 bg-gradient-to-r from-primary to-secondary text-primary-foreground rounded-2xl font-bold text-lg premium-shadow-lg cursor-pointer hover:shadow-2xl hover:scale-[1.04] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 transition-all duration-200 ease-out overflow-hidden"
+                    whileHover={{ scale: 1.04, y: -2 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <span className="relative z-10 flex items-center justify-center gap-2">
+                      Más sobre miservicio
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-secondary to-primary opacity-0 group-hover/sobre:opacity-100 transition-opacity duration-200"></div>
+                  </motion.div>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Botón "Reportar problema" - Sutil al final */}
+      <div className="text-center py-6 pb-8">
+        <FeedbackButton />
+      </div>
     </div>
   )
 }

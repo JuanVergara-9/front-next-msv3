@@ -4,12 +4,56 @@ import { useRef, useEffect, useState, useMemo } from "react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Wrench, Flame, Zap, Settings, ChevronRight, ChevronLeft, Loader2, Leaf, Droplets } from "lucide-react"
+import { Wrench, Flame, Zap, Settings, ChevronRight, ChevronLeft, Loader2, Leaf, Droplets, Hammer, Paintbrush } from "lucide-react"
 import { ProvidersService } from "@/lib/services/providers.service"
 import { Category, ProviderWithDetails } from "@/types/api"
 import { useRouter } from "next/navigation"
 import { ProviderCarouselCard } from "./ProviderCarouselCard"
 import { motion, AnimatePresence } from "framer-motion"
+
+// Componente de efecto typewriter para oficios
+const TypewriterText = ({ words, className = "" }: { words: string[]; className?: string }) => {
+  const [currentWordIndex, setCurrentWordIndex] = useState(0)
+  const [currentText, setCurrentText] = useState("")
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [typingSpeed, setTypingSpeed] = useState(150)
+
+  useEffect(() => {
+    const currentWord = words[currentWordIndex]
+    
+    if (!isDeleting && currentText === currentWord) {
+      // Pausa antes de empezar a borrar
+      setTimeout(() => setIsDeleting(true), 2000)
+      return
+    }
+
+    if (isDeleting && currentText === "") {
+      // Cambiar a la siguiente palabra
+      setIsDeleting(false)
+      setCurrentWordIndex((prev) => (prev + 1) % words.length)
+      setTypingSpeed(150)
+      return
+    }
+
+    const timeout = setTimeout(() => {
+      if (isDeleting) {
+        setCurrentText(currentWord.substring(0, currentText.length - 1))
+        setTypingSpeed(75) // Más rápido al borrar
+      } else {
+        setCurrentText(currentWord.substring(0, currentText.length + 1))
+        setTypingSpeed(150) // Velocidad normal al escribir
+      }
+    }, typingSpeed)
+
+    return () => clearTimeout(timeout)
+  }, [currentText, isDeleting, currentWordIndex, words, typingSpeed])
+
+  return (
+    <span className={className}>
+      {currentText}
+    </span>
+  )
+}
 
 // Componente de carrusel con scroll nativo, movimiento automático continuo y efecto infinito
 function ProviderCarousel({ providers }: { providers: ProviderWithDetails[] }) {
@@ -79,6 +123,8 @@ const iconMap: Record<string, any> = {
   'jardineria': Leaf,
   'mantenimiento-limpieza-piletas': Droplets,
   'reparacion-electrodomesticos': Settings,
+  'carpinteria': Hammer,
+  'pintura': Paintbrush,
   'default': Settings
 }
 
@@ -92,6 +138,8 @@ export function CategoriesSection() {
   const [providersLoaded, setProvidersLoaded] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [canScrollLeft, setCanScrollLeft] = useState(false)
+  const [canScrollRight, setCanScrollRight] = useState(true)
 
   useEffect(() => {
     loadCategories()
@@ -208,17 +256,64 @@ export function CategoriesSection() {
     }
   }
 
+  // Función para verificar la posición del scroll
+  const checkScrollPosition = () => {
+    if (!scrollRef.current) return
+    
+    const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current
+    const isAtStart = scrollLeft <= 0
+    const isAtEnd = scrollLeft + clientWidth >= scrollWidth - 1 // -1 para manejar errores de redondeo
+    
+    setCanScrollLeft(!isAtStart)
+    setCanScrollRight(!isAtEnd)
+  }
+
   const scrollLeft = () => {
     if (scrollRef.current) {
       scrollRef.current.scrollBy({ left: -320, behavior: "smooth" })
+      // Verificar posición después de un breve delay para que el scroll se complete
+      setTimeout(checkScrollPosition, 300)
     }
   }
 
   const scrollRight = () => {
     if (scrollRef.current) {
       scrollRef.current.scrollBy({ left: 320, behavior: "smooth" })
+      // Verificar posición después de un breve delay para que el scroll se complete
+      setTimeout(checkScrollPosition, 300)
     }
   }
+
+  // Verificar posición del scroll cuando cambian las categorías o al hacer scroll
+  useEffect(() => {
+    if (!scrollRef.current || categories.length === 0) return
+    
+    // Esperar un momento para que el DOM se actualice completamente
+    const timeoutId = setTimeout(() => {
+      checkScrollPosition()
+    }, 100)
+    
+    const handleScroll = () => {
+      checkScrollPosition()
+    }
+    
+    scrollRef.current.addEventListener('scroll', handleScroll)
+    
+    // También verificar cuando cambia el tamaño de la ventana
+    const handleResize = () => {
+      setTimeout(checkScrollPosition, 100)
+    }
+    
+    window.addEventListener('resize', handleResize)
+    
+    return () => {
+      clearTimeout(timeoutId)
+      if (scrollRef.current) {
+        scrollRef.current.removeEventListener('scroll', handleScroll)
+      }
+      window.removeEventListener('resize', handleResize)
+    }
+  }, [categories])
 
   const handleCategoryClick = (category: Category) => {
     router.push(`/categorias/${category.slug}`)
@@ -302,7 +397,12 @@ export function CategoriesSection() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
           >
-            Elegí un oficio y encontrá profesionales cerca de tu zona
+            Elegí un oficio y encontrá{" "}
+            <TypewriterText 
+              words={["plomeros", "gasistas", "electricistas", "pintores", "carpinteros", "jardineros"]}
+              className="text-[#007bff] font-semibold"
+            />{" "}
+            cerca de tu zona
           </motion.p>
         </motion.div>
 
@@ -390,44 +490,54 @@ export function CategoriesSection() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.5, delay: 0.6 }}
             >
-            {/* Left Arrow */}
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.4, delay: 0.7 }}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-              >
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={scrollLeft}
-              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 p-0 rounded-full border-gray-200 hover:border-[#007bff] hover:bg-[#007bff] hover:text-white transition-all bg-white shadow-lg -translate-x-6"
-            >
-              <ChevronLeft className="h-5 w-5" />
-            </Button>
-              </motion.div>
+            {/* Left Arrow - Solo visible si puede hacer scroll a la izquierda */}
+            <AnimatePresence>
+              {canScrollLeft && (
+                <motion.div
+                  key="left-arrow"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.3 }}
+                  className="absolute left-0 top-1/2 -translate-y-1/2 z-10"
+                >
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={scrollLeft}
+                    className="w-12 h-12 p-0 rounded-full border-gray-200 hover:border-[#007bff] hover:bg-[#007bff] hover:text-white transition-all bg-white shadow-lg -translate-x-6 hover:scale-110 active:scale-95"
+                  >
+                    <ChevronLeft className="h-5 w-5" />
+                  </Button>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
-            {/* Right Arrow */}
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.4, delay: 0.7 }}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-              >
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={scrollRight}
-              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 p-0 rounded-full border-gray-200 hover:border-[#007bff] hover:bg-[#007bff] hover:text-white transition-all bg-white shadow-lg translate-x-6"
-            >
-              <ChevronRight className="h-5 w-5" />
-            </Button>
-              </motion.div>
+            {/* Right Arrow - Solo visible si puede hacer scroll a la derecha */}
+            <AnimatePresence>
+              {canScrollRight && (
+                <motion.div
+                  key="right-arrow"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                  transition={{ duration: 0.3 }}
+                  className="absolute right-0 top-1/2 -translate-y-1/2 z-10"
+                >
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={scrollRight}
+                    className="w-12 h-12 p-0 rounded-full border-gray-200 hover:border-[#007bff] hover:bg-[#007bff] hover:text-white transition-all bg-white shadow-lg translate-x-6 hover:scale-110 active:scale-95"
+                  >
+                    <ChevronRight className="h-5 w-5" />
+                  </Button>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Carousel Container */}
-            <div ref={scrollRef} className="flex gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4 pt-4 px-8">
+            <div ref={scrollRef} className="flex gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4 pt-4 px-8 items-stretch">
                 {categories.map((category, index) => {
                 const IconComponent = getIconComponent(category.slug)
                 return (
@@ -443,39 +553,42 @@ export function CategoriesSection() {
                       }}
                       whileHover={{ y: -8, scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
+                      className="flex-shrink-0"
                     >
                   <Card
                     onClick={() => handleCategoryClick(category)}
-                        className="group flex-shrink-0 w-72 snap-center p-6 bg-white border border-gray-200 shadow-lg hover:shadow-xl transition-all duration-200 cursor-pointer hover:ring-2 hover:ring-[#007bff]/20"
+                    className="group w-72 snap-center p-6 bg-white border border-gray-200 shadow-lg hover:shadow-xl transition-all duration-200 cursor-pointer hover:ring-2 hover:ring-[#007bff]/20 h-full flex flex-col"
                   >
                     {/* Icon */}
-                        <motion.div 
-                          className="flex justify-center mb-4"
-                          whileHover={{ rotate: [0, -10, 10, -10, 0] }}
-                          transition={{ duration: 0.5 }}
-                        >
-                      <div className="w-16 h-16 rounded-full bg-[#007bff]/10 flex items-center justify-center group-hover:bg-[#007bff]/20 transition-colors">
+                    <motion.div 
+                      className="flex justify-center mb-4"
+                      whileHover={{ rotate: [0, -10, 10, -10, 0] }}
+                      transition={{ duration: 0.5 }}
+                    >
+                      <div className="w-16 h-16 rounded-full bg-[#007bff]/10 flex items-center justify-center group-hover:bg-[#007bff]/20 transition-colors flex-shrink-0">
                         <IconComponent className="h-8 w-8 text-[#007bff] stroke-2" />
                       </div>
-                        </motion.div>
+                    </motion.div>
 
                     {/* Content */}
-                    <div className="text-center space-y-3">
-                      <h3 className="font-semibold text-gray-900 text-lg leading-tight">{category.name}</h3>
-                      <p className="text-sm text-gray-600 leading-relaxed">
+                    <div className="text-center space-y-3 flex-grow flex flex-col">
+                      <h3 className="font-semibold text-gray-900 text-lg leading-tight min-h-[3.5rem] flex items-center justify-center">
+                        {category.name}
+                      </h3>
+                      <p className="text-sm text-gray-600 leading-relaxed flex-grow flex items-center justify-center">
                         Profesionales verificados cerca de tu zona
                       </p>
 
                       {/* CTA */}
-                      <div className="pt-2">
-                            <motion.div 
-                              className="inline-flex items-center gap-1 text-[#007bff] font-medium text-sm"
-                              whileHover={{ gap: 8 }}
-                              transition={{ duration: 0.2 }}
-                            >
+                      <div className="pt-2 mt-auto">
+                        <motion.div 
+                          className="inline-flex items-center gap-1 text-[#007bff] font-medium text-sm"
+                          whileHover={{ gap: 8 }}
+                          transition={{ duration: 0.2 }}
+                        >
                           Ver {category.name.toLowerCase()}
                           <ChevronRight className="h-4 w-4" />
-                            </motion.div>
+                        </motion.div>
                       </div>
                     </div>
                   </Card>

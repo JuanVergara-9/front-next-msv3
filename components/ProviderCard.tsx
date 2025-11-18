@@ -3,10 +3,16 @@
 import { Star, MapPin, Eye, BadgeCheck } from "lucide-react"
 import { useRouter } from "next/navigation"
 import type { ProviderWithDetails } from "@/types/api"
+import { normalizeFullName, normalizeCity } from "@/lib/utils"
 
 export function ProviderCard({ provider, onContact }: { provider: ProviderWithDetails; onContact?: (p: ProviderWithDetails) => void }) {
   const router = useRouter()
-  const displayName = provider.full_name || [provider.first_name, provider.last_name].filter(Boolean).join(' ')
+  const displayName = normalizeFullName(
+    provider.full_name,
+    provider.first_name,
+    provider.last_name
+  )
+  const normalizedCity = normalizeCity(provider.city)
   const avatar = (provider as any).avatar_url || "/placeholder.svg"
 
   const handleViewProfile = () => {
@@ -33,14 +39,18 @@ export function ProviderCard({ provider, onContact }: { provider: ProviderWithDe
           />
         </div>
         <div className="flex-1 min-w-0 flex flex-col">
-          <h3 className="font-bold text-lg text-foreground truncate group-hover:text-primary transition-colors flex items-center gap-2">
-            {displayName}
-            {(provider as any).is_licensed && (
-              <span className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full border border-green-300 text-green-700 bg-green-50 shrink-0">
-                <BadgeCheck className="h-3 w-3" /> Matriculado
-              </span>
-            )}
-          </h3>
+          <div className="mb-1.5 min-h-[1.75rem] flex flex-col justify-start">
+            <div className="flex items-start gap-2 flex-wrap">
+              <h3 className="font-bold text-lg text-foreground group-hover:text-primary transition-colors break-words leading-tight flex-1 min-w-0">
+                {displayName}
+              </h3>
+              {(provider as any).is_licensed && (
+                <span className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full border border-green-300 text-green-700 bg-green-50 shrink-0 mt-0.5">
+                  <BadgeCheck className="h-3 w-3" /> Matriculado
+                </span>
+              )}
+            </div>
+          </div>
           <div className="flex items-center gap-3 text-sm text-muted-foreground mb-2">
             {((provider as any).rating > 0) ? (
               <div className="flex items-center gap-1 bg-yellow-50 px-2 py-1 rounded-full">
@@ -56,13 +66,13 @@ export function ProviderCard({ provider, onContact }: { provider: ProviderWithDe
                 <span className="text-xs font-medium text-gray-500">(0)</span>
               </div>
             )}
-            {((provider as any).distance_km != null || provider.city) && (
+            {((provider as any).distance_km != null || normalizedCity) && (
               <div className="flex items-center gap-1">
-                {provider.city && <MapPin className="h-3 w-3" />}
+                {normalizedCity && <MapPin className="h-3 w-3" />}
                 <span className="font-medium">
                   {[
                     (provider as any).distance_km != null && `${Number((provider as any).distance_km).toFixed(1)} km`,
-                    provider.city
+                    normalizedCity
                   ].filter(Boolean).join(' • ')}
                 </span>
               </div>

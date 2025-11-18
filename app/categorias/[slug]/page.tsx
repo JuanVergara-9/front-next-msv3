@@ -10,6 +10,7 @@ import { ProvidersService } from "@/lib/services/providers.service"
 import type { Category, ProviderWithDetails } from "@/types/api"
 import { useAuth } from "@/contexts/AuthContext"
 import { ProviderCard } from "@/components/ProviderCard"
+import { motion, AnimatePresence } from "framer-motion"
 
 export default function ProvidersByCategoryPage() {
   const params = useParams<{ slug: string }>()
@@ -97,51 +98,130 @@ export default function ProvidersByCategoryPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
       {/* Header */}
-      <div className="glass-effect border-b border-white/20 sticky top-0 z-10">
+      <motion.div 
+        className="glass-effect border-b border-white/20 sticky top-0 z-10"
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: "easeOut" }}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <div className="flex items-start sm:items-center gap-3 sm:gap-4 flex-1 min-w-0">
+            <motion.div 
+              className="flex items-start sm:items-center gap-3 sm:gap-4 flex-1 min-w-0"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.4, delay: 0.1 }}
+            >
               <Button variant="ghost" size="sm" className="gap-2 shrink-0" onClick={() => router.back()}>
                 <ArrowLeft className="h-4 w-4" />
                 <span className="hidden sm:inline">Volver</span>
               </Button>
               <div className="flex-1 min-w-0">
                 <h1 className="text-xl sm:text-2xl font-bold break-words leading-tight">{title}</h1>
-                {totalText && <p className="text-sm sm:text-base text-muted-foreground mt-1">{totalText}</p>}
+                <AnimatePresence mode="wait">
+                  {totalText && (
+                    <motion.p 
+                      key={totalText}
+                      className="text-sm sm:text-base text-muted-foreground mt-1"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      {totalText}
+                    </motion.p>
+                  )}
+                </AnimatePresence>
               </div>
-            </div>
-            <div className="flex items-center gap-2 shrink-0">
+            </motion.div>
+            <motion.div 
+              className="flex items-center gap-2 shrink-0"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.4, delay: 0.1 }}
+            >
               <Button variant="outline" size="sm" className="gap-2 bg-transparent text-xs sm:text-sm whitespace-nowrap" onClick={() => setOnlyLicensed(v => !v)}>
                 <BadgeCheck className="h-4 w-4 shrink-0" />
                 <span className="hidden sm:inline-block">{onlyLicensed ? 'Solo matriculados: ON' : 'Solo matriculados'}</span>
                 <span className="inline-block sm:hidden">{onlyLicensed ? 'Solo matricula' : 'Solo matricula'}</span>
               </Button>
-            </div>
+            </motion.div>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {loading ? (
-          <div className="text-center text-gray-600">Cargando...</div>
-        ) : error ? (
-          <div className="text-center text-red-600">{error}</div>
-        ) : providers.length === 0 ? (
-          <div className="text-center text-gray-600">No hay proveedores disponibles en esta categoría.</div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {providers.map((p) => (
-              <ProviderCard key={p.id} provider={p as any} onContact={handleContact} />
-            ))}
-          </div>
-        )}
+        <AnimatePresence mode="wait">
+          {loading ? (
+            <motion.div 
+              key="loading"
+              className="text-center text-gray-600"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              Cargando...
+            </motion.div>
+          ) : error ? (
+            <motion.div 
+              key="error"
+              className="text-center text-red-600"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              {error}
+            </motion.div>
+          ) : providers.length === 0 ? (
+            <motion.div 
+              key="empty"
+              className="text-center text-gray-600"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              No hay proveedores disponibles en esta categoría.
+            </motion.div>
+          ) : (
+            <motion.div 
+              key="providers"
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.4 }}
+            >
+              {providers.map((p, index) => (
+                <motion.div
+                  key={p.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ 
+                    duration: 0.4, 
+                    delay: index * 0.05,
+                    ease: [0.25, 0.46, 0.45, 0.94]
+                  }}
+                >
+                  <ProviderCard provider={p as any} onContact={handleContact} />
+                </motion.div>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-        <div className="text-center mt-12">
+        <motion.div 
+          className="text-center mt-12"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.4, delay: 0.3 }}
+        >
           <Button variant="outline" size="lg" className="px-8 bg-transparent" onClick={() => router.refresh()}>
             Recargar
           </Button>
-        </div>
+        </motion.div>
       </div>
     </div>
   )

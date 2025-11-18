@@ -5,6 +5,7 @@ import { Star } from "lucide-react"
 import { useRouter } from "next/navigation"
 import type { ProviderWithDetails } from "@/types/api"
 import { motion } from "framer-motion"
+import { normalizeFullName, normalizeCity } from "@/lib/utils"
 
 interface ProviderCarouselCardProps {
   provider: ProviderWithDetails
@@ -12,10 +13,11 @@ interface ProviderCarouselCardProps {
 
 export function ProviderCarouselCard({ provider }: ProviderCarouselCardProps) {
   const router = useRouter()
-  const displayName =
-    provider.full_name?.trim() ||
-    [provider.first_name, provider.last_name].filter(Boolean).join(" ") ||
-    "Profesional verificado"
+  const displayName = normalizeFullName(
+    provider.full_name,
+    provider.first_name,
+    provider.last_name
+  ) || "Profesional verificado"
   const avatar = (provider as any).avatar_url || "/placeholder.svg"
   // Obtener todas las categorías disponibles (combinar categoría principal y many-to-many)
   const allCategories = (() => {
@@ -40,7 +42,7 @@ export function ProviderCarouselCard({ provider }: ProviderCarouselCardProps) {
   const rating = Number((provider as any).rating) || 0
   const reviewCount = Number((provider as any).review_count) || 0
   const hasRating = rating > 0
-  const city = provider.city || provider.province || "Disponible en tu zona"
+  const city = normalizeCity(provider.city || provider.province) || "Disponible en tu zona"
 
   // Mostrar hasta 2 badges visibles, el resto se muestra como "y N+"
   const visibleBadges = allCategories.slice(0, 2)

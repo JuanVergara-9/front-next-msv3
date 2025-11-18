@@ -11,7 +11,9 @@ import { UserProfileService, UserProfileData } from "@/lib/services/user-profile
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useRouter } from "next/navigation"
 import { AuthService } from "@/lib/services/auth.service"
 import { motion, AnimatePresence } from "framer-motion"
@@ -58,6 +60,13 @@ export function UserProfilePage() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [isDragging, setIsDragging] = useState(false)
   const [isLoadingLocation, setIsLoadingLocation] = useState(false)
+  const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false)
+  const [isSubmittingFeedback, setIsSubmittingFeedback] = useState(false)
+  const [feedbackForm, setFeedbackForm] = useState({
+    type: 'bug' as 'bug' | 'feature_request' | 'complaint' | 'other',
+    subject: '',
+    message: '',
+  })
   const [editForm, setEditForm] = useState({
     first_name: '',
     last_name: '',
@@ -1160,8 +1169,125 @@ export function UserProfilePage() {
             </CardContent>
           </Card>
         </motion.div>
+
+        {/* Botón "Reportar problema" - Sutil al final */}
+        <div className="text-center py-4">
+          <button
+            onClick={() => setIsFeedbackModalOpen(true)}
+            className="text-sm text-[#6B7280] hover:text-[#2563EB] transition-colors cursor-pointer"
+          >
+            Reportar problema
+          </button>
+        </div>
         </div>
       </div>
+
+      {/* Modal para reportar problema */}
+      <Dialog 
+        open={isFeedbackModalOpen} 
+        onOpenChange={(open) => {
+          setIsFeedbackModalOpen(open)
+          if (!open) {
+            // Limpiar formulario al cerrar
+            setFeedbackForm({
+              type: 'bug',
+              subject: '',
+              message: '',
+            })
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Reportar problema</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="feedback-type">Tipo de reporte</Label>
+              <Select
+                value={feedbackForm.type}
+                onValueChange={(value: 'bug' | 'feature_request' | 'complaint' | 'other') => 
+                  setFeedbackForm({ ...feedbackForm, type: value })
+                }
+              >
+                <SelectTrigger id="feedback-type">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="bug">Error o bug</SelectItem>
+                  <SelectItem value="feature_request">Solicitud de funcionalidad</SelectItem>
+                  <SelectItem value="complaint">Queja o problema</SelectItem>
+                  <SelectItem value="other">Otro</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="feedback-subject">Asunto</Label>
+              <Input
+                id="feedback-subject"
+                value={feedbackForm.subject}
+                onChange={(e) => setFeedbackForm({ ...feedbackForm, subject: e.target.value })}
+                placeholder="Describe brevemente el problema"
+                maxLength={200}
+                className="bg-white"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="feedback-message">Mensaje</Label>
+              <Textarea
+                id="feedback-message"
+                value={feedbackForm.message}
+                onChange={(e) => setFeedbackForm({ ...feedbackForm, message: e.target.value })}
+                placeholder="Describe el problema o sugerencia en detalle"
+                rows={6}
+                className="bg-white"
+              />
+            </div>
+
+            <div className="flex gap-2 justify-end">
+              <Button
+                variant="outline"
+                onClick={() => setIsFeedbackModalOpen(false)}
+                disabled={isSubmittingFeedback}
+              >
+                Cancelar
+              </Button>
+              <Button
+                onClick={async () => {
+                  if (!feedbackForm.subject.trim() || !feedbackForm.message.trim()) {
+                    toast.error('Por favor completa todos los campos')
+                    return
+                  }
+
+                  try {
+                    setIsSubmittingFeedback(true)
+                    await UserProfileService.submitFeedback(feedbackForm)
+                    toast.success('Reporte enviado correctamente. Gracias por tu feedback.')
+                    setIsFeedbackModalOpen(false)
+                    setFeedbackForm({
+                      type: 'bug',
+                      subject: '',
+                      message: '',
+                    })
+                  } catch (error: any) {
+                    console.error('Error submitting feedback:', error)
+                    toast.error(error?.message || 'Error al enviar el reporte. Intenta nuevamente.')
+                  } finally {
+                    setIsSubmittingFeedback(false)
+                  }
+                }}
+                disabled={isSubmittingFeedback || !feedbackForm.subject.trim() || !feedbackForm.message.trim()}
+                className="bg-[#2563EB] hover:bg-[#1d4ed8] text-white"
+              >
+                {isSubmittingFeedback ? 'Enviando...' : 'Enviar reporte'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Modal para subir/quitar foto de perfil */}
       <Dialog 
