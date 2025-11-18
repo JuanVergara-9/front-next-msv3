@@ -23,8 +23,8 @@ export function ProviderCard({ provider, onContact }: { provider: ProviderWithDe
   }
 
   return (
-    <div className="bg-card rounded-3xl p-6 premium-shadow border border-border/50 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 group">
-      <div className="flex gap-4 mb-4">
+    <div className="bg-card rounded-3xl p-6 premium-shadow border border-border/50 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 group flex flex-col h-full">
+      <div className="flex gap-4 mb-4 flex-1">
         <div className="relative">
           <img
             src={avatar}
@@ -32,7 +32,7 @@ export function ProviderCard({ provider, onContact }: { provider: ProviderWithDe
             className="w-16 h-16 rounded-2xl object-cover ring-2 ring-primary/10"
           />
         </div>
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 flex flex-col">
           <h3 className="font-bold text-lg text-foreground truncate group-hover:text-primary transition-colors flex items-center gap-2">
             {displayName}
             {(provider as any).is_licensed && (
@@ -68,9 +68,13 @@ export function ProviderCard({ provider, onContact }: { provider: ProviderWithDe
               </div>
             )}
           </div>
-          {provider.description && (
-            <p className="text-sm text-muted-foreground line-clamp-2 text-pretty">{provider.description}</p>
-          )}
+          <div className="min-h-[2.5rem]">
+            {provider.description ? (
+              <p className="text-sm text-muted-foreground line-clamp-2 text-pretty">{provider.description}</p>
+            ) : (
+              <p className="text-sm text-muted-foreground line-clamp-2 text-pretty opacity-0 pointer-events-none">&#8203;</p>
+            )}
+          </div>
         </div>
       </div>
 

@@ -487,11 +487,11 @@ const ProvidersList = ({
             exit={{ opacity: 0 }}
           >
             <div className="md:hidden -mx-4 px-4 overflow-x-auto">
-              <div className="flex snap-x snap-mandatory snap-always space-x-4 pr-4">
+              <div className="flex snap-x snap-mandatory snap-always space-x-4 pr-4 items-stretch">
                 {providers.map((provider, index) => (
                   <motion.div 
                     key={provider.id} 
-                    className="min-w-[85%] snap-center"
+                    className="min-w-[85%] snap-center h-full"
                     initial={{ opacity: 0, x: 50 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.4, delay: index * 0.1 }}
@@ -501,10 +501,11 @@ const ProvidersList = ({
                 ))}
               </div>
             </div>
-            <div className="hidden md:grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="hidden md:grid gap-4 md:grid-cols-2 lg:grid-cols-3 items-stretch">
               {providers.map((provider, index) => (
                 <motion.div
                   key={provider.id}
+                  className="h-full"
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: index * 0.1, type: "spring", stiffness: 100 }}
