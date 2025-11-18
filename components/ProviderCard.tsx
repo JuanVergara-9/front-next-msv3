@@ -39,7 +39,7 @@ export function ProviderCard({ provider, onContact }: { provider: ProviderWithDe
           />
         </div>
         <div className="flex-1 min-w-0 flex flex-col">
-          <div className="mb-1.5 min-h-[1.75rem] flex flex-col justify-start">
+          <div className="mb-1.5 min-h-[3rem] flex flex-col justify-start">
             <div className="flex items-start gap-2 flex-wrap">
               <h3 className="font-bold text-lg text-foreground group-hover:text-primary transition-colors break-words leading-tight flex-1 min-w-0">
                 {displayName}
