@@ -128,7 +128,7 @@ const HowItWorks = () => {
 
   return (
     <motion.section 
-      className="px-4 py-12 bg-gradient-to-br from-background via-muted/30 to-background relative overflow-hidden"
+      className="px-4 py-12 bg-gradient-to-br from-background via-muted/30 to-background relative overflow-x-visible overflow-y-hidden"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.6 }}
@@ -172,8 +172,8 @@ const HowItWorks = () => {
           La plataforma más confiable para encontrar servicios de calidad en tu zona
         </motion.p>
 
-        <div className="md:hidden -mx-4 px-4 pb-8 relative overflow-x-auto scroll-smooth snap-x snap-mandatory" ref={mobileWrapperRef}>
-          <div className="absolute inset-y-0 left-2 flex items-center">
+        <div className="md:hidden -mx-4 pb-8 relative overflow-x-auto overflow-y-visible scroll-smooth snap-x snap-mandatory" ref={mobileWrapperRef}>
+          <div className="absolute inset-y-0 left-2 flex items-center z-10">
             <button
               onClick={handlePrev}
               aria-label="Anterior"
@@ -184,7 +184,7 @@ const HowItWorks = () => {
               </svg>
             </button>
           </div>
-          <div className="absolute inset-y-0 right-2 flex items-center">
+          <div className="absolute inset-y-0 right-2 flex items-center z-10">
             <button
               onClick={handleNext}
               aria-label="Siguiente"
@@ -197,16 +197,16 @@ const HowItWorks = () => {
           </div>
           <div className="flex">
             {steps.map((step, index) => (
-              <div key={step.title} className="min-w-full snap-start flex items-center justify-center">
-                <div className="group flex flex-col items-center text-center w-full">
-                  <div className="relative w-fit mx-auto">
+              <div key={step.title} className="min-w-full snap-start flex items-center justify-center" style={{ scrollSnapAlign: 'center' }}>
+                <div className="group flex flex-col items-center text-center w-full px-4 max-w-sm mx-auto">
+                  <div className="relative w-fit mx-auto pt-2">
                     <div
-                      className={`w-20 h-20 bg-gradient-to-br ${step.color} rounded-3xl flex items-center justify-center mb-6 mx-auto premium-shadow-lg group-hover:scale-110 transition-all duration-300 smooth-bounce`}
+                      className={`w-20 h-20 bg-gradient-to-br ${step.color} rounded-3xl flex items-center justify-center mb-6 mx-auto premium-shadow-lg group-hover:scale-110 transition-all duration-300 smooth-bounce overflow-visible`}
                       style={{ animationDelay: `${index * 0.2}s` }}
                     >
-                      <div className="text-white">{step.icon}</div>
+                      <div className="text-white overflow-visible">{step.icon}</div>
                     </div>
-                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center text-sm font-bold text-primary premium-shadow">
+                    <div className="absolute top-0 -right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center text-sm font-bold text-primary premium-shadow">
                       {index + 1}
                     </div>
                   </div>
@@ -227,18 +227,18 @@ const HowItWorks = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.4 + index * 0.1 }}
             >
-              <div className="relative w-fit mx-auto">
+              <div className="relative w-fit mx-auto pt-2">
                 <motion.div
-                  className={`w-20 h-20 bg-gradient-to-br ${step.color} rounded-3xl flex items-center justify-center mb-6 mx-auto premium-shadow-lg`}
+                  className={`w-20 h-20 bg-gradient-to-br ${step.color} rounded-3xl flex items-center justify-center mb-6 mx-auto premium-shadow-lg overflow-visible`}
                   whileHover={{ scale: 1.1, rotate: [0, -5, 5, -5, 0] }}
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ duration: 0.5, delay: 0.5 + index * 0.1, type: "spring", stiffness: 200 }}
                 >
-                  <div className="text-white">{step.icon}</div>
+                  <div className="text-white overflow-visible">{step.icon}</div>
                 </motion.div>
                 <motion.div 
-                  className="absolute -top-2 -right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center text-sm font-bold text-primary premium-shadow"
+                  className="absolute top-0 -right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center text-sm font-bold text-primary premium-shadow"
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ duration: 0.3, delay: 0.7 + index * 0.1, type: "spring" }}
@@ -253,18 +253,20 @@ const HowItWorks = () => {
         </div>
 
         <div className="mt-16 flex flex-wrap justify-center items-center gap-8 opacity-60">
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <svg className="w-5 h-5 text-primary" fill="currentColor" viewBox="0 0 20 20">
-            <path
-              fillRule="evenodd"
-              d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-              clipRule="evenodd"
-            />
-          </svg>
+        <div className="flex items-center gap-2 text-sm text-muted-foreground overflow-visible">
+          <div className="pl-1 overflow-visible">
+            <svg className="w-5 h-5 text-primary overflow-visible" fill="currentColor" viewBox="0 0 20 20">
+              <path
+                fillRule="evenodd"
+                d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </div>
           Profesionales verificados
         </div>
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground overflow-visible">
+          <svg className="w-5 h-5 text-primary overflow-visible" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               fillRule="evenodd"
               d="M10 2L3 7v11c0 5.55 3.84 7.74 9 9 5.16-1.26 9-3.45 9-9V7l-7-5z"
@@ -273,8 +275,8 @@ const HowItWorks = () => {
           </svg>
           Servicios seguros
         </div>
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground overflow-visible">
+          <svg className="w-5 h-5 text-primary overflow-visible" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               fillRule="evenodd"
               d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
@@ -486,8 +488,8 @@ const ProvidersList = ({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            <div className="md:hidden -mx-4 px-4 overflow-x-auto">
-              <div className="flex snap-x snap-mandatory snap-always space-x-4 pr-4 items-stretch">
+            <div className="md:hidden -mx-4 px-4 overflow-x-auto pb-4">
+              <div className="flex snap-x snap-mandatory snap-always space-x-4 pr-4 pb-2 items-stretch">
                 {providers.map((provider, index) => (
                   <motion.div 
                     key={provider.id} 
