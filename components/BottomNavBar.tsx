@@ -3,6 +3,8 @@
 import React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useAuth } from "@/contexts/AuthContext"
+import { isAdmin } from "@/lib/utils/admin"
 
 interface BottomNavBarProps {
   activeCategory?: string | null
@@ -20,6 +22,8 @@ export const BottomNavBar = React.memo(function BottomNavBar({
   onProfileClick 
 }: BottomNavBarProps) {
   const pathname = usePathname()
+  const { user } = useAuth()
+  const admin = isAdmin(user)
   return (
     <nav className="sticky bottom-0 glass-effect border-t border-border/50 px-4 py-3 bg-white">
       <div className="max-w-7xl mx-auto">
@@ -73,6 +77,22 @@ export const BottomNavBar = React.memo(function BottomNavBar({
               active: pathname === '/profile',
               onClick: onProfileClick,
             },
+            // Admin: métricas
+            ...(admin ? [{
+              name: "Métricas",
+              href: "/admin/metrics",
+              icon: (
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 19h16M4 19V5M8 19V13M12 19V9M16 19V7"
+                  />
+                </svg>
+              ),
+              active: pathname?.startsWith('/admin/metrics'),
+            }] : []),
           ].map((item) => (
             <Link
               key={item.name}
