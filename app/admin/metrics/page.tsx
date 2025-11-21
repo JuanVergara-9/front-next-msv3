@@ -103,7 +103,7 @@ const DataRow = ({ label, value, icon: Icon, highlight = false }: {
       </div>
       <span className="text-sm text-slate-600 font-medium">{label}</span>
     </div>
-    <span className={`text-sm font-bold ${highlight ? 'text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md' : 'text-slate-800'}`}>
+    <span className="text-sm font-bold text-slate-800">
       {value}
     </span>
   </div>
