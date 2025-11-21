@@ -332,7 +332,7 @@ export default function AdminMetricsPage() {
             color="indigo"
           />
           <StatCard
-            title="Clientes Registrados"
+            title="Solo Clientes"
             value={(users?.clientsRegistered ?? 0).toLocaleString('es-AR')}
             subtext={weeklyChange?.clientsRegistered ? `+${weeklyChange.clientsRegistered} esta semana` : users?.activeClients30d ? `${users.activeClients30d} activos` : undefined}
             icon={User}
@@ -477,6 +477,7 @@ export default function AdminMetricsPage() {
             <div className="space-y-1">
               <DataRow label="DAU Promedio" value={(summary?.dau ?? 0).toLocaleString('es-AR')} icon={Users} />
               <DataRow label="WAU Estimado" value={(summary?.wau ?? 0).toLocaleString('es-AR')} icon={Calendar} />
+              <DataRow label="Usuarios Anónimos (30d)" value={(summary?.anonymousUsers ?? 0).toLocaleString('es-AR')} icon={Users} />
               <DataRow label="Búsquedas realizadas" value={(summary?.searches ?? 0).toLocaleString('es-AR')} icon={Search} highlight />
               <DataRow label="Vistas de perfil" value={(summary?.providerViews ?? 0).toLocaleString('es-AR')} icon={User} />
             </div>

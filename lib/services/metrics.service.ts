@@ -4,6 +4,7 @@ export class MetricsService {
   static async getSummary(params: { from?: string; to?: string; city?: string; category?: string } = {}): Promise<{
     dau: number
     wau: number
+    anonymousUsers: number
     searches: number
     providerViews: number
     contacts: number

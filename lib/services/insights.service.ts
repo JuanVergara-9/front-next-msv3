@@ -67,16 +67,29 @@ export class InsightsService {
   }
 
   private static async sendEvent(event: TrackEventPayload): Promise<void> {
-    // Deshabilitar tracking en desarrollo local para no inflar estadísticas
-    const gatewayUrl = process.env.NEXT_PUBLIC_GATEWAY_URL || process.env.NEXT_PUBLIC_API_BASE_URL || ''
+    // Verificar si el tracking está explícitamente deshabilitado
     const disableTracking = process.env.NEXT_PUBLIC_DISABLE_TRACKING === 'true'
-    const isLocalhost = typeof window !== 'undefined' && 
-      (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-    const isLocalGateway = gatewayUrl.includes('localhost') || gatewayUrl.includes('127.0.0.1')
-    
-    if (disableTracking || (isLocalhost && isLocalGateway)) {
-      console.log('[Insights] Tracking deshabilitado en desarrollo local')
+    if (disableTracking) {
+      console.log('[Insights] Tracking deshabilitado por NEXT_PUBLIC_DISABLE_TRACKING=true')
       return
+    }
+    
+    // Solo deshabilitar en desarrollo local (cuando hostname es localhost Y gateway es local)
+    if (typeof window !== 'undefined') {
+      const hostname = window.location.hostname
+      const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1'
+      const gatewayUrl = process.env.NEXT_PUBLIC_GATEWAY_URL || process.env.NEXT_PUBLIC_API_BASE_URL || ''
+      const isLocalGateway = gatewayUrl.includes('localhost') || gatewayUrl.includes('127.0.0.1')
+      
+      if (isLocalhost && isLocalGateway) {
+        console.log('[Insights] Tracking deshabilitado en desarrollo local', { hostname, gatewayUrl })
+        return
+      }
+      
+      // Log para debugging en producción
+      if (!isLocalhost) {
+        console.log('[Insights] Modo producción detectado, tracking habilitado', { hostname, gatewayUrl })
+      }
     }
 
     const anonymousId = this.getAnonymousId()
@@ -86,7 +99,8 @@ export class InsightsService {
     const ingestKey = process.env.NEXT_PUBLIC_INSIGHTS_INGEST_KEY
 
     try {
-      await apiFetch<{ ok: boolean }>(`/api/v1/events`, {
+      console.log('[Insights] Enviando evento:', { type: event.type, providerId: event.providerId, channel: event.channel })
+      const response = await apiFetch<{ ok: boolean }>(`/api/v1/events`, {
         method: 'POST',
         headers: {
           ...(ingestKey ? { 'x-insights-key': ingestKey } : {}),
@@ -111,9 +125,15 @@ export class InsightsService {
           ],
         }),
       })
-    } catch (e) {
-      // Silencioso: no debe romper UX
-      console.warn('track event error', e)
+      console.log('[Insights] Evento enviado exitosamente:', response)
+    } catch (e: any) {
+      // Log más detallado para debugging
+      console.error('[Insights] Error al enviar evento:', {
+        type: event.type,
+        error: e?.message || e,
+        status: e?.status,
+        response: e?.response
+      })
     }
   }
 
