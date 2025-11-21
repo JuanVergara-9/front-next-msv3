@@ -16,7 +16,7 @@ export class MetricsService {
     if (params.to) usp.set('to', params.to)
     if (params.city) usp.set('city', params.city)
     if (params.category) usp.set('category', params.category)
-    return apiFetch(`/api/v1/metrics/summary?${usp.toString()}`, { cacheTtlMs: 0 })
+    return apiFetch(`/summary?${usp.toString()}`, { cacheTtlMs: 0 })
   }
 
   static async getContactsBreakdown(params: { from?: string; to?: string; city?: string; category?: string } = {}): Promise<{
@@ -31,7 +31,7 @@ export class MetricsService {
     if (params.to) usp.set('to', params.to)
     if (params.city) usp.set('city', params.city)
     if (params.category) usp.set('category', params.category)
-    return apiFetch(`/api/v1/metrics/contacts-breakdown?${usp.toString()}`, { cacheTtlMs: 0 })
+    return apiFetch(`/contacts-breakdown?${usp.toString()}`, { cacheTtlMs: 0 })
   }
 
   static async getUsersSummary(): Promise<{
