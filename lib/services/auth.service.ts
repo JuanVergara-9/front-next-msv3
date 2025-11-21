@@ -77,15 +77,24 @@ export class AuthService {
     try {
       const response = await apiClient.post(`${this.BASE_URL}/login`, loginData)
       const authData: AuthResponse = response.data
-      
+
       this.saveAuthData(authData)
       return authData
     } catch (error: any) {
       console.error('Login error:', error)
-      throw new Error(
-        error.response?.data?.error?.message || 
-        'Error al iniciar sesión. Verifica tus credenciales.'
-      )
+
+      // Extract user-friendly error message
+      let errorMessage = 'Error al iniciar sesión. Verifica tus credenciales.'
+
+      if (error.response?.data?.error?.message) {
+        errorMessage = error.response.data.error.message
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message
+      } else if (typeof error.response?.data === 'string') {
+        errorMessage = error.response.data
+      }
+
+      throw new Error(errorMessage)
     }
   }
 
@@ -94,15 +103,24 @@ export class AuthService {
     try {
       const response = await apiClient.post(`${this.BASE_URL}/register`, registerData)
       const authData: AuthResponse = response.data
-      
+
       this.saveAuthData(authData)
       return authData
     } catch (error: any) {
       console.error('Register error:', error)
-      throw new Error(
-        error.response?.data?.error?.message || 
-        'Error al crear la cuenta. Intenta nuevamente.'
-      )
+
+      // Extract user-friendly error message
+      let errorMessage = 'Error al crear la cuenta. Intenta nuevamente.'
+
+      if (error.response?.data?.error?.message) {
+        errorMessage = error.response.data.error.message
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message
+      } else if (typeof error.response?.data === 'string') {
+        errorMessage = error.response.data
+      }
+
+      throw new Error(errorMessage)
     }
   }
 
@@ -130,7 +148,7 @@ export class AuthService {
 
       const response = await apiClient.post(`${this.BASE_URL}/refresh`, { refreshToken })
       const authData: AuthResponse = response.data
-      
+
       this.saveAuthData(authData)
       return authData
     } catch (error: any) {
@@ -159,7 +177,7 @@ export class AuthService {
     } catch (error: any) {
       console.error('Send verification email error:', error)
       throw new Error(
-        error.response?.data?.error?.message || 
+        error.response?.data?.error?.message ||
         'Error al enviar el email de verificación. Intenta nuevamente.'
       )
     }
@@ -179,7 +197,7 @@ export class AuthService {
     } catch (error: any) {
       console.error('Verify email error:', error)
       throw new Error(
-        error.response?.data?.error?.message || 
+        error.response?.data?.error?.message ||
         'Error al verificar el email. El token puede ser inválido o haber expirado.'
       )
     }
