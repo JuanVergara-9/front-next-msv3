@@ -11,49 +11,6 @@ import { useRouter } from "next/navigation"
 import { ProviderCarouselCard } from "./ProviderCarouselCard"
 import { motion, AnimatePresence } from "framer-motion"
 
-// Componente de efecto typewriter para oficios
-const TypewriterText = ({ words, className = "" }: { words: string[]; className?: string }) => {
-  const [currentWordIndex, setCurrentWordIndex] = useState(0)
-  const [currentText, setCurrentText] = useState("")
-  const [isDeleting, setIsDeleting] = useState(false)
-  const [typingSpeed, setTypingSpeed] = useState(150)
-
-  useEffect(() => {
-    const currentWord = words[currentWordIndex]
-    
-    if (!isDeleting && currentText === currentWord) {
-      // Pausa antes de empezar a borrar
-      setTimeout(() => setIsDeleting(true), 2000)
-      return
-    }
-
-    if (isDeleting && currentText === "") {
-      // Cambiar a la siguiente palabra
-      setIsDeleting(false)
-      setCurrentWordIndex((prev) => (prev + 1) % words.length)
-      setTypingSpeed(150)
-      return
-    }
-
-    const timeout = setTimeout(() => {
-      if (isDeleting) {
-        setCurrentText(currentWord.substring(0, currentText.length - 1))
-        setTypingSpeed(75) // Más rápido al borrar
-      } else {
-        setCurrentText(currentWord.substring(0, currentText.length + 1))
-        setTypingSpeed(150) // Velocidad normal al escribir
-      }
-    }, typingSpeed)
-
-    return () => clearTimeout(timeout)
-  }, [currentText, isDeleting, currentWordIndex, words, typingSpeed])
-
-  return (
-    <span className={className}>
-      {currentText}
-    </span>
-  )
-}
 
 // Componente de carrusel con scroll nativo, movimiento automático continuo y efecto infinito
 function ProviderCarousel({ providers }: { providers: ProviderWithDetails[] }) {
@@ -392,19 +349,12 @@ export function CategoriesSection() {
             ¿Qué necesitás hoy?
           </motion.h1>
           <motion.p 
-            className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto text-balance min-h-[3rem] sm:min-h-[2.5rem] flex items-center justify-center flex-wrap gap-1"
+            className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto text-balance"
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
           >
-            <span>Elegí un oficio y encontrá</span>{" "}
-            <span className="inline-block min-w-[120px] sm:min-w-[140px] text-left">
-              <TypewriterText 
-                words={["plomeros", "gasistas", "electricistas", "pintores", "carpinteros", "jardineros"]}
-                className="text-[#007bff] font-semibold"
-              />
-            </span>{" "}
-            <span>cerca de tu zona</span>
+            Elegí un oficio y encontrá profesionales cerca de tu zona
           </motion.p>
         </motion.div>
 
