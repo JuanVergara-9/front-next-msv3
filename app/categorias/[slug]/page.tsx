@@ -80,7 +80,7 @@ export default function ProvidersByCategoryPage() {
       return
     }
     if (provider.whatsapp_e164) {
-      const message = encodeURIComponent("Hola 👋, te contacto desde miservicio. Vi tu perfil y me interesa tu servicio, quería hacerte una consulta rápida.")
+      const message = encodeURIComponent("Hola! Te contacto desde https://miservicio.ar. Vi tu perfil y me interesa tu servicio, quería hacerte una consulta rápida.")
       window.open(`https://wa.me/${provider.whatsapp_e164}?text=${message}`, "_blank")
     } else if (provider.phone_e164) {
       window.open(`tel:${provider.phone_e164}`, "_blank")

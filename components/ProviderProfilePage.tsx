@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -32,6 +32,7 @@ import {
 import { useAuth } from "@/contexts/AuthContext"
 import { ReviewsService, type ReviewItem } from "@/lib/services/reviews.service"
 import { ProvidersService } from "@/lib/services/providers.service"
+import { InsightsService } from "@/lib/services/insights.service"
 import { Header } from "@/components/Header"
 import { useRouter } from "next/navigation"
 import { isAdmin } from "@/lib/utils/admin"
@@ -235,6 +236,28 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
     const idNum = Number(providerData?.id)
     return Number.isFinite(idNum) ? idNum : null
   }, [providerData?.id])
+
+  const primaryCategoryValue = useMemo(() => {
+    if (!providerData) return undefined
+    const categories = Array.isArray(providerData.categories) ? providerData.categories : []
+    const first = categories[0]
+    if (!first) return providerData.category || undefined
+    if (typeof first === 'string') return first
+    return first?.slug || first?.name || providerData.category || undefined
+  }, [providerData])
+
+  const hasTrackedViewRef = useRef(false)
+
+  useEffect(() => {
+    if (!providerIdNum || hasTrackedViewRef.current) return
+    hasTrackedViewRef.current = true
+    void InsightsService.trackProviderView({
+      providerId: providerIdNum,
+      city: providerData?.city,
+      category: typeof primaryCategoryValue === 'string' ? primaryCategoryValue : undefined,
+      userId: user?.id ?? undefined,
+    })
+  }, [providerIdNum, providerData?.city, primaryCategoryValue, user?.id])
 
   const loadReviews = async () => {
     if (!providerIdNum) return
@@ -581,7 +604,16 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
                               return
                             }
                             if (providerData.whatsapp) {
-                              const message = encodeURIComponent("Hola 👋, te contacto desde miservicio. Vi tu perfil y me interesa tu servicio, quería hacerte una consulta rápida.")
+                              if (providerIdNum) {
+                                void InsightsService.trackContactClick({
+                                  providerId: providerIdNum,
+                                  channel: 'whatsapp',
+                                  city: providerData.city,
+                                  category: typeof primaryCategoryValue === 'string' ? primaryCategoryValue : undefined,
+                                  userId: user?.id ?? undefined,
+                                })
+                              }
+                              const message = encodeURIComponent("Hola! Te contacto desde https://miservicio.ar. Vi tu perfil y me interesa tu servicio, quería hacerte una consulta rápida.")
                               window.open(`https://wa.me/${providerData.whatsapp}?text=${message}`, "_blank")
                             }
                           }}
@@ -604,6 +636,15 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
                               return
                             }
                             if (providerData.phone) {
+                              if (providerIdNum) {
+                                void InsightsService.trackContactClick({
+                                  providerId: providerIdNum,
+                                  channel: 'phone',
+                                  city: providerData.city,
+                                  category: typeof primaryCategoryValue === 'string' ? primaryCategoryValue : undefined,
+                                  userId: user?.id ?? undefined,
+                                })
+                              }
                               window.open(`tel:${providerData.phone}`, "_blank")
                             }
                           }}
@@ -1265,6 +1306,15 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
                 return
               }
               if (providerData.whatsapp) {
+                if (providerIdNum) {
+                  void InsightsService.trackContactClick({
+                    providerId: providerIdNum,
+                    channel: 'whatsapp',
+                    city: providerData.city,
+                    category: typeof primaryCategoryValue === 'string' ? primaryCategoryValue : undefined,
+                    userId: user?.id ?? undefined,
+                  })
+                }
                 const message = encodeURIComponent("Hola 👋, te contacto desde miservicio. Vi tu perfil y me interesa tu servicio, quería hacerte una consulta rápida.")
                 window.open(`https://wa.me/${providerData.whatsapp}?text=${message}`, "_blank")
               }

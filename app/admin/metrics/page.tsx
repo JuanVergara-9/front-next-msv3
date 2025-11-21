@@ -15,7 +15,6 @@ import {
   Search,
   MessageSquare,
   Phone,
-  LayoutGrid,
   User,
   BarChart2,
   Calendar,
@@ -464,7 +463,6 @@ export default function AdminMetricsPage() {
               <DataRow label="Clicks en Contactar (Total)" value={(contacts?.total ?? 0).toLocaleString('es-AR')} icon={MessageSquare} highlight />
               <DataRow label="Inicios de WhatsApp" value={(contacts?.whatsapp ?? 0).toLocaleString('es-AR')} icon={MessageSquare} />
               <DataRow label="Visualizaciones de Teléfono" value={(contacts?.phone ?? 0).toLocaleString('es-AR')} icon={Phone} />
-              <DataRow label="Formularios enviados" value={(contacts?.form ?? 0).toLocaleString('es-AR')} icon={LayoutGrid} />
             </div>
           </div>
 

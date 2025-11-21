@@ -31,6 +31,14 @@ export const metadata: Metadata = {
     title: 'miservicio - Conectamos personas con profesionales locales',
     description: 'La plataforma más confiable para encontrar servicios de calidad en tu zona.',
     siteName: 'miservicio',
+    images: [
+      {
+        url: '/logo.png',
+        width: 1200,
+        height: 630,
+        alt: 'miservicio - Conectamos personas con profesionales locales',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',

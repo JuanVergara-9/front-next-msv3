@@ -17,6 +17,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import toast from "react-hot-toast"
+import { InsightsService } from '@/lib/services/insights.service'
 
 // Componente de efecto typewriter para oficios
 const TypewriterText = ({ words, className = "" }: { words: string[]; className?: string }) => {
@@ -880,6 +881,13 @@ export default function MiservicioHome() {
 
   const handleSearch = async () => {
     if (!query.trim()) return
+
+    void InsightsService.trackSearch({
+      query: query.trim(),
+      city,
+      category: activeCategory ?? undefined,
+      userId: user?.id ?? undefined,
+    })
     
     // Si ya hay proveedores filtrados localmente, simplemente hacer scroll a los resultados
     // El filtro en tiempo real ya está funcionando
@@ -947,12 +955,31 @@ export default function MiservicioHome() {
       router.push(`/auth/login?next=${encodeURIComponent(next)}`)
       return
     }
+    const primaryCategory = provider.categories?.[0]
+    const baseTracking = {
+      providerId: provider.id,
+      city: provider.city,
+      category: primaryCategory,
+      userId: user?.id ?? undefined,
+    }
     if (provider.whatsapp_e164) {
-      const message = encodeURIComponent("Hola 👋, te contacto desde miservicio. Vi tu perfil y me interesa tu servicio, quería hacerte una consulta rápida.")
+      void InsightsService.trackContactClick({
+        ...baseTracking,
+        channel: 'whatsapp',
+      })
+      const message = encodeURIComponent("Hola! Te contacto desde https://miservicio.ar. Vi tu perfil y me interesa tu servicio, quería hacerte una consulta rápida.")
       window.open(`https://wa.me/${provider.whatsapp_e164}?text=${message}`, "_blank")
     } else if (provider.phone_e164) {
+      void InsightsService.trackContactClick({
+        ...baseTracking,
+        channel: 'phone',
+      })
       window.open(`tel:${provider.phone_e164}`, "_blank")
     } else if (provider.contact_email) {
+      void InsightsService.trackContactClick({
+        ...baseTracking,
+        channel: 'form',
+      })
       window.open(`mailto:${provider.contact_email}`, "_blank")
     } else {
       // Si no hay datos de contacto, redirigir al perfil donde pueden ver más información

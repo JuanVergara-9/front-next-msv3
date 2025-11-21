@@ -2,6 +2,16 @@ import { apiFetch } from '../apiClient'
 
 type ContactChannel = 'whatsapp' | 'phone' | 'form'
 
+type TrackEventPayload = {
+  type: 'contact_click' | 'user_search' | 'provider_view'
+  providerId?: number | null
+  channel?: ContactChannel
+  query?: string
+  city?: string | null
+  category?: string | null
+  userId?: number | null
+}
+
 function getOrCreateId(key: string, generator: () => string): string {
   if (typeof window === 'undefined') return generator()
   const existing = localStorage.getItem(key)
@@ -45,17 +55,36 @@ export class InsightsService {
     return v
   }
 
-  static async trackContactClick(params: {
-    providerId: number
-    channel: ContactChannel
-    city?: string
-    category?: string
-    userId?: number | null
-  }): Promise<void> {
+  private static normalizeCategory(category: string | null | undefined): string | undefined {
+    if (!category) return undefined
+    const value = category.toString().trim().toLowerCase()
+    if (!value) return undefined
+    return value
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '') || undefined
+  }
+
+  private static async sendEvent(event: TrackEventPayload): Promise<void> {
+    // Deshabilitar tracking en desarrollo local para no inflar estadísticas
+    const gatewayUrl = process.env.NEXT_PUBLIC_GATEWAY_URL || process.env.NEXT_PUBLIC_API_BASE_URL || ''
+    const disableTracking = process.env.NEXT_PUBLIC_DISABLE_TRACKING === 'true'
+    const isLocalhost = typeof window !== 'undefined' && 
+      (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+    const isLocalGateway = gatewayUrl.includes('localhost') || gatewayUrl.includes('127.0.0.1')
+    
+    if (disableTracking || (isLocalhost && isLocalGateway)) {
+      console.log('[Insights] Tracking deshabilitado en desarrollo local')
+      return
+    }
+
     const anonymousId = this.getAnonymousId()
     const sessionId = this.getSessionId()
-    const citySlug = slugifyCity(params.city)
+    const citySlug = slugifyCity(event.city)
+    const categorySlug = this.normalizeCategory(event.category ?? undefined)
     const ingestKey = process.env.NEXT_PUBLIC_INSIGHTS_INGEST_KEY
+
     try {
       await apiFetch<{ ok: boolean }>(`/api/v1/events`, {
         method: 'POST',
@@ -65,14 +94,18 @@ export class InsightsService {
         body: JSON.stringify({
           events: [
             {
-              type: 'contact_click',
+              type: event.type,
               anonymousId,
               sessionId,
               city: citySlug,
-              category: params.category,
-              providerId: params.providerId,
-              channel: params.channel,
-              userId: params.userId ?? undefined,
+              category: categorySlug,
+              providerId:
+                typeof event.providerId === 'number' && Number.isFinite(event.providerId)
+                  ? event.providerId
+                  : undefined,
+              query: event.query ? event.query.toString().slice(0, 160) : undefined,
+              channel: event.channel,
+              userId: event.userId ?? undefined,
               device: typeof navigator !== 'undefined' ? navigator.userAgent : undefined,
             },
           ],
@@ -80,8 +113,56 @@ export class InsightsService {
       })
     } catch (e) {
       // Silencioso: no debe romper UX
-      console.warn('trackContactClick error', e)
+      console.warn('track event error', e)
     }
+  }
+
+  static async trackContactClick(params: {
+    providerId: number
+    channel: ContactChannel
+    city?: string
+    category?: string
+    userId?: number | null
+  }): Promise<void> {
+    await this.sendEvent({
+      type: 'contact_click',
+      providerId: params.providerId,
+      channel: params.channel,
+      city: params.city,
+      category: params.category,
+      userId: params.userId ?? undefined,
+    })
+  }
+
+  static async trackSearch(params: {
+    query: string
+    city?: string
+    category?: string | null
+    userId?: number | null
+  }): Promise<void> {
+    if (!params.query.trim()) return
+    await this.sendEvent({
+      type: 'user_search',
+      query: params.query,
+      city: params.city,
+      category: params.category ?? undefined,
+      userId: params.userId ?? undefined,
+    })
+  }
+
+  static async trackProviderView(params: {
+    providerId: number
+    city?: string
+    category?: string | null
+    userId?: number | null
+  }): Promise<void> {
+    await this.sendEvent({
+      type: 'provider_view',
+      providerId: params.providerId,
+      city: params.city,
+      category: params.category ?? undefined,
+      userId: params.userId ?? undefined,
+    })
   }
 }
 
