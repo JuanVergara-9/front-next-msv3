@@ -523,11 +523,7 @@ export function UserProfilePage() {
         className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-white/20 px-4 py-3"
       >
         <div className="max-w-4xl mx-auto flex items-center justify-between">
-          {/* Logo + marca (igual que en categorías) */}
-          <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity flex-shrink-0">
-            <img src="/logo.png" alt="miservicio" className="w-7 h-7 rounded-lg shadow-sm" />
-            <span className="text-[#2563EB] font-bold text-lg leading-none">miservicio</span>
-          </Link>
+          <h1 className="text-xl font-bold text-[#2563EB]">miservicio</h1>
           <div className="flex items-center gap-2">
             <nav className="hidden sm:block text-sm text-gray-600">
               <span>Inicio</span> / <span className="text-[#2563EB]">Perfil de Usuario</span>
