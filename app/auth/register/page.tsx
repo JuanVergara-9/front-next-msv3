@@ -23,7 +23,7 @@ import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import toast from "react-hot-toast"
 
-const RUBROS = ["Plomería", "Gasistas", "Electricidad", "Jardinería", "Mantenimiento y limpieza de piletas", "Reparación de electrodomésticos"]
+const RUBROS = ["Plomería", "Gasistas", "Electricidad", "Jardinería", "Mantenimiento y limpieza de piletas", "Reparación de electrodomésticos", "Pintura"]
 
 // Mapeo de rubros a category_id (basado en el seeder del backend)
 const RUBRO_TO_CATEGORY_ID: { [key: string]: number } = {
@@ -32,7 +32,8 @@ const RUBRO_TO_CATEGORY_ID: { [key: string]: number } = {
   "Electricidad": 3,
   "Jardinería": 4,
   "Mantenimiento y limpieza de piletas": 5,
-  "Reparación de electrodomésticos": 6
+  "Reparación de electrodomésticos": 6,
+  "Pintura": 8
 }
 
 export default function RegisterPage() {
