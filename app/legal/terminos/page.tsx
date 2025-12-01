@@ -15,10 +15,10 @@ export default function TerminosPage() {
             Términos y Condiciones de Uso
           </h1>
           <p className="text-lg text-muted-foreground">
-            <strong>miservicio</strong>
+            <strong>Nombre de la App:</strong> miservicio
           </p>
           <p className="text-sm text-muted-foreground">
-            Última actualización: Octubre 2025
+            Última actualización: Diciembre 2025
           </p>
         </div>
 
@@ -26,9 +26,7 @@ export default function TerminosPage() {
         <div className="prose prose-lg max-w-none">
           <div className="bg-card rounded-2xl p-6 md:p-8 border border-border/50 shadow-sm">
             <p className="text-muted-foreground mb-6">
-              Bienvenido/a a miservicio, una aplicación que conecta a personas que buscan un servicio con trabajadores y profesionales que los ofrecen.
-              <br />
-              Al registrarte o usar la aplicación, aceptás estos Términos y Condiciones. Si no estás de acuerdo, no deberás utilizar la plataforma.
+              Bienvenido/a a <strong>miservicio</strong>. Al registrarte o utilizar nuestra aplicación, aceptás estos Términos y Condiciones, los cuales tienen carácter de contrato vinculante. Si no estás de acuerdo, te pedimos que no utilices la plataforma.
             </p>
 
             <div className="space-y-8">
@@ -36,14 +34,14 @@ export default function TerminosPage() {
               <section>
                 <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-3">
                   <span className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">1</span>
-                  Objeto del servicio
+                  Descripción del Servicio y Fase de Validación
                 </h2>
                 <div className="pl-11 space-y-3">
                   <p className="text-muted-foreground">
-                    miservicio actúa como un intermediario digital que facilita el contacto entre usuarios y trabajadores/proveedores de servicios.
+                    <strong>miservicio</strong> es una plataforma tecnológica que facilita el contacto entre personas que requieren un servicio ("Clientes") y prestadores independientes que los ofrecen ("Proveedores").
                   </p>
                   <p className="text-muted-foreground">
-                    miservicio no presta directamente los servicios ofrecidos ni forma parte de los acuerdos que se celebren entre las partes.
+                    Actualmente, la plataforma opera en una <strong>fase de validación y prueba (Beta)</strong>. El usuario reconoce que el servicio se ofrece "tal cual está", pudiendo presentar interrupciones o modificaciones sin previo aviso.
                   </p>
                 </div>
               </section>
@@ -52,17 +50,14 @@ export default function TerminosPage() {
               <section>
                 <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-3">
                   <span className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">2</span>
-                  Registro y uso
+                  Gratuidad del Servicio
                 </h2>
                 <div className="pl-11 space-y-3">
                   <p className="text-muted-foreground">
-                    Para usar la aplicación, debés registrarte con datos reales y mantener tu información actualizada.
+                    Durante esta etapa inicial, el uso de la aplicación, el registro y la intermediación son <strong>totalmente gratuitos</strong> tanto para Clientes como para Proveedores.
                   </p>
                   <p className="text-muted-foreground">
-                    Sos responsable de la confidencialidad de tus credenciales de acceso.
-                  </p>
-                  <p className="text-muted-foreground">
-                    Está prohibido usar miservicio para fines ilegales, fraudulentos o que afecten a otros usuarios.
+                    <strong>miservicio</strong> se reserva el derecho de modificar esta condición en el futuro, notificando previamente a los usuarios sobre cualquier implementación de tarifas, comisiones o modelos de suscripción antes de su entrada en vigencia.
                   </p>
                 </div>
               </section>
@@ -71,17 +66,14 @@ export default function TerminosPage() {
               <section>
                 <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-3">
                   <span className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">3</span>
-                  Responsabilidad
+                  Capacidad y Registro
                 </h2>
                 <div className="pl-11 space-y-3">
                   <p className="text-muted-foreground">
-                    miservicio no garantiza la calidad, disponibilidad ni resultado de los servicios contratados entre usuarios y trabajadores.
+                    El servicio está reservado exclusivamente para <strong>mayores de 18 años</strong> con capacidad legal plena para contratar. Al registrarte, declarás bajo juramento que los datos proporcionados son reales, propios y actuales.
                   </p>
                   <p className="text-muted-foreground">
-                    Cualquier acuerdo, pago, conflicto o incumplimiento entre ambas partes es responsabilidad exclusiva de ellas.
-                  </p>
-                  <p className="text-muted-foreground">
-                    miservicio no se hace responsable por daños, pérdidas o disputas que puedan surgir entre usuarios y proveedores.
+                    <strong>miservicio</strong> se reserva el derecho de solicitar comprobantes de identidad si lo considera necesario.
                   </p>
                 </div>
               </section>
@@ -90,15 +82,16 @@ export default function TerminosPage() {
               <section>
                 <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-3">
                   <span className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">4</span>
-                  Contenido
+                  Independencia Laboral (Cláusula Clave)
                 </h2>
                 <div className="pl-11 space-y-3">
                   <p className="text-muted-foreground">
-                    Los usuarios y trabajadores son responsables del contenido que publiquen (fotos, descripciones, reseñas, etc.).
+                    <strong>miservicio</strong> actúa únicamente como un intermediario digital (vidriera de contacto).
                   </p>
-                  <p className="text-muted-foreground">
-                    MiServicio puede eliminar o suspender cuentas o contenidos que considere inapropiados, falsos o que violen estos Términos.
-                  </p>
+                  <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-4">
+                    <li><strong>No existe relación laboral:</strong> Los Proveedores son profesionales autónomos e independientes. No existe ningún tipo de relación laboral, de dependencia, subordinación técnica, jurídica o económica entre los Proveedores y <strong>miservicio</strong>.</li>
+                    <li><strong>Responsabilidad:</strong> El Proveedor asume su propia responsabilidad impositiva, previsional y de seguridad social. <strong>miservicio</strong> no dirige, no supervisa horarios ni provee herramientas de trabajo a los Proveedores.</li>
+                  </ul>
                 </div>
               </section>
 
@@ -106,12 +99,17 @@ export default function TerminosPage() {
               <section>
                 <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-3">
                   <span className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">5</span>
-                  Limitación de servicio
+                  Limitación de Responsabilidad
                 </h2>
                 <div className="pl-11 space-y-3">
                   <p className="text-muted-foreground">
-                    miservicio se reserva el derecho de modificar, suspender o interrumpir la plataforma, total o parcialmente, en cualquier momento, sin previo aviso.
+                    Dado que <strong>miservicio</strong> no presta los servicios ofrecidos ni forma parte de la transacción final:
                   </p>
+                  <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-4">
+                    <li><strong>Calidad del servicio:</strong> No garantizamos la calidad, seguridad, idoneidad o resultado de los trabajos realizados.</li>
+                    <li><strong>Conflictos:</strong> Cualquier reclamo, daño, perjuicio o disputa derivada del servicio prestado es un asunto privado y exclusivo entre el Cliente y el Proveedor. <strong>miservicio</strong> queda eximido de toda responsabilidad civil, penal o administrativa.</li>
+                    <li><strong>Seguridad:</strong> Aunque promovemos una comunidad segura, <strong>miservicio no realiza verificaciones de antecedentes penales</strong> de los usuarios. Recomendamos a las partes actuar con prudencia y sentido común.</li>
+                  </ul>
                 </div>
               </section>
 
@@ -119,11 +117,11 @@ export default function TerminosPage() {
               <section>
                 <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-3">
                   <span className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">6</span>
-                  Propiedad intelectual
+                  Pagos entre Usuarios
                 </h2>
                 <div className="pl-11 space-y-3">
                   <p className="text-muted-foreground">
-                    El nombre, logotipo y diseño de miservicio son propiedad de sus creadores y no pueden ser usados sin autorización previa.
+                    En esta etapa, cualquier pago por los servicios prestados se acuerda y ejecuta <strong>exclusivamente entre el Cliente y el Proveedor</strong> (en efectivo u otros medios ajenos a la app). <strong>miservicio</strong> no procesa pagos, no cobra comisiones por transacción ni interviene en la facturación de los servicios.
                   </p>
                 </div>
               </section>
@@ -132,14 +130,40 @@ export default function TerminosPage() {
               <section>
                 <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-3">
                   <span className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">7</span>
-                  Ley aplicable
+                  Propiedad Intelectual y Contenido
                 </h2>
                 <div className="pl-11 space-y-3">
                   <p className="text-muted-foreground">
-                    Estos Términos se rigen por las leyes de la República Argentina.
+                    El usuario conserva los derechos sobre las fotos o reseñas que publique, pero otorga a <strong>miservicio</strong> una licencia gratuita y no exclusiva para utilizar dicho contenido (ej. fotos de trabajos realizados) con fines de promoción y mejora de la plataforma.
                   </p>
                   <p className="text-muted-foreground">
-                    Cualquier conflicto será resuelto ante los tribunales competentes de la ciudad de San Rafael, Mendoza.
+                    El software, marca y diseño de <strong>miservicio</strong> son propiedad exclusiva de sus creadores.
+                  </p>
+                </div>
+              </section>
+
+              {/* Section 8 */}
+              <section>
+                <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-3">
+                  <span className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">8</span>
+                  Cancelación y Derecho de Admisión
+                </h2>
+                <div className="pl-11 space-y-3">
+                  <p className="text-muted-foreground">
+                    <strong>miservicio</strong> se reserva el derecho de suspender o eliminar, temporal o definitivamente, la cuenta de cualquier usuario que viole estos términos, utilice lenguaje ofensivo, o cuya conducta sea reportada como inapropiada, sin que esto genere derecho a indemnización alguna.
+                  </p>
+                </div>
+              </section>
+
+              {/* Section 9 */}
+              <section>
+                <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-3">
+                  <span className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">9</span>
+                  Ley Aplicable y Jurisdicción
+                </h2>
+                <div className="pl-11 space-y-3">
+                  <p className="text-muted-foreground">
+                    Estos Términos se rigen por las leyes vigentes en la República Argentina. Para cualquier controversia legal, las partes se someten a la jurisdicción exclusiva de los <strong>Tribunales Ordinarios de la ciudad de San Rafael, provincia de Mendoza</strong>, renunciando a cualquier otro fuero que pudiera corresponderles.
                   </p>
                 </div>
               </section>
