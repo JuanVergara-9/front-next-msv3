@@ -966,16 +966,25 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
                                 transition={{ duration: 0.3, delay: 0.4 + index * 0.05 }}
                               >
                                 <Avatar className="h-10 w-10">
-                                  <AvatarImage src={review.user_avatar || "/placeholder.svg"} alt={review.user_name || "Usuario"} />
+                                  <AvatarImage src={review.user_avatar || "/placeholder.svg"} alt={review.user_name?.trim() || "Usuario"} />
                                   <AvatarFallback>
-                                    {(review.user_name || 'Usuario').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+                                    {(() => {
+                                      const name = (review.user_name || '').trim();
+                                      if (!name || name === 'Usuario') return 'U';
+                                      return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+                                    })()}
                                   </AvatarFallback>
                                 </Avatar>
                               </motion.div>
                               <div className="flex-1">
                                 <div className="flex items-center justify-between mb-2">
                                   <div className="flex items-center gap-2">
-                                    <span className="font-semibold text-[#111827]">{review.user_name || 'Usuario'}</span>
+                                    <span className="font-semibold text-[#111827]">
+                                      {(() => {
+                                        const name = (review.user_name || '').trim();
+                                        return name && name !== 'Usuario' ? name : 'Usuario';
+                                      })()}
+                                    </span>
                                     <span className="text-sm text-[#6B7280]">
                                       {review.created_at ? (() => {
                                         try {
