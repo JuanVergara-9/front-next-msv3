@@ -142,6 +142,7 @@ export default function RegisterPage() {
   const validateProviderStep2 = () => {
     const newErrors: { [key: string]: string } = {}
 
+    if (!avatarFile) newErrors.avatar = "La foto de perfil es obligatoria"
     if (!providerForm.firstName) newErrors.firstName = "El nombre es requerido"
     if (!providerForm.lastName) newErrors.lastName = "El apellido es requerido"
     if (providerForm.rubros.length === 0) newErrors.rubros = "Debes seleccionar al menos un rubro"
@@ -154,6 +155,9 @@ export default function RegisterPage() {
       Number.parseInt(providerForm.yearsExperience) > 80
     ) {
       newErrors.yearsExperience = "Los años de experiencia deben estar entre 0 y 80"
+    }
+    if (!providerForm.description || providerForm.description.trim().length === 0) {
+      newErrors.description = "La descripción es obligatoria"
     }
     if (!providerForm.acceptTerms) {
       newErrors.acceptTerms = "Debes aceptar los términos y condiciones"
@@ -693,16 +697,23 @@ export default function RegisterPage() {
                             <h3 className="font-medium text-gray-900 mb-4">Perfil profesional</h3>
                     <div className="space-y-2">
                       <Label htmlFor="avatar" className="text-sm font-medium text-gray-700">
-                        Foto de perfil (opcional)
+                        Foto de perfil <span className="text-red-500">*</span>
                       </Label>
                       <Input 
                         id="avatar" 
                         type="file" 
                         accept="image/*" 
-                        onChange={(e) => setAvatarFile(e.target.files?.[0] || null)}
-                        className="file:bg-white file:cursor-pointer file:border file:border-gray-300 file:rounded-md file:px-4 file:py-2 file:mr-4 file:hover:bg-gray-50 file:text-sm file:font-medium file:text-gray-700 cursor-pointer"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0] || null
+                          setAvatarFile(file)
+                          if (file && errors.avatar) {
+                            setErrors({ ...errors, avatar: "" })
+                          }
+                        }}
+                        className={`file:bg-white file:cursor-pointer file:border file:rounded-md file:px-4 file:py-2 file:mr-4 file:hover:bg-gray-50 file:text-sm file:font-medium file:text-gray-700 cursor-pointer ${errors.avatar ? "file:border-red-500 border-red-500" : "file:border-gray-300"}`}
                       />
                       <p className="text-xs text-gray-500">JPG/PNG/WEBP hasta 5MB</p>
+                      {errors.avatar && <p className="text-red-500 text-sm">{errors.avatar}</p>}
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
@@ -851,17 +862,23 @@ export default function RegisterPage() {
 
                     <div className="space-y-2">
                       <Label htmlFor="description" className="text-sm font-medium text-gray-700">
-                        Descripción
+                        Descripción <span className="text-red-500">*</span>
                       </Label>
                       <Textarea
                         id="description"
                         placeholder="Describe tu experiencia y servicios (máx. 2000 caracteres)"
                         value={providerForm.description}
-                        onChange={(e) => setProviderForm({ ...providerForm, description: e.target.value })}
+                        onChange={(e) => {
+                          setProviderForm({ ...providerForm, description: e.target.value })
+                          if (e.target.value.trim().length > 0 && errors.description) {
+                            setErrors({ ...errors, description: "" })
+                          }
+                        }}
                         maxLength={2000}
-                        className="min-h-[100px] border-gray-300 focus:border-blue-600 focus:ring-blue-600"
+                        className={`min-h-[100px] border-gray-300 focus:border-blue-600 focus:ring-blue-600 ${errors.description ? "border-red-500" : ""}`}
                       />
                       <p className="text-xs text-gray-500 text-right">{providerForm.description.length}/2000</p>
+                      {errors.description && <p className="text-red-500 text-sm">{errors.description}</p>}
                     </div>
 
                     <div className="flex items-start space-x-2 pt-2">
