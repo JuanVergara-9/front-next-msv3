@@ -40,6 +40,7 @@ import { EditReviewPhotosDialog } from "./EditReviewPhotosDialog"
 import { motion, AnimatePresence } from "framer-motion"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { ShieldCheck } from "lucide-react"
+import { IdentityVerificationCard } from "./IdentityVerificationCard"
 
 interface ProviderProfilePageProps {
   providerProfile?: any
@@ -783,6 +784,28 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
 
             <AnimatePresence mode="wait">
               <TabsContent value="informacion" key="informacion" className="space-y-6">
+                {/* Verificación de Identidad - Solo para el dueño */}
+                {isOwner && (
+                  <IdentityVerificationCard
+                    providerProfile={propProviderProfile || {}}
+                    onUpdate={async () => {
+                      // Refrescar el perfil del proveedor
+                      try {
+                        const updated = await ProvidersService.getMyProviderProfile()
+                        if (updated) {
+                          // Actualizar el contexto de auth si es necesario
+                          // Por ahora, recargamos la página para mostrar los cambios
+                          window.location.reload()
+                        }
+                      } catch (error) {
+                        console.error('Error refreshing profile:', error)
+                        // Si falla, recargar de todas formas
+                        window.location.reload()
+                      }
+                    }}
+                  />
+                )}
+
                 {/* Descripción */}
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
