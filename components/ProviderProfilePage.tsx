@@ -38,6 +38,8 @@ import { useRouter } from "next/navigation"
 import { isAdmin } from "@/lib/utils/admin"
 import { EditReviewPhotosDialog } from "./EditReviewPhotosDialog"
 import { motion, AnimatePresence } from "framer-motion"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { ShieldCheck } from "lucide-react"
 
 interface ProviderProfilePageProps {
   providerProfile?: any
@@ -215,6 +217,7 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
       ratingAvg: profile.rating || 0,
       reviewsCount90d: profile.review_count || 0,
       isVerified: profile.status === 'active',
+      identityVerified: profile.identity_status === 'verified',
       isLicensed: !!profile.is_licensed,
       emergencyAvailable: profile.emergency_available || false,
       description: profile.description || "Descripción no disponible",
@@ -539,6 +542,26 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
                               <Shield className="h-3 w-3 mr-1" />
                               Verificado
                             </Badge>
+                          </motion.div>
+                        )}
+                        {providerData.identityVerified && (
+                          <motion.div
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.3, delay: 0.6 }}
+                            whileHover={{ scale: 1.1, y: -2 }}
+                          >
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Badge className="bg-blue-600 text-white border-blue-600 hover:bg-blue-700 cursor-help gap-1 pl-1">
+                                  <ShieldCheck className="h-4 w-4" />
+                                  Identidad Verificada
+                                </Badge>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Identidad revisada por miservicio</p>
+                              </TooltipContent>
+                            </Tooltip>
                           </motion.div>
                         )}
                         {providerData.emergencyAvailable && (

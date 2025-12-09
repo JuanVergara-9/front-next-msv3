@@ -20,6 +20,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import toast from "react-hot-toast"
 import { ProvidersService } from "@/lib/services/providers.service"
 import { apiFetch } from "@/lib/apiClient"
+import { IdentityVerificationCard } from "./IdentityVerificationCard"
 
 interface UserProfile {
   id?: number
@@ -37,7 +38,7 @@ interface UserProfile {
 }
 
 export function UserProfilePage() {
-  const { user, isProvider, logout, providerProfile } = useAuth()
+  const { user, isProvider, logout, providerProfile, checkProviderProfile } = useAuth()
   const router = useRouter()
   const [userData, setUserData] = useState<UserProfileData>({
     reviewsPublished: 0,
@@ -719,6 +720,26 @@ export function UserProfilePage() {
                 </div>
               </CardContent>
             </Card>
+          </motion.div>
+        )}
+
+        {/* Tarjeta de verificación de identidad (solo para proveedores) */}
+        {isProvider && providerProfile && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="mb-6"
+          >
+            <IdentityVerificationCard 
+              status={providerProfile.identity_status} 
+              rejectionReason={providerProfile.identity_rejection_reason}
+              onStatusChange={async () => {
+                if (user?.id) {
+                  await checkProviderProfile(user.id)
+                }
+              }}
+            />
           </motion.div>
         )}
 
