@@ -733,8 +733,8 @@ export function UserProfilePage() {
           >
             <IdentityVerificationCard 
               providerProfile={{
-                identity_status: providerProfile.identity_status || 'not_submitted',
-                identity_rejection_reason: providerProfile.identity_rejection_reason
+                identity_status: (providerProfile.identity_status as 'not_submitted' | 'pending' | 'verified' | 'rejected' | undefined) || 'not_submitted',
+                identity_rejection_reason: providerProfile.identity_rejection_reason || null
               }}
               onUpdate={async () => {
                 if (user?.id) {
