@@ -21,6 +21,7 @@ export interface Provider {
   description?: string;
   province?: string;
   city?: string;
+  locality?: string;
   address?: string;
   lat?: number;
   lng?: number;
