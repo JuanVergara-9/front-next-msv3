@@ -3,13 +3,14 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { AuthService, User } from '@/lib/services/auth.service'
 import { ProvidersService } from '@/lib/services/providers.service'
+import type { Provider } from '@/types/api'
 
 interface AuthContextType {
   user: User | null
   isAuthenticated: boolean
   isLoading: boolean
   isProvider: boolean
-  providerProfile: any | null
+  providerProfile: Provider | null
   login: (email: string, password: string) => Promise<void>
   register: (email: string, password: string) => Promise<void>
   logout: () => Promise<void>
@@ -23,7 +24,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isProvider, setIsProvider] = useState(false)
-  const [providerProfile, setProviderProfile] = useState<any | null>(null)
+  const [providerProfile, setProviderProfile] = useState<Provider | null>(null)
 
   // Función para verificar si el usuario tiene un perfil de proveedor
   const checkProviderProfile = async (userId: number) => {

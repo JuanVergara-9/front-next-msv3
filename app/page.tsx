@@ -249,7 +249,7 @@ const HowItWorks = () => {
           </div>
           <div className="flex">
             {steps.map((step, index) => (
-              <div key={step.title} className="min-w-full snap-start flex items-center justify-center" style={{ scrollSnapAlign: 'center' }}>
+              <div key={step.title} className="min-w-full snap-center flex items-center justify-center">
                 <div className="group flex flex-col items-center text-center w-full px-4 max-w-sm mx-auto">
                   <div className="relative w-fit mx-auto pt-2">
                     <div
