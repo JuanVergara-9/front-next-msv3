@@ -361,29 +361,27 @@ export default function AdminMetricsPage() {
         </section>
 
         {/* Widget de Verificaciones Pendientes */}
-        {pendingCount > 0 && (
-          <Link href="/admin/verificaciones">
-            <div className="bg-white rounded-2xl p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border-l-4 border-l-orange-500 hover:shadow-lg transition-shadow cursor-pointer">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className={`p-3 rounded-xl ${pendingCount > 0 ? 'bg-orange-50 text-orange-600 animate-pulse' : 'bg-gray-50 text-gray-400'}`}>
-                    <ShieldAlert size={24} strokeWidth={2.5} />
-                  </div>
-                  <div>
-                    <h3 className="text-slate-500 text-sm font-medium mb-1">Verificaciones Pendientes</h3>
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-3xl font-bold text-slate-900 tracking-tight">{pendingCount}</span>
-                      <span className="text-xs text-slate-400 font-medium">
-                        {pendingCount > 0 ? "Requieren tu atención" : "Todo verificado"}
-                      </span>
-                    </div>
+        <Link href="/admin/verificaciones">
+          <div className="bg-white rounded-2xl p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border-l-4 border-l-orange-500 hover:shadow-lg transition-shadow cursor-pointer">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className={`p-3 rounded-xl ${pendingCount > 0 ? 'bg-orange-50 text-orange-600 animate-pulse' : 'bg-gray-50 text-gray-400'}`}>
+                  <ShieldAlert size={24} strokeWidth={2.5} />
+                </div>
+                <div>
+                  <h3 className="text-slate-500 text-sm font-medium mb-1">Verificaciones Pendientes</h3>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-3xl font-bold text-slate-900 tracking-tight">{pendingCount}</span>
+                    <span className="text-xs text-slate-400 font-medium">
+                      {pendingCount > 0 ? "Requieren tu atención" : "Todo verificado"}
+                    </span>
                   </div>
                 </div>
-                <ChevronRight className="h-5 w-5 text-slate-400" />
               </div>
+              <ChevronRight className="h-5 w-5 text-slate-400" />
             </div>
-          </Link>
-        )}
+          </div>
+        </Link>
 
         {/* Sección 2: Gráfico y Resumen de Actividad */}
         <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
