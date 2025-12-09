@@ -733,13 +733,12 @@ export function UserProfilePage() {
           >
             <IdentityVerificationCard 
               providerProfile={{
-                identity_status: (providerProfile.identity_status as 'not_submitted' | 'pending' | 'verified' | 'rejected' | undefined) || 'not_submitted',
-                identity_rejection_reason: providerProfile.identity_rejection_reason || null
+                identity_status: (providerProfile.identity_status as any) || 'not_submitted',
+                identity_rejection_reason: providerProfile.identity_rejection_reason
               }}
               onUpdate={async () => {
-                if (user?.id) {
-                  await checkProviderProfile(user.id)
-                }
+                // Recargar para ver los cambios
+                window.location.reload()
               }}
             />
           </motion.div>

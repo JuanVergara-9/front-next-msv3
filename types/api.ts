@@ -34,7 +34,7 @@ export interface Provider {
   created_at: string;
   updated_at: string;
   // Nuevos campos para identidad
-  identity_status?: 'not_submitted' | 'pending' | 'verified' | 'rejected';
+  identity_status?: 'not_submitted' | 'pending' | 'verified' | 'rejected' | string;
   identity_rejection_reason?: string | null;
   identity_dni_front_url?: string;
   identity_dni_back_url?: string;
