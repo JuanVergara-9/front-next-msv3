@@ -732,9 +732,11 @@ export function UserProfilePage() {
             className="mb-6"
           >
             <IdentityVerificationCard 
-              status={providerProfile.identity_status || 'not_submitted'} 
-              rejectionReason={providerProfile.identity_rejection_reason}
-              onStatusChange={async () => {
+              providerProfile={{
+                identity_status: providerProfile.identity_status || 'not_submitted',
+                identity_rejection_reason: providerProfile.identity_rejection_reason
+              }}
+              onUpdate={async () => {
                 if (user?.id) {
                   await checkProviderProfile(user.id)
                 }
