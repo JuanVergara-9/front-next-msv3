@@ -30,6 +30,7 @@ export interface Provider {
   emergency_available: boolean;
   is_licensed?: boolean;
   business_hours?: Record<string, any>;
+  avatar_url?: string;
   created_at: string;
   updated_at: string;
   // Nuevos campos para identidad
