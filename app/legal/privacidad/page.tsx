@@ -47,6 +47,7 @@ export default function PrivacidadPage() {
                     <li><strong>Datos del Perfil (Proveedores):</strong> Profesión, descripción de habilidades, fotos de trabajos previos y matrícula (si aplica).</li>
                     <li><strong>Datos de Ubicación:</strong> Recopilamos tu ubicación precisa o aproximada (a través del GPS o red) <strong>solo si nos das permiso</strong>, para mostrarte servicios o clientes cercanos.</li>
                     <li><strong>Datos Técnicos:</strong> Información sobre tu dispositivo, dirección IP y sistema operativo para fines de seguridad y mejora de la app.</li>
+                    <li><strong>Datos de Verificación de Identidad (Opcional):</strong> Si decidís verificar tu perfil, recopilaremos imágenes de tu DNI (frente y dorso) y una selfie para cotejar la identidad. Estos datos son sensibles y tienen protección reforzada.</li>
                   </ul>
                 </div>
               </section>
@@ -63,7 +64,7 @@ export default function PrivacidadPage() {
                   </p>
                   <ol className="list-decimal list-inside space-y-2 text-muted-foreground ml-4">
                     <li><strong>Conexión de Servicios:</strong> Permitir que Clientes y Proveedores se encuentren y comuniquen.</li>
-                    <li><strong>Gestión de Cuenta:</strong> Crear tu perfil, validar tu identidad y brindarte soporte.</li>
+                    <li><strong>Gestión de Cuenta y Verificación:</strong> Crear tu perfil, brindarte soporte y, si lo solicitás, procesar tus documentos de identidad para otorgar la insignia de “Perfil Verificado”.</li>
                     <li><strong>Seguridad:</strong> Detectar y prevenir fraudes o usos indebidos de la plataforma.</li>
                     <li><strong>Comunicaciones:</strong> Enviarte notificaciones sobre tu cuenta o actualizaciones del servicio.</li>
                   </ol>
@@ -81,7 +82,7 @@ export default function PrivacidadPage() {
                     <strong>miservicio</strong> no vende tus datos personales. Sin embargo, para que la aplicación cumpla su función, es necesario compartir cierta información:
                   </p>
                   <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-4">
-                    <li><strong>Entre Usuarios:</strong> Al iniciar una solicitud de servicio, compartiremos datos necesarios (como nombre, foto, calificación y teléfono) con la otra parte (Cliente o Proveedor) para facilitar la coordinación del trabajo.</li>
+                    <li><strong>Entre Usuarios:</strong> Al iniciar una solicitud de servicio, compartiremos datos necesarios (como nombre, foto, calificación y teléfono) con la otra parte (Cliente o Proveedor) para facilitar la coordinación. <strong>Las imágenes de tu DNI y tu selfie de verificación son de uso exclusivo del equipo de administración de miservicio y nunca se comparten ni se publican en tu perfil.</strong></li>
                     <li><strong>Proveedores de Servicios Externos:</strong> Podemos usar servicios de terceros para alojamiento web, mapas (ej. Google Maps) o análisis de datos, quienes solo accederán a la información necesaria para prestar su servicio y bajo obligación de confidencialidad.</li>
                     <li><strong>Requerimiento Legal:</strong> Compartiremos información si una autoridad judicial competente lo solicita formalmente.</li>
                   </ul>

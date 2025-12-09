@@ -75,6 +75,16 @@ export default function TerminosPage() {
                   <p className="text-muted-foreground">
                     <strong>miservicio</strong> se reserva el derecho de solicitar comprobantes de identidad si lo considera necesario.
                   </p>
+                  <div className="bg-muted/50 rounded-lg p-4 space-y-2">
+                    <p className="text-muted-foreground">
+                      <strong>3.1 Verificación de Identidad (Insignia de Confianza):</strong> miservicio ofrece una verificación opcional. Podés enviar imágenes de tu DNI (frente y dorso) y una selfie para obtener la insignia de “Perfil Verificado”.
+                    </p>
+                    <ul className="list-disc list-inside space-y-1 text-muted-foreground ml-2">
+                      <li><strong>Alcance:</strong> Confirma que la persona de la cuenta posee un documento válido que coincide con su rostro al momento de la verificación.</li>
+                      <li><strong>No es garantía de conducta:</strong> No acredita idoneidad profesional, honestidad ni ausencia de antecedentes penales.</li>
+                      <li><strong>Rechazo:</strong> Podemos rechazar o retirar la insignia si hay inconsistencias, documentos ilegibles o sospecha de fraude.</li>
+                    </ul>
+                  </div>
                 </div>
               </section>
 
@@ -108,7 +118,7 @@ export default function TerminosPage() {
                   <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-4">
                     <li><strong>Calidad del servicio:</strong> No garantizamos la calidad, seguridad, idoneidad o resultado de los trabajos realizados.</li>
                     <li><strong>Conflictos:</strong> Cualquier reclamo, daño, perjuicio o disputa derivada del servicio prestado es un asunto privado y exclusivo entre el Cliente y el Proveedor. <strong>miservicio</strong> queda eximido de toda responsabilidad civil, penal o administrativa.</li>
-                    <li><strong>Seguridad:</strong> Aunque promovemos una comunidad segura, <strong>miservicio no realiza verificaciones de antecedentes penales</strong> de los usuarios. Recomendamos a las partes actuar con prudencia y sentido común.</li>
+                    <li><strong>Seguridad:</strong> Aunque promovemos una comunidad segura y ofrecemos una insignia de verificado, <strong>miservicio no realiza verificaciones de antecedentes penales ni visitas domiciliarias</strong>. La contratación es responsabilidad exclusiva de las partes.</li>
                   </ul>
                 </div>
               </section>
