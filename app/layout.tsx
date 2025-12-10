@@ -5,6 +5,7 @@ import { Analytics } from '@vercel/analytics/next'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { BottomNavBar } from '@/components/BottomNavBar'
 import { Toaster } from '@/components/Toaster'
+import { TermsUpdateHandler } from '@/components/TermsUpdateHandler'
 import Link from 'next/link'
 import './globals.css'
 
@@ -82,6 +83,7 @@ export default function RootLayout({
           )
         })()}
         <AuthProvider>
+          <TermsUpdateHandler />
           <div className="min-h-screen flex flex-col">
             <main className="flex-1">
               {children}
