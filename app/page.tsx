@@ -69,7 +69,6 @@ const CATEGORIES_WITH_ICONS = [
   { name: "Plomería", icon: "🔧" },
   { name: "Electricista", icon: "⚡" },
   { name: "Pintura", icon: "🎨" },
-  { name: "Carpintería", icon: "🪚" },
   { name: "Reparación de Electrodomésticos", icon: "🔌" },
   { name: "Construcción", icon: "🏗️" },
   { name: "Limpieza", icon: "🧹" },
