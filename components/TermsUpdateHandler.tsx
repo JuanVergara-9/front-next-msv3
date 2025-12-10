@@ -52,7 +52,7 @@ export function TermsUpdateHandler() {
                 <p>
                   Ahora podés validar tu identidad y obtener la insignia{" "}
                   <span className="inline-flex items-center text-xs font-medium text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-200">
-                    <ShieldCheck className="w-3 h-3 mr-1" /> Verificado
+                    <ShieldCheck className="w-3 h-3 mr-1" /> Identidad Verificada
                   </span>{" "}
                   para generar más confianza.
                 </p>
