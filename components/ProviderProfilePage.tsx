@@ -17,7 +17,6 @@ import {
   MapPin,
   Phone,
   MessageCircle,
-  Shield,
   BadgeCheck,
   Wrench,
   Camera,
@@ -217,7 +216,6 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
       province: profile.province || "Provincia",
       ratingAvg: profile.rating || 0,
       reviewsCount90d: profile.review_count || 0,
-      isVerified: profile.status === 'active',
       identityVerified: profile.identity_status === 'verified',
       isLicensed: !!profile.is_licensed,
       emergencyAvailable: profile.emergency_available || false,
@@ -529,19 +527,6 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
                             <Badge variant="outline" className="border-green-500 text-green-700">
                               <BadgeCheck className="h-3 w-3 mr-1" />
                               Matriculado
-                            </Badge>
-                          </motion.div>
-                        )}
-                        {providerData.isVerified && (
-                          <motion.div
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ duration: 0.3, delay: 0.65 }}
-                            whileHover={{ scale: 1.1, y: -2 }}
-                          >
-                            <Badge variant="outline" className="border-green-500 text-green-700">
-                              <Shield className="h-3 w-3 mr-1" />
-                              Verificado
                             </Badge>
                           </motion.div>
                         )}
