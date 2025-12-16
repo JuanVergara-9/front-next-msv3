@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils'
 interface AnimatedTabSelectorProps {
   value: string
   onValueChange: (value: string) => void
-  options: Array<{ value: string; label: string }>
+  options: Array<{ value: string; label: string; badge?: number; beta?: boolean }>
   className?: string
   variant?: 'default' | 'blue-white'
   size?: 'default' | 'large'
@@ -82,13 +82,13 @@ export function AnimatedTabSelector({
 
     const handleMouseMove = (e: MouseEvent) => {
       if (!isDragging || mouseStartRef.current === null) return
-      
+
       const currentX = e.clientX
       const startX = mouseStartRef.current
-      
+
       // Actualizar la posición final incluso si no se ha movido mucho
       setTouchEnd(currentX)
-      
+
       // Verificar si el mouse se ha movido lo suficiente para considerarlo un drag
       if (Math.abs(currentX - startX) > 3) {
         hasMovedRef.current = true
@@ -100,7 +100,7 @@ export function AnimatedTabSelector({
       const startX = mouseStartRef.current
       const endX = touchEnd
       const moved = hasMovedRef.current
-      
+
       if (startX !== null && endX !== null && moved) {
         // Si hubo movimiento, prevenir el click y ejecutar el swipe
         preventClickRef.current = true
@@ -142,13 +142,13 @@ export function AnimatedTabSelector({
 
     const handleMouseDownCapture = (e: MouseEvent) => {
       if (e.button !== 0) return
-      
+
       // Prevenir el comportamiento por defecto del botón si es necesario
       const target = e.target as HTMLElement
       if (target.tagName === 'BUTTON') {
         // No prevenir aquí, solo marcar que empezamos el drag
       }
-      
+
       setIsDragging(true)
       const startX = e.clientX
       mouseStartRef.current = startX
@@ -173,7 +173,7 @@ export function AnimatedTabSelector({
     // Si hubo drag, prevenir el click
     // Usar un pequeño delay para verificar el estado después de que termine el drag
     const wasDragging = preventClickRef.current || hasMovedRef.current
-    
+
     if (wasDragging) {
       e.preventDefault()
       e.stopPropagation()
@@ -189,32 +189,32 @@ export function AnimatedTabSelector({
 
   // Calcular el número de columnas dinámicamente
   const numColumns = options.length
-  
+
   // Estilos según la variante
-  const containerStyles = variant === 'blue-white' 
+  const containerStyles = variant === 'blue-white'
     ? 'bg-white rounded-xl shadow-lg'
     : 'bg-blue-50 rounded-lg'
-  
+
   const paddingStyles = size === 'large'
     ? 'p-2'
     : variant === 'blue-white' ? 'p-1' : 'p-1.5'
-  
+
   const indicatorStyles = variant === 'blue-white'
     ? 'bg-[#2563EB] rounded-lg'
     : 'bg-white rounded-lg shadow-sm'
-  
+
   const activeTextStyles = variant === 'blue-white'
     ? 'text-white font-semibold'
     : 'text-[#1e40af] font-semibold'
-  
+
   const inactiveTextStyles = variant === 'blue-white'
     ? 'text-[#111827] font-medium'
     : 'text-[#1e40af] opacity-70 hover:opacity-100'
-  
+
   const buttonPadding = size === 'large'
     ? 'py-4 px-6'
     : variant === 'blue-white' ? 'py-2 px-4' : 'py-3 px-4'
-  
+
   const textSize = size === 'large'
     ? 'text-base'
     : variant === 'blue-white' ? 'text-sm' : 'text-sm'
@@ -222,21 +222,21 @@ export function AnimatedTabSelector({
   // Calcular el ancho del indicador basado en el número de columnas
   // Con grid, cada columna ocupa 100% / numColumns del ancho disponible
   // El padding del contenedor ya está considerado
-  const paddingRem = size === 'large' 
-    ? 0.5 
-    : variant === 'blue-white' 
+  const paddingRem = size === 'large'
+    ? 0.5
+    : variant === 'blue-white'
       ? 0.25  // p-1 = 0.25rem
       : 0.375 // p-1.5 = 0.375rem
   const indicatorWidth = `calc((100% - ${paddingRem * 2}rem) / ${numColumns})`
   const indicatorLeft = `${paddingRem}rem`
-  
+
   // Generar clase de grid dinámicamente (solo para 2 o 3 columnas comúnmente)
   // Asegurar que el grid funcione correctamente con Tailwind
-  const gridColsClass = 
-    numColumns === 2 ? 'grid-cols-2' : 
-    numColumns === 3 ? 'grid-cols-3' : 
-    numColumns === 4 ? 'grid-cols-4' :
-    'grid'
+  const gridColsClass =
+    numColumns === 2 ? 'grid-cols-2' :
+      numColumns === 3 ? 'grid-cols-3' :
+        numColumns === 4 ? 'grid-cols-4' :
+          'grid'
 
   return (
     <div
@@ -249,7 +249,7 @@ export function AnimatedTabSelector({
         'gap-0',
         className
       )}
-      style={{ 
+      style={{
         direction: 'ltr', // Forzar dirección de izquierda a derecha
         gridTemplateColumns: `repeat(${numColumns}, minmax(0, 1fr))` // Usar estilo inline para asegurar que funcione
       }}
@@ -298,7 +298,24 @@ export function AnimatedTabSelector({
           role="tab"
           aria-selected={value === option.value}
         >
-          {option.label}
+          {option.beta && (
+            <span className="absolute -top-1 -right-1 px-1.5 py-0.5 text-[10px] font-bold rounded bg-yellow-500 text-yellow-900 shadow-sm z-20">
+              BETA
+            </span>
+          )}
+          <div className="flex items-center justify-center gap-2">
+            {option.label}
+            {option.badge && option.badge > 0 && (
+              <span className={cn(
+                "flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-bold rounded-full",
+                value === option.value
+                  ? (variant === 'blue-white' ? "bg-white text-[#2563EB]" : "bg-[#2563EB] text-white")
+                  : (variant === 'blue-white' ? "bg-[#2563EB] text-white" : "bg-blue-200 text-[#1e40af]")
+              )}>
+                {option.badge}
+              </span>
+            )}
+          </div>
         </button>
       ))}
     </div>

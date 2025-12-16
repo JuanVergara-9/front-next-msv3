@@ -4,6 +4,7 @@ import React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useAuth } from "@/contexts/AuthContext"
+import { useUnreadCount } from "@/hooks/use-unread-count"
 import { isAdmin } from "@/lib/utils/admin"
 
 interface BottomNavBarProps {
@@ -14,15 +15,16 @@ interface BottomNavBarProps {
   onProfileClick?: () => void
 }
 
-export const BottomNavBar = React.memo(function BottomNavBar({ 
-  activeCategory, 
-  onSelectCategory, 
+export const BottomNavBar = React.memo(function BottomNavBar({
+  activeCategory,
+  onSelectCategory,
   onHomeClick,
   onCategoriesClick,
-  onProfileClick 
+  onProfileClick
 }: BottomNavBarProps) {
   const pathname = usePathname()
   const { user } = useAuth()
+  const { unreadCount } = useUnreadCount()
   const admin = isAdmin(user)
   return (
     <nav className="sticky bottom-0 glass-effect border-t border-border/50 px-4 py-3 bg-white">
@@ -65,14 +67,21 @@ export const BottomNavBar = React.memo(function BottomNavBar({
               name: "Perfil",
               href: "/profile",
               icon: (
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                  />
-                </svg>
+                <div className="relative">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                    />
+                  </svg>
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] text-white">
+                      {unreadCount > 9 ? '9+' : unreadCount}
+                    </span>
+                  )}
+                </div>
               ),
               active: pathname === '/profile',
               onClick: onProfileClick,
@@ -99,11 +108,10 @@ export const BottomNavBar = React.memo(function BottomNavBar({
               href={item.href}
               prefetch
               onClick={item.onClick}
-              className={`flex flex-col items-center gap-1 py-3 px-6 rounded-2xl transition-all duration-200 ${
-                item.active
+              className={`flex flex-col items-center gap-1 py-3 px-6 rounded-2xl transition-all duration-200 ${item.active
                   ? "text-white bg-primary premium-shadow"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-              }`}
+                }`}
               aria-current={item.active ? 'page' : undefined}
             >
               {item.icon}
