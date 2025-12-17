@@ -179,14 +179,14 @@ const HowItWorks = () => {
 
   return (
     <section
-      className="px-4 py-8 bg-gradient-to-br from-background via-muted/30 to-background relative overflow-x-visible overflow-y-hidden"
+      className="px-4 py-8 md:py-20 bg-gradient-to-br from-background via-muted/30 to-background relative overflow-x-visible overflow-y-hidden"
     >
       <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-secondary/5"></div>
       <div className="max-w-7xl mx-auto text-center relative">
         <div
-          className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-3 py-1.5 rounded-full text-xs font-medium mb-4 premium-shadow cascade-in cascade-delay-1"
+          className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-3 py-1.5 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-medium mb-4 md:mb-8 premium-shadow cascade-in cascade-delay-1"
         >
-          <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+          <svg className="w-3.5 h-3.5 md:w-4 md:h-4" fill="currentColor" viewBox="0 0 20 20">
             <path
               fillRule="evenodd"
               d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
@@ -197,7 +197,7 @@ const HowItWorks = () => {
         </div>
 
         <h2
-          className="text-2xl md:text-4xl font-bold text-foreground mb-3 text-balance cascade-in cascade-delay-2"
+          className="text-2xl md:text-5xl font-bold text-foreground mb-3 md:mb-6 text-balance cascade-in cascade-delay-2"
         >
           Conectamos personas con{" "}
           <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
@@ -205,7 +205,7 @@ const HowItWorks = () => {
           </span>
         </h2>
         <p
-          className="text-base text-muted-foreground mb-6 max-w-2xl mx-auto text-pretty cascade-in cascade-delay-3"
+          className="text-base md:text-xl text-muted-foreground mb-6 md:mb-12 max-w-2xl mx-auto text-pretty cascade-in cascade-delay-3"
         >
           La plataforma más confiable para encontrar servicios de calidad en tu zona
         </p>
@@ -239,17 +239,17 @@ const HowItWorks = () => {
                 <div className="group flex flex-col items-center text-center w-full px-4 max-w-sm mx-auto">
                   <div className="relative w-fit mx-auto pt-2">
                     <div
-                      className={`w-12 h-12 bg-gradient-to-br ${step.color} rounded-2xl flex items-center justify-center mb-2 mx-auto premium-shadow-lg group-hover:scale-110 transition-all duration-300 smooth-bounce overflow-visible`}
+                      className={`w-12 h-12 md:w-20 md:h-20 bg-gradient-to-br ${step.color} rounded-2xl md:rounded-3xl flex items-center justify-center mb-2 md:mb-6 mx-auto premium-shadow-lg group-hover:scale-110 transition-all duration-300 smooth-bounce overflow-visible`}
                       style={{ animationDelay: `${index * 0.2}s` }}
                     >
-                      <div className="text-white overflow-visible transform scale-75">{step.icon}</div>
+                      <div className="text-white overflow-visible transform scale-75 md:scale-100">{step.icon}</div>
                     </div>
-                    <div className="absolute top-0 -right-1 w-5 h-5 bg-white rounded-full flex items-center justify-center text-[10px] font-bold text-primary premium-shadow">
+                    <div className="absolute top-0 -right-1 md:-right-2 w-5 h-5 md:w-8 md:h-8 bg-white rounded-full flex items-center justify-center text-[10px] md:text-sm font-bold text-primary premium-shadow">
                       {index + 1}
                     </div>
                   </div>
-                  <h3 className="text-base font-bold text-foreground mb-0.5">{step.title}</h3>
-                  <p className="text-xs text-muted-foreground text-pretty max-w-xs mx-auto">{step.description}</p>
+                  <h3 className="text-base md:text-xl font-bold text-foreground mb-0.5 md:mb-2">{step.title}</h3>
+                  <p className="text-xs md:text-base text-muted-foreground text-pretty max-w-xs mx-auto">{step.description}</p>
                 </div>
               </div>
             ))}

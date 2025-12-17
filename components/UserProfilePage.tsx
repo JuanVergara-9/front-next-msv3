@@ -519,34 +519,7 @@ export function UserProfilePage() {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
-      {/* Header fijo */}
-      <header
-        className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-white/20 px-4 py-3"
-      >
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <h1 className="text-xl font-bold text-[#2563EB]">miservicio</h1>
-          <div className="flex items-center gap-2">
-            <nav className="hidden sm:block text-sm text-gray-600">
-              <span>Inicio</span> / <span className="text-[#2563EB]">Perfil de Usuario</span>
-            </nav>
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Button
-                onClick={logout}
-                variant="outline"
-                size="sm"
-                aria-label="Cerrar sesión"
-                className="flex items-center gap-2"
-              >
-                <LogOut className="h-4 w-4" />
-                <span className="hidden sm:inline">Cerrar sesión</span>
-              </Button>
-            </motion.div>
-          </div>
-        </div>
-      </header>
+
 
       {/* Contenido principal con efecto glass */}
       <div className="glass-effect min-h-[calc(100vh-80px)]">
