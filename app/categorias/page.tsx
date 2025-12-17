@@ -1,5 +1,4 @@
 import { CategoriesSection } from "@/components/CategoriesSection"
-import { Header } from "@/components/Header"
 import { ProvidersService } from "@/lib/services/providers.service"
 
 // Revalidate data every 600 seconds (10 minutes)
@@ -62,7 +61,6 @@ export default async function CategoriesPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header city="Argentina" />
       <CategoriesSection
         initialCategories={categories}
         initialProviders={transformedProviders}

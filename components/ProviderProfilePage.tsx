@@ -436,11 +436,7 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
       <div className="glass-effect min-h-[calc(100vh-80px)]">
         <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
           {/* Header Principal */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-          >
+          <div className="cascade-in cascade-delay-1">
             <Card className="rounded-2xl shadow-xl border-0 overflow-hidden">
               <CardContent className="p-6">
                 <div className="flex flex-col md:flex-row gap-6">
@@ -739,14 +735,10 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
+          </div>
 
           {/* Tabs de contenido */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.6 }}
-          >
+          <div className="cascade-in cascade-delay-2">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
               <motion.div
                 className="w-full"
@@ -958,8 +950,8 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
                               key={filter}
                               onClick={() => setReviewFilter(filter as 'all' | 'positive' | 'negative')}
                               className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${reviewFilter === filter
-                                  ? 'bg-[#2563EB] text-white border-2 border-[#2563EB]'
-                                  : 'bg-white text-[#6B7280] border-2 border-gray-200 hover:border-[#2563EB] hover:text-[#2563EB]'
+                                ? 'bg-[#2563EB] text-white border-2 border-[#2563EB]'
+                                : 'bg-white text-[#6B7280] border-2 border-gray-200 hover:border-[#2563EB] hover:text-[#2563EB]'
                                 }`}
                               initial={{ opacity: 0, scale: 0.8 }}
                               animate={{ opacity: 1, scale: 1 }}
@@ -1307,7 +1299,7 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
                 )}
               </AnimatePresence>
             </Tabs>
-          </motion.div>
+          </div>
 
           {/* Sección de proveedores similares removida para evitar datos mock */}
         </div>

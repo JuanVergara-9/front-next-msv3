@@ -552,20 +552,12 @@ export function UserProfilePage() {
       <div className="glass-effect min-h-[calc(100vh-80px)]">
         <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
           {/* Header Principal */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-          >
+          <div className="cascade-in cascade-delay-1">
             <Card className="rounded-2xl shadow-xl border-0 overflow-hidden">
               <CardContent className="p-6">
                 <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
-                  <motion.div
-                    className="relative inline-block"
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.3, ease: "easeOut" }}
-                    whileHover={{ scale: 1.02 }}
+                  <div
+                    className="relative inline-block cascade-in cascade-delay-2"
                   >
                     <Avatar className="h-24 w-24 border-4 border-white shadow-lg" key={userProfile?.avatar_url || 'no-avatar'}>
                       {userProfile?.avatar_url ? (
@@ -593,7 +585,7 @@ export function UserProfilePage() {
                         <Camera className="h-4 w-4" />
                       </motion.button>
                     )}
-                  </motion.div>
+                  </div>
 
                   <motion.div
                     className="flex-1 text-center md:text-left"
@@ -669,15 +661,11 @@ export function UserProfilePage() {
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
+          </div>
 
           {/* Banner para completar perfil */}
           {hasIncompleteProfile() && !isEditing && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.3 }}
-            >
+            <div className="cascade-in cascade-delay-3">
               <Card className="rounded-2xl shadow-lg border-2 border-yellow-400 bg-gradient-to-r from-yellow-50 to-orange-50">
                 <CardContent className="p-6">
                   <div className="flex flex-col md:flex-row items-center md:items-start gap-4">
@@ -720,7 +708,7 @@ export function UserProfilePage() {
                   </div>
                 </CardContent>
               </Card>
-            </motion.div>
+            </div>
           )}
 
           {/* Tarjeta de verificación de identidad (solo para proveedores) */}
@@ -917,12 +905,7 @@ export function UserProfilePage() {
           {/* CTA: Convertirse en proveedor */}
           <AnimatePresence>
             {!isProvider && (
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.5, delay: 0.9 }}
-              >
+              <div className="cascade-in cascade-delay-4">
                 <Card className="rounded-2xl shadow-lg border-0">
                   <CardContent className="p-6">
                     <div className="flex flex-col md:flex-row items-center justify-between gap-4">
@@ -945,16 +928,12 @@ export function UserProfilePage() {
                     </div>
                   </CardContent>
                 </Card>
-              </motion.div>
+              </div>
             )}
           </AnimatePresence>
 
           {/* Actividad */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 1.0 }}
-          >
+          <div className="cascade-in cascade-delay-5">
             <Card className="rounded-2xl shadow-lg border-0">
               <CardHeader>
                 <h2 className="text-xl font-semibold text-[#111827]">Actividad</h2>
@@ -1069,14 +1048,12 @@ export function UserProfilePage() {
                 </AnimatePresence>
               </CardContent>
             </Card>
-          </motion.div>
+          </div>
 
           {/* Preferencias - Lazy loaded */}
-          <motion.div
+          <div
             ref={setPreferencesRef}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
+            className="cascade-in cascade-delay-6"
           >
             <Card className="rounded-2xl shadow-lg border-0">
               <CardHeader>
@@ -1151,46 +1128,35 @@ export function UserProfilePage() {
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
+          </div>
 
           {/* Privacidad */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 1.7 }}
-          >
+          <div className="cascade-in cascade-delay-7">
             <Card className="rounded-2xl shadow-lg border-0 bg-gradient-to-r from-gray-50 to-blue-50">
               <CardContent className="p-6">
                 <div className="flex items-start gap-3">
-                  <motion.div
-                    initial={{ rotate: -180, scale: 0 }}
-                    animate={{ rotate: 0, scale: 1 }}
-                    transition={{ duration: 0.5, delay: 1.8, type: "spring", stiffness: 200 }}
-                  >
+                  <div>
                     <Shield className="h-5 w-5 text-[#2563EB] mt-0.5" />
-                  </motion.div>
+                  </div>
                   <div className="flex-1">
                     <h3 className="font-semibold text-[#111827] mb-2">Privacidad</h3>
                     <p className="text-[#6B7280] text-sm leading-relaxed mb-4">
                       Tu email permanece privado y solo es visible para ti. Tu nombre de usuario se genera automáticamente
                       a partir de tu email para proteger tu identidad. Tus datos están seguros y encriptados.
                     </p>
-                    <motion.div
-                      className="flex flex-wrap gap-4"
-                      whileHover={{ scale: 1.05 }}
-                    >
+                    <div className="flex flex-wrap gap-4">
                       <Link
                         href="/sobre"
                         className="text-[#2563EB] hover:text-[#1d4ed8] text-sm font-medium transition-colors"
                       >
                         Más sobre miservicio
                       </Link>
-                    </motion.div>
+                    </div>
                   </div>
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
+          </div>
 
           {/* Botón "Reportar problema" - Sutil al final */}
           <div className="text-center py-4">

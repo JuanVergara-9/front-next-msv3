@@ -6,7 +6,6 @@ import { UserProfileService } from '@/lib/services/user-profile.service'
 import { useAuth } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Header } from '@/components/Header'
 import { ProviderCard } from '@/components/ProviderCard'
 import type { ProviderWithDetails } from '@/types/api'
 import { motion, AnimatePresence } from "framer-motion"
@@ -731,93 +730,163 @@ export function HomeClient({ initialProviders = [] }: HomeClientProps) {
 
   // Load data from backend - attempts location-based refinement
   useEffect(() => {
+    const LOCATION_CACHE_KEY = 'miservicio_user_location'
+    const CITY_CACHE_KEY = 'miservicio_user_city'
+
     const loadData = async () => {
+      console.log('[HomeClient] loadData started')
+
       // Only show loading if we don't have initial data
       const hasInitialData = initialProviders.length > 0
+      console.log('[HomeClient] hasInitialData:', hasInitialData, 'initialProviders:', initialProviders.length)
       if (!hasInitialData) {
         setLoading(true)
       }
 
       try {
-        // 1) Intentar obtener ubicación del usuario
+        // 1) Check for cached location first (much faster than geolocation API)
         let location: { lat: number; lng: number } | null = null
+        let cachedCity: string | null = null
+
         try {
-          location = await ProvidersService.getCurrentLocation()
-          setUserLocation(location)
+          const cachedLocation = localStorage.getItem(LOCATION_CACHE_KEY)
+          const cachedCityName = localStorage.getItem(CITY_CACHE_KEY)
+          console.log('[HomeClient] Cached location from localStorage:', cachedLocation, cachedCityName)
+
+          if (cachedLocation) {
+            location = JSON.parse(cachedLocation)
+            cachedCity = cachedCityName || 'Mi ubicación'
+            setUserLocation(location)
+            setCity(cachedCity)
+          }
+        } catch (e) {
+          console.warn('Could not read cached location:', e)
+        }
+
+        // 2) If we have cached location, fetch nearby providers immediately
+        if (location) {
+          const searchParams = {
+            limit: 6,
+            lat: location.lat,
+            lng: location.lng,
+            radius_km: 200
+          }
+
+          try {
+            const response = await ProvidersService.searchProviders(searchParams)
+            let transformedProviders = response.providers.map(provider => ({
+              ...provider,
+              full_name: `${provider.first_name} ${provider.last_name}`,
+              rating: provider.rating || 0,
+              review_count: provider.review_count || 0,
+              distance_km: ProvidersService.calculateDistance(
+                location!.lat,
+                location!.lng,
+                provider.lat || 0,
+                provider.lng || 0
+              ),
+              categories: provider.category ? [provider.category.name] : [],
+              avatar_url: (provider as any).avatar_url,
+            }))
+
+            transformedProviders = await ProvidersService.enrichWithReviewSummaries(transformedProviders)
+            setProviders(transformedProviders)
+            setFiltered(transformedProviders)
+          } catch (e) {
+            console.warn('Error fetching with cached location:', e)
+          }
+        }
+
+        // 3) Try to get fresh location in background and update cache
+        try {
+          const freshLocation = await ProvidersService.getCurrentLocation()
+          console.log('[HomeClient] Got fresh location:', freshLocation)
+
+          // Save to localStorage for next time
+          localStorage.setItem(LOCATION_CACHE_KEY, JSON.stringify(freshLocation))
+          console.log('[HomeClient] Saved location to localStorage')
+
+          // Get city name
+          const freshCityName = await ProvidersService.getCityFromCoords(
+            freshLocation.lat,
+            freshLocation.lng
+          ).catch(() => 'Mi ubicación')
+
+          localStorage.setItem(CITY_CACHE_KEY, freshCityName)
+          console.log('[HomeClient] Saved city to localStorage:', freshCityName)
+
+          // Determine if we need to refetch:
+          // 1. If we had no cached location before, always refetch
+          // 2. If location changed significantly (>0.01 degrees ~1km), refetch
+          // 3. If we only have SSR data (no cached location was used), refetch
+          const hadCachedLocation = location !== null
+          const locationChangedSignificantly = hadCachedLocation && (
+            Math.abs(location.lat - freshLocation.lat) > 0.01 ||
+            Math.abs(location.lng - freshLocation.lng) > 0.01
+          )
+
+          // Always update if: no cache before, location changed, or only had SSR data
+          const shouldRefetch = !hadCachedLocation || locationChangedSignificantly
+
+          if (shouldRefetch) {
+            setUserLocation(freshLocation)
+            setCity(freshCityName)
+
+            const searchParams = {
+              limit: 6,
+              lat: freshLocation.lat,
+              lng: freshLocation.lng,
+              radius_km: 200
+            }
+
+            const response = await ProvidersService.searchProviders(searchParams)
+            let transformedProviders = response.providers.map(provider => ({
+              ...provider,
+              full_name: `${provider.first_name} ${provider.last_name}`,
+              rating: provider.rating || 0,
+              review_count: provider.review_count || 0,
+              distance_km: ProvidersService.calculateDistance(
+                freshLocation.lat,
+                freshLocation.lng,
+                provider.lat || 0,
+                provider.lng || 0
+              ),
+              categories: provider.category ? [provider.category.name] : [],
+              avatar_url: (provider as any).avatar_url,
+            }))
+
+            transformedProviders = await ProvidersService.enrichWithReviewSummaries(transformedProviders)
+
+            // Fallback to city-wide search if no nearby results
+            if (transformedProviders.length === 0 && freshCityName.includes(',')) {
+              const onlyCity = freshCityName.split(',')[0].trim()
+              if (onlyCity) {
+                const r2 = await ProvidersService.searchProviders({ city: onlyCity, limit: 6 })
+                transformedProviders = r2.providers.map(provider => ({
+                  ...provider,
+                  full_name: `${provider.first_name} ${provider.last_name}`,
+                  rating: provider.rating || 0,
+                  review_count: provider.review_count || 0,
+                  distance_km: undefined,
+                  categories: provider.category ? [provider.category.name] : [],
+                  avatar_url: (provider as any).avatar_url,
+                }))
+                transformedProviders = await ProvidersService.enrichWithReviewSummaries(transformedProviders)
+              }
+            }
+
+            setProviders(transformedProviders)
+            setFiltered(transformedProviders)
+          }
         } catch (locationError) {
-          console.warn('Could not get location:', locationError)
-          // If we have initial data and no location, we're done
-          if (hasInitialData) {
+          console.warn('Could not get fresh location:', locationError)
+          // If we have initial data and no location at all, we're done
+          if (hasInitialData && !location) {
             return
           }
         }
-
-        // 2) Preparar parámetros de búsqueda (usar la variable local para no depender del setState)
-        const searchParams: any = { limit: 6 }
-        if (location) {
-          searchParams.lat = location.lat
-          searchParams.lng = location.lng
-          searchParams.radius_km = 50 // 50km radius
-        }
-
-        // 3) Resolver en paralelo: reverse geocoding (si hay coords) y providers
-        const [cityName, response] = await Promise.all([
-          location
-            ? ProvidersService.getCityFromCoords(location.lat, location.lng).catch(() => 'Mi ubicación')
-            : Promise.resolve(''),
-          ProvidersService.searchProviders(searchParams),
-        ])
-
-        setCity(cityName || 'Argentina')
-
-        // 4) Transform backend data to UI format (usar location local para distancia)
-        let transformedProviders = response.providers.map(provider => ({
-          ...provider,
-          full_name: `${provider.first_name} ${provider.last_name}`,
-          rating: provider.rating || 0,
-          review_count: provider.review_count || 0,
-          distance_km: location
-            ? ProvidersService.calculateDistance(
-              location.lat,
-              location.lng,
-              provider.lat || 0,
-              provider.lng || 0
-            )
-            : undefined,
-          categories: provider.category ? [provider.category.name] : [],
-          avatar_url: (provider as any).avatar_url,
-        }))
-
-        transformedProviders = await ProvidersService.enrichWithReviewSummaries(transformedProviders)
-
-        // 4b) Fallback: si no hay resultados cerca, probar por ciudad detectada
-        if (transformedProviders.length === 0 && (cityName || '').includes(',')) {
-          try {
-            const onlyCity = (cityName || '').split(',')[0].trim()
-            if (onlyCity) {
-              const r2 = await ProvidersService.searchProviders({ city: onlyCity, limit: 6 })
-              transformedProviders = r2.providers.map(provider => ({
-                ...provider,
-                full_name: `${provider.first_name} ${provider.last_name}`,
-                rating: provider.rating || 0,
-                review_count: provider.review_count || 0,
-                distance_km: undefined,
-                categories: provider.category ? [provider.category.name] : [],
-                avatar_url: (provider as any).avatar_url,
-              }))
-
-              transformedProviders = await ProvidersService.enrichWithReviewSummaries(transformedProviders)
-            }
-          } catch (e) {
-            console.warn('City fallback failed', e)
-          }
-        }
-
-        setProviders(transformedProviders)
-        setFiltered(transformedProviders)
       } catch (err) {
         console.warn('Error loading data from backend:', err)
-        // No usar datos mock; dejar lista vacía para validación
         setProviders([])
         setFiltered([])
       } finally {
@@ -826,7 +895,7 @@ export function HomeClient({ initialProviders = [] }: HomeClientProps) {
     }
 
     loadData()
-  }, [])
+  }, [initialProviders])
 
   // Filter providers based on query and category
   useEffect(() => {
@@ -990,7 +1059,6 @@ export function HomeClient({ initialProviders = [] }: HomeClientProps) {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <Header city={city} />
       <HowItWorks />
       <SearchSection query={query} onQueryChange={setQuery} onSearch={handleSearch} />
       <ProvidersList

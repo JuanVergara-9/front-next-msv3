@@ -3,7 +3,9 @@ import { GeistSans } from 'geist/font/sans'
 import { GeistMono } from 'geist/font/mono'
 import { Analytics } from '@vercel/analytics/next'
 import { AuthProvider } from '@/contexts/AuthContext'
+import { LocationProvider } from '@/contexts/LocationContext'
 import { BottomNavBar } from '@/components/BottomNavBar'
+import { LayoutHeader } from '@/components/LayoutHeader'
 import { Toaster } from '@/components/Toaster'
 import { TermsUpdateHandler } from '@/components/TermsUpdateHandler'
 import Link from 'next/link'
@@ -21,8 +23,8 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
   alternates: { canonical: '/' },
   icons: {
-    icon: [ { url: '/logo-transparente-wuachin.png' } ],
-    apple: [ { url: '/apple-touch-icon.png', sizes: '180x180' } ]
+    icon: [{ url: '/logo-transparente-wuachin.png' }],
+    apple: [{ url: '/apple-touch-icon.png', sizes: '180x180' }]
   },
   manifest: '/manifest.json',
   openGraph: {
@@ -83,13 +85,16 @@ export default function RootLayout({
           )
         })()}
         <AuthProvider>
-          <TermsUpdateHandler />
-          <div className="min-h-screen flex flex-col">
-            <main className="flex-1">
-              {children}
-            </main>
-            <BottomNavBar />
-          </div>
+          <LocationProvider>
+            <TermsUpdateHandler />
+            <div className="min-h-screen flex flex-col">
+              <LayoutHeader />
+              <main className="flex-1">
+                {children}
+              </main>
+              <BottomNavBar />
+            </div>
+          </LocationProvider>
         </AuthProvider>
         <Toaster />
         <Analytics />
@@ -97,3 +102,4 @@ export default function RootLayout({
     </html>
   )
 }
+

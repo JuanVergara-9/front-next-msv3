@@ -1,11 +1,11 @@
 import { apiFetch } from '../apiClient';
-import type { 
-  Provider, 
-  ProviderWithDetails, 
-  SearchProvidersRequest, 
+import type {
+  Provider,
+  ProviderWithDetails,
+  SearchProvidersRequest,
   SearchProvidersResponse,
   Category,
-  ContactIntent 
+  ContactIntent
 } from '../../types/api';
 import { ReviewsService } from './reviews.service';
 
@@ -128,39 +128,37 @@ export class ProvidersService {
     const R = 6371; // Radio de la Tierra en km
     const dLat = (lat2 - lat1) * Math.PI / 180;
     const dLng = (lng2 - lng1) * Math.PI / 180;
-    const a = 
-      Math.sin(dLat/2) * Math.sin(dLat/2) +
-      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
-      Math.sin(dLng/2) * Math.sin(dLng/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+      Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
   }
 
-  // Helper para obtener ubicación del usuario
+  // Helper para obtener ubicación del usuario por IP (no requiere permiso)
   static async getCurrentLocation(): Promise<{ lat: number; lng: number }> {
-    return new Promise((resolve, reject) => {
-      if (!navigator.geolocation) {
-        reject(new Error('Geolocation is not supported by this browser'));
-        return;
-      }
+    try {
+      const response = await fetch('https://ipapi.co/json/', {
+        cache: 'no-store',
+        signal: AbortSignal.timeout(5000) // 5s timeout
+      });
 
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          resolve({
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          });
-        },
-        (error) => {
-          reject(error);
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 300000, // 5 minutos
+      if (response.ok) {
+        const data = await response.json();
+        if (data.latitude && data.longitude) {
+          console.log('Location from IP:', data.city, data.region);
+          return {
+            lat: data.latitude,
+            lng: data.longitude,
+          };
         }
-      );
-    });
+      }
+      throw new Error('Invalid response from IP geolocation');
+    } catch (error) {
+      console.warn('IP geolocation failed:', error);
+      throw new Error('Could not determine location');
+    }
   }
 
   // Helper para obtener ciudad desde coordenadas (usando geolocation service)
@@ -217,7 +215,7 @@ export class ProvidersService {
 
   // Subir avatar propio (multipart/form-data, field 'file')
   static async uploadMyAvatar(file: File): Promise<Provider> {
-    const base = (process.env.NEXT_PUBLIC_GATEWAY_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000').replace(/\/+$/,'')
+    const base = (process.env.NEXT_PUBLIC_GATEWAY_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000').replace(/\/+$/, '')
     const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null
     const form = new FormData()
     form.append('file', file)
@@ -235,7 +233,7 @@ export class ProvidersService {
   }
 
   static async deleteMyAvatar(): Promise<Provider> {
-    const base = (process.env.NEXT_PUBLIC_GATEWAY_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000').replace(/\/+$/,'')
+    const base = (process.env.NEXT_PUBLIC_GATEWAY_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000').replace(/\/+$/, '')
     const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null
     const res = await fetch(`${base}/api/v1/providers/mine/avatar`, {
       method: 'DELETE',
@@ -273,7 +271,7 @@ export class ProvidersService {
   static async uploadIdentityDocs(files: { dniFront: File; dniBack: File; selfie: File }): Promise<void> {
     const base = (process.env.NEXT_PUBLIC_GATEWAY_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000').replace(/\/+$/, '')
     const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null
-    
+
     const formData = new FormData()
     formData.append('dni_front', files.dniFront)
     formData.append('dni_back', files.dniBack)
@@ -291,7 +289,7 @@ export class ProvidersService {
       const text = await res.text()
       throw new Error(text || 'Error al subir documentos')
     }
-    
+
     return res.json()
   }
 

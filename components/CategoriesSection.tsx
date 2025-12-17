@@ -104,6 +104,9 @@ export function CategoriesSection({ initialCategories = [], initialProviders = [
   // Control de carga de proveedores
   const [providersLoading, setProvidersLoading] = useState(initialProviders.length === 0)
 
+  // Estado de ciudad para el Header
+  const [city, setCity] = useState<string>("Argentina")
+
   useEffect(() => {
     // Si no hay categorías iniciales, cargarlas
     if (initialCategories.length === 0) {
@@ -143,24 +146,55 @@ export function CategoriesSection({ initialCategories = [], initialProviders = [
       setProvidersLoading(true)
       let location: { lat: number; lng: number } | null = null
 
+      // 1) Check localStorage cache first (shared with HomeClient)
+      const LOCATION_CACHE_KEY = 'miservicio_user_location'
+      const CITY_CACHE_KEY = 'miservicio_user_city'
+
       try {
-        location = await ProvidersService.getCurrentLocation()
-      } catch (locationError) {
-        console.warn('Could not get location:', locationError)
+        const cachedLocation = localStorage.getItem(LOCATION_CACHE_KEY)
+        const cachedCity = localStorage.getItem(CITY_CACHE_KEY)
+
+        if (cachedLocation) {
+          location = JSON.parse(cachedLocation)
+          console.log('[CategoriesSection] Using cached location:', location)
+        }
+        if (cachedCity) {
+          setCity(cachedCity)
+        }
+      } catch (e) {
+        console.warn('Could not read cached location:', e)
       }
 
-      // 1. Intentar con ubicación si existe
+      // 2) If no cache, try to get fresh location
+      if (!location) {
+        try {
+          location = await ProvidersService.getCurrentLocation()
+          // Save to cache for other components
+          localStorage.setItem(LOCATION_CACHE_KEY, JSON.stringify(location))
+
+          // Also get city name
+          const cityName = await ProvidersService.getCityFromCoords(location.lat, location.lng).catch(() => 'Mi ubicación')
+          localStorage.setItem(CITY_CACHE_KEY, cityName)
+          setCity(cityName)
+
+          console.log('[CategoriesSection] Got fresh location:', location, cityName)
+        } catch (locationError) {
+          console.warn('Could not get location:', locationError)
+        }
+      }
+
+      // 3. Intentar con ubicación si existe
       let searchParams: any = { limit: 20 }
       if (location) {
         searchParams.lat = location.lat
         searchParams.lng = location.lng
-        searchParams.radius_km = 50
+        searchParams.radius_km = 200
       }
 
       let response = await ProvidersService.searchProviders(searchParams)
       let providersData = Array.isArray(response.providers) ? response.providers : []
 
-      // 2. Fallback si no hay location o no hay resultados
+      // 4. Fallback si no hay location o no hay resultados
       if (providersData.length === 0 && location) {
         searchParams = { limit: 20 }
         response = await ProvidersService.searchProviders(searchParams)
