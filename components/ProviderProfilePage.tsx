@@ -32,7 +32,7 @@ import { useAuth } from "@/contexts/AuthContext"
 import { ReviewsService, type ReviewItem } from "@/lib/services/reviews.service"
 import { ProvidersService } from "@/lib/services/providers.service"
 import { InsightsService } from "@/lib/services/insights.service"
-import { Header } from "@/components/Header"
+
 import { useRouter } from "next/navigation"
 import { isAdmin } from "@/lib/utils/admin"
 import { EditReviewPhotosDialog } from "./EditReviewPhotosDialog"
@@ -431,7 +431,7 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#2F66F5] via-[#3b82f6] to-[#2563EB]">
-      <Header city={`${providerData.city}, ${providerData.province}`} />
+
 
       <div className="glass-effect min-h-[calc(100vh-80px)]">
         <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">

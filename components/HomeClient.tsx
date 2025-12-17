@@ -179,14 +179,14 @@ const HowItWorks = () => {
 
   return (
     <section
-      className="px-4 py-12 bg-gradient-to-br from-background via-muted/30 to-background relative overflow-x-visible overflow-y-hidden"
+      className="px-4 py-8 bg-gradient-to-br from-background via-muted/30 to-background relative overflow-x-visible overflow-y-hidden"
     >
       <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-secondary/5"></div>
       <div className="max-w-7xl mx-auto text-center relative">
         <div
-          className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-full text-sm font-medium mb-6 premium-shadow cascade-in cascade-delay-1"
+          className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-3 py-1.5 rounded-full text-xs font-medium mb-4 premium-shadow cascade-in cascade-delay-1"
         >
-          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+          <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
             <path
               fillRule="evenodd"
               d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
@@ -197,7 +197,7 @@ const HowItWorks = () => {
         </div>
 
         <h2
-          className="text-3xl md:text-5xl font-bold text-foreground mb-4 text-balance cascade-in cascade-delay-2"
+          className="text-2xl md:text-4xl font-bold text-foreground mb-3 text-balance cascade-in cascade-delay-2"
         >
           Conectamos personas con{" "}
           <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
@@ -205,19 +205,19 @@ const HowItWorks = () => {
           </span>
         </h2>
         <p
-          className="text-lg text-muted-foreground mb-12 max-w-2xl mx-auto text-pretty cascade-in cascade-delay-3"
+          className="text-base text-muted-foreground mb-6 max-w-2xl mx-auto text-pretty cascade-in cascade-delay-3"
         >
           La plataforma más confiable para encontrar servicios de calidad en tu zona
         </p>
 
-        <div className="md:hidden -mx-4 pb-8 relative overflow-x-auto overflow-y-visible scroll-smooth snap-x snap-mandatory" ref={mobileWrapperRef}>
+        <div className="md:hidden -mx-4 pb-4 relative overflow-x-auto overflow-y-visible scroll-smooth snap-x snap-mandatory" ref={mobileWrapperRef}>
           <div className="absolute inset-y-0 left-2 flex items-center z-10">
             <button
               onClick={handlePrev}
               aria-label="Anterior"
-              className="w-9 h-9 rounded-full bg-white/90 text-foreground border border-border premium-shadow flex items-center justify-center active:scale-95"
+              className="w-8 h-8 rounded-full bg-white/90 text-foreground border border-border premium-shadow flex items-center justify-center active:scale-95"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
             </button>
@@ -226,9 +226,9 @@ const HowItWorks = () => {
             <button
               onClick={handleNext}
               aria-label="Siguiente"
-              className="w-9 h-9 rounded-full bg-white/90 text-foreground border border-border premium-shadow flex items-center justify-center active:scale-95"
+              className="w-8 h-8 rounded-full bg-white/90 text-foreground border border-border premium-shadow flex items-center justify-center active:scale-95"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </button>
@@ -239,17 +239,17 @@ const HowItWorks = () => {
                 <div className="group flex flex-col items-center text-center w-full px-4 max-w-sm mx-auto">
                   <div className="relative w-fit mx-auto pt-2">
                     <div
-                      className={`w-20 h-20 bg-gradient-to-br ${step.color} rounded-3xl flex items-center justify-center mb-6 mx-auto premium-shadow-lg group-hover:scale-110 transition-all duration-300 smooth-bounce overflow-visible`}
+                      className={`w-12 h-12 bg-gradient-to-br ${step.color} rounded-2xl flex items-center justify-center mb-2 mx-auto premium-shadow-lg group-hover:scale-110 transition-all duration-300 smooth-bounce overflow-visible`}
                       style={{ animationDelay: `${index * 0.2}s` }}
                     >
-                      <div className="text-white overflow-visible">{step.icon}</div>
+                      <div className="text-white overflow-visible transform scale-75">{step.icon}</div>
                     </div>
-                    <div className="absolute top-0 -right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center text-sm font-bold text-primary premium-shadow">
+                    <div className="absolute top-0 -right-1 w-5 h-5 bg-white rounded-full flex items-center justify-center text-[10px] font-bold text-primary premium-shadow">
                       {index + 1}
                     </div>
                   </div>
-                  <h3 className="text-xl font-bold text-foreground mb-3">{step.title}</h3>
-                  <p className="text-muted-foreground text-pretty max-w-xs mx-auto">{step.description}</p>
+                  <h3 className="text-base font-bold text-foreground mb-0.5">{step.title}</h3>
+                  <p className="text-xs text-muted-foreground text-pretty max-w-xs mx-auto">{step.description}</p>
                 </div>
               </div>
             ))}
@@ -264,52 +264,52 @@ const HowItWorks = () => {
             >
               <div className="relative w-fit mx-auto pt-2">
                 <div
-                  className={`w-20 h-20 bg-gradient-to-br ${step.color} rounded-3xl flex items-center justify-center mb-6 mx-auto premium-shadow-lg overflow-visible hover:scale-110 transition-transform duration-200`}
+                  className={`w-14 h-14 bg-gradient-to-br ${step.color} rounded-2xl flex items-center justify-center mb-3 mx-auto premium-shadow-lg overflow-visible hover:scale-110 transition-transform duration-200`}
                 >
-                  <div className="text-white overflow-visible">{step.icon}</div>
+                  <div className="text-white overflow-visible transform scale-75">{step.icon}</div>
                 </div>
                 <div
-                  className="absolute top-0 -right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center text-sm font-bold text-primary premium-shadow"
+                  className="absolute top-0 -right-1 w-6 h-6 bg-white rounded-full flex items-center justify-center text-xs font-bold text-primary premium-shadow"
                 >
                   {index + 1}
                 </div>
               </div>
-              <h3 className="text-xl font-bold text-foreground mb-3">{step.title}</h3>
-              <p className="text-muted-foreground text-pretty">{step.description}</p>
+              <h3 className="text-lg font-bold text-foreground mb-1">{step.title}</h3>
+              <p className="text-sm text-muted-foreground text-pretty">{step.description}</p>
             </div>
           ))}
         </div>
 
-        <div className="mt-16 flex flex-wrap justify-center items-center gap-8 opacity-60">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground overflow-visible">
-            <svg className="w-5 h-5 text-primary overflow-visible" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+        <div className="mt-8 md:mt-16 flex flex-nowrap justify-center items-center gap-3 md:gap-8 opacity-60 w-full overflow-hidden px-2">
+          <div className="flex items-center gap-1.5 md:gap-2 text-[10px] xs:text-xs md:text-sm text-muted-foreground whitespace-nowrap">
+            <svg className="w-3.5 h-3.5 md:w-5 md:h-5 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
               />
             </svg>
-            Profesionales verificados
+            <span className="truncate">Profesionales verificados</span>
           </div>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground overflow-visible">
-            <svg className="w-5 h-5 text-primary overflow-visible" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+          <div className="flex items-center gap-1.5 md:gap-2 text-[10px] xs:text-xs md:text-sm text-muted-foreground whitespace-nowrap">
+            <svg className="w-3.5 h-3.5 md:w-5 md:h-5 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
               />
             </svg>
-            Servicios seguros
+            <span className="truncate">Servicios seguros</span>
           </div>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground overflow-visible">
-            <svg className="w-5 h-5 text-primary overflow-visible" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+          <div className="flex items-center gap-1.5 md:gap-2 text-[10px] xs:text-xs md:text-sm text-muted-foreground whitespace-nowrap">
+            <svg className="w-3.5 h-3.5 md:w-5 md:h-5 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
               />
             </svg>
-            Soporte 24/7
+            <span className="truncate">Soporte 24/7</span>
           </div>
         </div>
       </div>
@@ -328,8 +328,8 @@ const SearchSection = ({
 }) => (
   <section className="px-4 py-8 bg-background">
     <div className="max-w-2xl mx-auto">
-      <div className="text-center mb-6">
-        <p className="text-lg md:text-xl text-muted-foreground">
+      <div className="text-center mb-2">
+        <p className="text-base md:text-lg text-muted-foreground">
           Encontrá{" "}
           <TypewriterText
             words={["plomeros", "gasistas", "electricistas", "pintores", "carpinteros", "jardineros"]}
@@ -340,7 +340,7 @@ const SearchSection = ({
       </div>
       <div className="relative">
         <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-3xl blur-xl opacity-60" />
-        <div className="relative bg-card rounded-3xl p-4 md:p-6 premium-shadow-lg border border-border/50">
+        <div className="relative bg-card/70 backdrop-blur-md rounded-3xl p-4 md:p-6 premium-shadow-lg border border-border/50">
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="flex-1 relative">
               <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
@@ -820,7 +820,7 @@ export function HomeClient({ initialProviders = [] }: HomeClientProps) {
           // 2. If location changed significantly (>0.01 degrees ~1km), refetch
           // 3. If we only have SSR data (no cached location was used), refetch
           const hadCachedLocation = location !== null
-          const locationChangedSignificantly = hadCachedLocation && (
+          const locationChangedSignificantly = hadCachedLocation && location && (
             Math.abs(location.lat - freshLocation.lat) > 0.01 ||
             Math.abs(location.lng - freshLocation.lng) > 0.01
           )
@@ -867,7 +867,7 @@ export function HomeClient({ initialProviders = [] }: HomeClientProps) {
                   full_name: `${provider.first_name} ${provider.last_name}`,
                   rating: provider.rating || 0,
                   review_count: provider.review_count || 0,
-                  distance_km: undefined,
+                  distance_km: 0, // Fallback distance
                   categories: provider.category ? [provider.category.name] : [],
                   avatar_url: (provider as any).avatar_url,
                 }))
@@ -1077,9 +1077,9 @@ export function HomeClient({ initialProviders = [] }: HomeClientProps) {
             {/* Card de Proveedores */}
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-secondary/10 rounded-3xl blur-xl"></div>
-              <div className="relative bg-gradient-to-br from-card to-muted/50 rounded-3xl p-8 md:p-10 text-center premium-shadow-lg border border-border/50 h-full flex flex-col">
-                <div className="w-20 h-20 bg-gradient-to-br from-primary to-secondary rounded-3xl flex items-center justify-center mx-auto mb-6 premium-shadow-lg">
-                  <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="relative bg-card/60 backdrop-blur-md rounded-3xl p-4 md:p-6 text-center premium-shadow-lg border border-border/50 h-full flex flex-col">
+                <div className="w-12 h-12 bg-gradient-to-br from-primary to-secondary rounded-2xl flex items-center justify-center mx-auto mb-3 premium-shadow-lg">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -1088,37 +1088,31 @@ export function HomeClient({ initialProviders = [] }: HomeClientProps) {
                     />
                   </svg>
                 </div>
-                <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-4">¿Ofrecés servicios profesionales?</h3>
-                <p className="text-base text-muted-foreground mb-6 flex-grow">
+                <h3 className="text-lg md:text-xl font-bold text-foreground mb-2">¿Ofrecés servicios profesionales?</h3>
+                <p className="text-xs text-muted-foreground mb-3 flex-grow text-balance">
                   Únete a miles de profesionales que ya confían en miservicio. Crea tu perfil gratis y empieza a recibir clientes hoy mismo.
                 </p>
-                <div className="flex flex-col sm:flex-row gap-3 justify-center items-center mb-6">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <svg className="w-5 h-5 text-primary" fill="currentColor" viewBox="0 0 20 20">
+                <div className="flex flex-col sm:flex-row gap-3 justify-center items-center mb-4">
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <svg className="w-4 h-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                     </svg>
-                    Registro gratuito
+                    Gratis
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
-                    Sin comisiones ocultas
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
-                    Soporte dedicado
+                    Seguro
                   </div>
                 </div>
                 <Link href="/auth/register?provider=1" className="inline-block">
                   <motion.div
-                    className="group/crear relative px-8 py-4 bg-gradient-to-r from-primary to-secondary text-primary-foreground rounded-2xl font-bold text-lg premium-shadow-lg cursor-pointer hover:shadow-2xl hover:scale-[1.04] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 transition-all duration-200 ease-out overflow-hidden"
+                    className="group/crear relative px-6 py-2.5 bg-gradient-to-r from-primary to-secondary text-primary-foreground rounded-xl font-bold text-sm premium-shadow-lg cursor-pointer hover:shadow-2xl hover:scale-[1.04] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 transition-all duration-200 ease-out overflow-hidden"
                     whileHover={{ scale: 1.04, y: -2 }}
                     whileTap={{ scale: 0.98 }}
                   >
-                    <span className="relative z-10">Crear perfil profesional</span>
+                    <span className="relative z-10">Crear perfil</span>
                     <div className="absolute inset-0 bg-gradient-to-r from-secondary to-primary opacity-0 group-hover/crear:opacity-100 transition-opacity duration-200"></div>
                   </motion.div>
                 </Link>
@@ -1128,25 +1122,26 @@ export function HomeClient({ initialProviders = [] }: HomeClientProps) {
             {/* Card de Sobre */}
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-secondary/10 rounded-3xl blur-xl"></div>
-              <div className="relative bg-gradient-to-br from-card to-muted/50 rounded-3xl p-8 md:p-10 text-center premium-shadow-lg border border-border/50 h-full flex flex-col">
-                <div className="w-20 h-20 bg-gradient-to-br from-primary to-secondary rounded-3xl flex items-center justify-center mx-auto mb-6 premium-shadow-lg">
-                  <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="relative bg-card/60 backdrop-blur-md rounded-3xl p-4 md:p-6 text-center premium-shadow-lg border border-border/50 h-full flex flex-col">
+                <div className="w-12 h-12 bg-gradient-to-br from-primary to-secondary rounded-2xl flex items-center justify-center mx-auto mb-3 premium-shadow-lg">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
-                <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-4">¿Querés saber más sobre miservicio?</h3>
-                <p className="text-base text-muted-foreground mb-6 flex-grow">
-                  Conocé nuestra historia, misión y cómo estamos digitalizando los oficios locales en San Rafael, Mendoza.
+                <h3 className="text-lg md:text-xl font-bold text-foreground mb-2">¿Querés saber más?</h3>
+                <p className="text-xs text-muted-foreground mb-4 flex-grow text-balance">
+                  Conocé nuestra historia y cómo estamos digitalizando los oficios locales.
                 </p>
+                <div className="mb-auto"></div>
                 <Link href="/sobre" className="inline-block">
                   <motion.div
-                    className="group/sobre relative px-8 py-4 bg-gradient-to-r from-primary to-secondary text-primary-foreground rounded-2xl font-bold text-lg premium-shadow-lg cursor-pointer hover:shadow-2xl hover:scale-[1.04] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 transition-all duration-200 ease-out overflow-hidden"
+                    className="group/sobre relative px-6 py-2.5 bg-gradient-to-r from-primary to-secondary text-primary-foreground rounded-xl font-bold text-sm premium-shadow-lg cursor-pointer hover:shadow-2xl hover:scale-[1.04] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 transition-all duration-200 ease-out overflow-hidden"
                     whileHover={{ scale: 1.04, y: -2 }}
                     whileTap={{ scale: 0.98 }}
                   >
                     <span className="relative z-10 flex items-center justify-center gap-2">
-                      Más sobre miservicio
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      Más info
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                       </svg>
                     </span>

@@ -29,7 +29,7 @@ export function ProviderCard({ provider, onContact }: { provider: ProviderWithDe
   }
 
   return (
-    <div className="bg-card rounded-3xl p-6 premium-shadow border border-border/50 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 group flex flex-col h-full">
+    <div className="bg-card/90 backdrop-blur-sm rounded-3xl p-6 premium-shadow border border-border/50 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 group flex flex-col h-full">
       <div className="flex gap-4 mb-4 flex-1">
         <div className="relative">
           <img
@@ -66,37 +66,28 @@ export function ProviderCard({ provider, onContact }: { provider: ProviderWithDe
                 <span className="text-xs font-medium text-gray-500">(0)</span>
               </div>
             )}
-            {((provider as any).distance_km != null || normalizedCity) && (
+            {(provider as any).distance_km != null && (
               <div className="flex items-center gap-1">
-                {normalizedCity && <MapPin className="h-3 w-3" />}
+                <MapPin className="h-3 w-3" />
                 <span className="font-medium">
-                  {[
-                    (provider as any).distance_km != null && `${Number((provider as any).distance_km).toFixed(1)} km`,
-                    normalizedCity
-                  ].filter(Boolean).join(' • ')}
+                  {`${Number((provider as any).distance_km).toFixed(1)} km`}
                 </span>
               </div>
             )}
           </div>
-          <div className="min-h-[2.5rem]">
-            {provider.description ? (
-              <p className="text-sm text-muted-foreground line-clamp-2 text-pretty">{provider.description}</p>
-            ) : (
-              <p className="text-sm text-muted-foreground line-clamp-2 text-pretty opacity-0 pointer-events-none">&#8203;</p>
-            )}
-          </div>
+          {provider.categories?.length ? (
+            <div className="flex flex-wrap gap-2 mt-auto">
+              {provider.categories.map((category) => (
+                <span key={category} className="px-2 py-0.5 bg-primary/5 text-primary text-[10px] rounded-md font-medium border border-primary/10">
+                  {category}
+                </span>
+              ))}
+            </div>
+          ) : null}
         </div>
       </div>
 
-      {provider.categories?.length ? (
-        <div className="flex flex-wrap gap-2 mb-4">
-          {provider.categories.map((category) => (
-            <span key={category} className="px-3 py-1 bg-primary/10 text-primary text-xs rounded-full font-medium border border-primary/20">
-              {category}
-            </span>
-          ))}
-        </div>
-      ) : null}
+
 
       <div className="flex gap-3">
         <button
@@ -106,13 +97,13 @@ export function ProviderCard({ provider, onContact }: { provider: ProviderWithDe
           <Eye className="h-4 w-4" />
           Ver perfil
         </button>
-          <button
+        <button
           onClick={handleContactClick}
           className="group/contact relative flex-1 py-3 bg-gradient-to-r from-primary to-secondary text-primary-foreground rounded-2xl font-semibold premium-shadow cursor-pointer hover:shadow-2xl hover:scale-[1.04] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 transition-all duration-200 ease-out overflow-hidden"
-          >
+        >
           <span className="relative z-10">Contactar</span>
           <div className="absolute inset-0 bg-gradient-to-r from-secondary to-primary opacity-0 group-hover/contact:opacity-100 transition-opacity duration-200"></div>
-          </button>
+        </button>
       </div>
     </div>
   )
