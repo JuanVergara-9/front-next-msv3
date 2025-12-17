@@ -173,6 +173,30 @@
     text-wrap: pretty;
   }
 
+  /* Cascade animation - subtle fade-in with upward motion */
+  @keyframes cascade-in {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .cascade-in {
+    animation: cascade-in 0.4s ease-out forwards;
+    opacity: 0;
+  }
+
+  .cascade-delay-1 { animation-delay: 0.05s; }
+  .cascade-delay-2 { animation-delay: 0.1s; }
+  .cascade-delay-3 { animation-delay: 0.15s; }
+  .cascade-delay-4 { animation-delay: 0.2s; }
+  .cascade-delay-5 { animation-delay: 0.25s; }
+  .cascade-delay-6 { animation-delay: 0.3s; }
+
 
 @layer utilities {
   .scrollbar-hide {
