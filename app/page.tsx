@@ -18,6 +18,29 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import toast from "react-hot-toast"
 import { InsightsService } from '@/lib/services/insights.service'
+import { MetricsService } from '@/lib/services/metrics.service'
+import { OrdersService, type Order } from '@/lib/services/orders.service'
+import {
+  Wrench,
+  Zap,
+  Paintbrush,
+  Hammer,
+  Laptop,
+  Sparkles,
+  Flower2,
+  Droplets,
+  Flame,
+  Search,
+  PlusCircle,
+  Clock,
+  MapPin,
+  CheckCircle2,
+  TrendingUp,
+  ShieldCheck,
+  Star as StarIcon,
+  MessageSquare,
+  ArrowRight
+} from "lucide-react"
 
 // Componente de efecto typewriter para oficios
 const TypewriterText = ({ words, className = "" }: { words: string[]; className?: string }) => {
@@ -28,7 +51,7 @@ const TypewriterText = ({ words, className = "" }: { words: string[]; className?
 
   useEffect(() => {
     const currentWord = words[currentWordIndex]
-    
+
     if (!isDeleting && currentText === currentWord) {
       // Pausa antes de empezar a borrar
       setTimeout(() => setIsDeleting(true), 2000)
@@ -64,363 +87,252 @@ const TypewriterText = ({ words, className = "" }: { words: string[]; className?
 }
 
 // Categories with icons for the UI
+// Categories with outline icons for modern look
 const CATEGORIES_WITH_ICONS = [
-  { name: "Gasista", icon: "🔥" },
-  { name: "Plomería", icon: "🔧" },
-  { name: "Electricista", icon: "⚡" },
-  { name: "Pintura", icon: "🎨" },
-  { name: "Carpintería", icon: "🪚" },
-  { name: "Reparación de Electrodomésticos", icon: "🔌" },
-  { name: "Construcción", icon: "🏗️" },
-  { name: "Limpieza", icon: "🧹" },
-  { name: "Jardinería", icon: "🌱" },
-  { name: "Informática", icon: "💻" },
+  { name: "Plomería", icon: Droplets, slug: "plomeria", count: "15 profesionales" },
+  { name: "Gasistas", icon: Flame, slug: "gasistas", count: "8 profesionales" },
+  { name: "Electricidad", icon: Zap, slug: "electricidad", count: "12 profesionales" },
+  { name: "Jardinería", icon: Flower2, slug: "jardineria", count: "10 profesionales" },
+  { name: "Piletas", icon: Droplets, slug: "mantenimiento-limpieza-piletas", count: "6 profesionales" },
+  { name: "Técnicos", icon: Zap, slug: "reparacion-electrodomesticos", count: "14 profesionales" },
+  { name: "Carpintería", icon: Hammer, slug: "carpinteria", count: "9 profesionales" },
+  { name: "Pintura", icon: Paintbrush, slug: "pintura", count: "11 profesionales" }
 ]
 
 // Subcomponents
 
-const HowItWorks = () => {
-  const steps = [
-    {
-      icon: (
-        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-          />
-        </svg>
-      ),
-      title: "Buscá",
-      description: "Describí qué necesitás o elegí una categoría",
-      color: "from-blue-500 to-blue-600",
-    },
-    {
-      icon: (
-        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-          />
-        </svg>
-      ),
-      title: "Explorá",
-      description: "Mirá perfiles verificados, calificaciones reales y ubicaciones",
-      color: "from-primary to-secondary",
-    },
-    {
-      icon: (
-        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-          />
-        </svg>
-      ),
-      title: "Contactá",
-      description: "Hablá directamente y coordiná el trabajo",
-      color: "from-green-500 to-green-600",
-    },
-  ]
-
-  const mobileWrapperRef = useRef<HTMLDivElement | null>(null)
-  const currentIndexRef = useRef<number>(0)
-  const pausedUntilRef = useRef<number>(0)
-
-  const scrollToIndex = (index: number) => {
-    const container = mobileWrapperRef.current
-    if (!container) return
-    const width = container.clientWidth
-    container.scrollTo({ left: index * width, behavior: 'smooth' })
-    currentIndexRef.current = index
-  }
-
-  const handleNext = () => {
-    const next = (currentIndexRef.current + 1) % steps.length
-    scrollToIndex(next)
-  }
-
-  const handlePrev = () => {
-    const prev = (currentIndexRef.current - 1 + steps.length) % steps.length
-    scrollToIndex(prev)
-  }
+const ActiveMarketplaceHero = ({
+  city,
+  isProvider
+}: {
+  city: string
+  isProvider: boolean
+}) => {
+  const [stats, setStats] = useState({ resolved_this_month: 0, avg_rating: 0 });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const id = setInterval(() => {
-      if (Date.now() >= pausedUntilRef.current) handleNext()
-    }, 2500)
-    // position at the first slide on mount
-    scrollToIndex(0)
-    return () => clearInterval(id)
-  }, [])
+    async function fetchStats() {
+      try {
+        const [orderStats, reviewStats] = await Promise.all([
+          OrdersService.getStats().catch(() => ({ resolved_this_month: 0, total_orders: 0 })),
+          MetricsService.getGlobalReviewsSummary().catch(() => ({ summary: { avgRating: 0 } }))
+        ]);
+        setStats({
+          resolved_this_month: orderStats.resolved_this_month,
+          avg_rating: reviewStats.summary?.avgRating || 0
+        });
+      } catch (e) {
+        console.error('Error fetching stats:', e);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchStats();
+  }, []);
 
-  useEffect(() => {
-    const el = mobileWrapperRef.current
-    if (!el) return
-    const onInteract = () => { pausedUntilRef.current = Date.now() + 4000 }
-    const onScroll = () => {
-      const width = el.clientWidth || 1
-      currentIndexRef.current = Math.round(el.scrollLeft / width)
-    }
-    el.addEventListener('touchstart', onInteract, { passive: true } as any)
-    el.addEventListener('mousedown', onInteract)
-    el.addEventListener('wheel', onInteract, { passive: true } as any)
-    el.addEventListener('scroll', onScroll, { passive: true } as any)
-    return () => {
-      el.removeEventListener('touchstart', onInteract)
-      el.removeEventListener('mousedown', onInteract)
-      el.removeEventListener('wheel', onInteract)
-      el.removeEventListener('scroll', onScroll)
-    }
-  }, [])
+  const resolvedText = stats.resolved_this_month > 0
+    ? `Más de ${stats.resolved_this_month} pedidos resueltos este mes`
+    : 'Plataforma en crecimiento';
+  const ratingText = stats.avg_rating > 0
+    ? `${stats.avg_rating.toFixed(1)}/5 Calificación promedio`
+    : 'Profesionales verificados';
 
   return (
-    <motion.section 
-      className="px-4 py-12 bg-gradient-to-br from-background via-muted/30 to-background relative overflow-x-visible overflow-y-hidden"
+    <motion.section
+      className="relative pt-24 pb-20 px-4 overflow-hidden border-b border-slate-100"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ duration: 0.6 }}
+      transition={{ duration: 0.8 }}
     >
-      <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-secondary/5"></div>
-      <div className="max-w-7xl mx-auto text-center relative">
-        <motion.div 
-          className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-full text-sm font-medium mb-6 premium-shadow"
-          initial={{ opacity: 0, y: -20, scale: 0.9 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.5, type: "spring", stiffness: 200 }}
-        >
-          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-            <path
-              fillRule="evenodd"
-              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-              clipRule="evenodd"
-            />
-          </svg>
-          Tu punto de encuentro con servicios de calidad en tu zona
-        </motion.div>
+      {/* Dynamic Background with technical grid */}
+      <div className="absolute inset-0 bg-[#f8fdff] -z-10" />
+      <div className="absolute inset-0 technical-grid -z-10" />
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[120px] -mr-64 -mt-64" />
+      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-secondary/10 rounded-full blur-[120px] -ml-64 -mb-64" />
 
-        <motion.h2 
-          className="text-3xl md:text-5xl font-bold text-foreground mb-4 text-balance"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-        >
-          Conectamos personas con{" "}
-          <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            profesionales locales
-          </span>
-        </motion.h2>
-        <motion.p 
-          className="text-lg text-muted-foreground mb-12 max-w-2xl mx-auto text-pretty"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-        >
-          La plataforma más confiable para encontrar servicios de calidad en tu zona
-        </motion.p>
+      <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-12 relative">
+        <div className="flex-1 flex flex-col items-start text-left z-10">
+          {/* Elite Badge */}
+          <motion.div
+            className="inline-flex items-center gap-2 bg-white px-4 py-2 rounded-2xl text-xs font-black mb-10 shadow-sm border border-slate-300 text-[#0e315d] uppercase tracking-widest"
+            initial={{ y: -20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.2 }}
+          >
+            <TrendingUp className="w-4 h-4 text-emerald-600" />
+            <span className="text-[#0e315d]">{resolvedText}</span>
+          </motion.div>
 
-        <div className="md:hidden -mx-4 pb-8 relative overflow-x-auto overflow-y-visible scroll-smooth snap-x snap-mandatory" ref={mobileWrapperRef}>
-          <div className="absolute inset-y-0 left-2 flex items-center z-10">
-            <button
-              onClick={handlePrev}
-              aria-label="Anterior"
-              className="w-9 h-9 rounded-full bg-white/90 text-foreground border border-border premium-shadow flex items-center justify-center active:scale-95"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-          </div>
-          <div className="absolute inset-y-0 right-2 flex items-center z-10">
-            <button
-              onClick={handleNext}
-              aria-label="Siguiente"
-              className="w-9 h-9 rounded-full bg-white/90 text-foreground border border-border premium-shadow flex items-center justify-center active:scale-95"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-          </div>
-          <div className="flex">
-            {steps.map((step, index) => (
-              <div key={step.title} className="min-w-full snap-start flex items-center justify-center" style={{ scrollSnapAlign: 'center' }}>
-                <div className="group flex flex-col items-center text-center w-full px-4 max-w-sm mx-auto">
-                  <div className="relative w-fit mx-auto pt-2">
-                    <div
-                      className={`w-20 h-20 bg-gradient-to-br ${step.color} rounded-3xl flex items-center justify-center mb-6 mx-auto premium-shadow-lg group-hover:scale-110 transition-all duration-300 smooth-bounce overflow-visible`}
-                      style={{ animationDelay: `${index * 0.2}s` }}
-                    >
-                      <div className="text-white overflow-visible">{step.icon}</div>
-                    </div>
-                    <div className="absolute top-0 -right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center text-sm font-bold text-primary premium-shadow">
-                      {index + 1}
-                    </div>
-                  </div>
-                  <h3 className="text-xl font-bold text-foreground mb-3">{step.title}</h3>
-                  <p className="text-muted-foreground text-pretty max-w-xs mx-auto">{step.description}</p>
+          {/* Extreme Conversion Headline - 70% Width */}
+          <motion.div
+            className="max-w-[800px] text-left mb-10"
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.3 }}
+          >
+            <h1 className="text-5xl md:text-7xl font-black text-[#0e315d] mb-6 leading-[1.1] tracking-tight">
+              Resolvé cualquier problema en tu hogar <span className="text-primary italic font-serif">hoy.</span>
+            </h1>
+            <p className="text-xl md:text-2xl text-[#0d519b]/80 font-medium max-w-2xl">
+              Publicá tu necesidad y recibí presupuestos de profesionales locales en minutos. 100% Gratis.
+            </p>
+          </motion.div>
+
+          {/* Main XL Action Button */}
+          <motion.div
+            className="w-full max-w-md"
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.4 }}
+          >
+            {isProvider ? (
+              <Link href="/pedidos" className="w-full">
+                <Button
+                  className="w-full h-20 text-xl font-black rounded-2xl bg-[#0e315d] hover:bg-[#0e315d]/90 text-white shadow-xl transition-all hover:scale-[1.02] active:scale-95 gap-3"
+                >
+                  Ir a buscar trabajos
+                  <ArrowRight className="w-6 h-6" />
+                </Button>
+              </Link>
+            ) : (
+              <Link href="/pedidos/nuevo" className="w-full">
+                <Button
+                  className="w-full h-20 text-2xl font-black rounded-2xl bg-[#ff7b00] hover:bg-[#e66e00] text-white shadow-lg transition-all hover:scale-[1.02] active:scale-95 gap-3 border-b-4 border-[#cc5f00]"
+                >
+                  Publicar Pedido Gratis
+                  <PlusCircle className="w-7 h-7" />
+                </Button>
+              </Link>
+            )}
+
+            <div className="mt-8 flex flex-wrap justify-start gap-6 text-[#0e315d] font-bold text-sm uppercase tracking-wider">
+              <div className="flex items-center gap-2 bg-white/50 px-3 py-1 rounded-full border border-slate-200">
+                <ShieldCheck className="w-5 h-5 text-emerald-600" /> +500 Profesionales
+              </div>
+              <div className="flex items-center gap-2 bg-white/50 px-3 py-1 rounded-full border border-slate-200">
+                <div className="flex gap-0.5">
+                  {[1, 2, 3, 4, 5].map((_, i) => (
+                    <StarIcon key={i} className="w-4 h-4 fill-amber-500 text-amber-500" />
+                  ))}
                 </div>
+                4.9/5 Promedio
               </div>
-            ))}
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Human Factor Image - Desktop Only */}
+        <motion.div
+          className="hidden md:block flex-1 relative"
+          initial={{ x: 50, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ duration: 0.8, delay: 0.5 }}
+        >
+          <div className="relative z-10 w-full max-w-md ml-auto">
+            <div className="absolute inset-0 bg-primary/20 rounded-[40px] blur-3xl -z-10 transform translate-x-4 translate-y-4" />
+            <img
+              src="/hero_professional.png"
+              alt="Profesional trabajando"
+              className="w-full h-auto rounded-[40px] shadow-2xl grayscale-[0.2] hover:grayscale-0 transition-all duration-700 hover:scale-[1.02]"
+            />
+            {/* Trust Badges */}
+            <div className="absolute -bottom-6 -left-6 bg-white p-4 rounded-2xl shadow-xl border border-slate-100 flex items-center gap-3">
+              <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
+                <CheckCircle2 className="w-6 h-6 text-emerald-600" />
+              </div>
+              <div>
+                <p className="text-xs font-black text-[#0e315d] uppercase leading-none">Verificado</p>
+                <p className="text-[10px] font-bold text-muted-foreground uppercase">Sistema de confianza</p>
+              </div>
+            </div>
           </div>
-        </div>
-
-        <div className="hidden md:grid grid-cols-3 gap-8">
-          {steps.map((step, index) => (
-            <motion.div 
-              key={step.title} 
-              className="group"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 + index * 0.1 }}
-            >
-              <div className="relative w-fit mx-auto pt-2">
-                <motion.div
-                  className={`w-20 h-20 bg-gradient-to-br ${step.color} rounded-3xl flex items-center justify-center mb-6 mx-auto premium-shadow-lg overflow-visible`}
-                  whileHover={{ scale: 1.1, rotate: [0, -5, 5, -5, 0] }}
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ duration: 0.5, delay: 0.5 + index * 0.1, type: "spring", stiffness: 200 }}
-                >
-                  <div className="text-white overflow-visible">{step.icon}</div>
-                </motion.div>
-                <motion.div 
-                  className="absolute top-0 -right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center text-sm font-bold text-primary premium-shadow"
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ duration: 0.3, delay: 0.7 + index * 0.1, type: "spring" }}
-                >
-                  {index + 1}
-                </motion.div>
-              </div>
-              <h3 className="text-xl font-bold text-foreground mb-3">{step.title}</h3>
-              <p className="text-muted-foreground text-pretty">{step.description}</p>
-            </motion.div>
-          ))}
-        </div>
-
-        <div className="mt-16 flex flex-wrap justify-center items-center gap-8 opacity-60">
-        <div className="flex items-center gap-2 text-sm text-muted-foreground overflow-visible">
-          <svg className="w-5 h-5 text-primary overflow-visible" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-            />
-          </svg>
-          Profesionales verificados
-        </div>
-        <div className="flex items-center gap-2 text-sm text-muted-foreground overflow-visible">
-          <svg className="w-5 h-5 text-primary overflow-visible" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-            />
-          </svg>
-          Servicios seguros
-        </div>
-        <div className="flex items-center gap-2 text-sm text-muted-foreground overflow-visible">
-          <svg className="w-5 h-5 text-primary overflow-visible" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-            />
-          </svg>
-          Soporte 24/7
-        </div>
-      </div>
+        </motion.div>
       </div>
     </motion.section>
   )
 }
 
-const SearchSection = ({
-  query,
-  onQueryChange,
-  onSearch,
-}: {
-  query: string
-  onQueryChange: (query: string) => void
-  onSearch: () => void
-}) => (
-  <motion.section 
-    className="px-4 py-8 bg-background"
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.5, delay: 0.4 }}
-  >
-    <div className="max-w-2xl mx-auto">
-      <motion.div
-        className="text-center mb-6"
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.5 }}
-      >
-        <p className="text-lg md:text-xl text-muted-foreground">
-          Encontrá{" "}
-          <TypewriterText 
-            words={["plomeros", "gasistas", "electricistas", "pintores", "carpinteros", "jardineros"]}
-            className="text-primary font-semibold"
-          />{" "}
-          cerca de ti
-        </p>
-      </motion.div>
-      <div className="relative">
-        <motion.div 
-          className="absolute inset-0 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-3xl blur-xl"
-          animate={{ opacity: [0.5, 0.8, 0.5] }}
-          transition={{ duration: 3, repeat: Infinity }}
-        />
-        <motion.div 
-          className="relative bg-card rounded-3xl p-4 md:p-6 premium-shadow-lg border border-border/50"
-          initial={{ scale: 0.95 }}
-          animate={{ scale: 1 }}
-          transition={{ duration: 0.3 }}
-          whileHover={{ scale: 1.02 }}
-        >
-          <div className="flex flex-col sm:flex-row gap-3">
-            <div className="flex-1 relative">
-              <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-                <svg className="w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
-                </svg>
-              </div>
-              <input
-                type="text"
-                value={query}
-                onChange={(e) => onQueryChange(e.target.value)}
-                placeholder="¿Qué necesitás hoy? (plomería, electricidad…)"
-                className="w-full pl-12 pr-4 py-3 md:py-4 rounded-2xl border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all bg-input text-foreground placeholder:text-muted-foreground text-base md:text-lg"
-                onKeyDown={(e) => e.key === "Enter" && onSearch()}
-                aria-label="Buscar servicios"
-              />
-            </div>
-            <motion.button
-              onClick={onSearch}
-              className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-primary text-white rounded-2xl hover:bg-primary/90 hover:shadow-lg transition-all duration-200 font-semibold text-base md:text-lg premium-shadow cursor-pointer"
-              whileHover={{ scale: 1.05, y: -2 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              Buscar
-            </motion.button>
-          </div>
-        </motion.div>
+const RecentOrdersFeed = ({ city }: { city: string }) => {
+  const [orders, setOrders] = useState<{ id: number; category_name: string; created_at: string }[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchOrders() {
+      try {
+        const data = await OrdersService.getPublicRecentOrders(6);
+        setOrders(data.orders || []);
+      } catch (e) {
+        console.error('Error fetching recent orders:', e);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchOrders();
+  }, []);
+
+  // Helper to format relative time
+  const formatRelativeTime = (dateString: string) => {
+    const now = new Date();
+    const orderDate = new Date(dateString);
+    const diffMs = now.getTime() - orderDate.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+
+    if (diffMins < 1) return 'Recién';
+    if (diffMins < 60) return `Hace ${diffMins} min`;
+    const diffHours = Math.floor(diffMins / 60);
+    if (diffHours < 24) return `Hace ${diffHours}h`;
+    return 'Hace más de un día';
+  };
+
+  // If no orders, show static fallback examples
+  const displayItems = orders.length > 0
+    ? orders.map(o => ({
+      time: formatRelativeTime(o.created_at),
+      service: o.category_name,
+      zone: city.split(',')[0] || 'tu zona'
+    }))
+    : [
+      { time: "Recién", service: "Plomero", zone: city.split(',')[0] || "Tu ciudad" },
+      { time: "Hace 15 min", service: "Electricista", zone: city.split(',')[0] || "Tu ciudad" },
+      { time: "Hace 45 min", service: "Gasista", zone: city.split(',')[0] || "Tu ciudad" },
+    ];
+
+  return (
+    <section className="py-12 bg-slate-50 border-y border-slate-200/60 overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4 mb-8">
+        <h3 className="text-[#0e315d] text-lg font-bold flex items-center gap-2">
+          <Clock className="w-5 h-5 text-primary" />
+          Pedidos recientes en {city.split(',')[0] || "tu zona"}
+        </h3>
       </div>
-    </div>
-  </motion.section>
-)
+
+      <div className="relative">
+        <div className="animate-marquee whitespace-nowrap gap-6 py-4">
+          {[...displayItems, ...displayItems, ...displayItems, ...displayItems].map((item, i) => (
+            <div
+              key={i}
+              className="inline-block w-72 bg-white border border-slate-200 p-5 rounded-[24px] shadow-sm hover:shadow-md transition-shadow align-top whitespace-normal mr-6"
+            >
+              <div className="flex items-center justify-between mb-3">
+                <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
+                  <MapPin className="w-5 h-5" />
+                </div>
+                <span className="text-[10px] font-black bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-full uppercase tracking-wider">
+                  {item.time}
+                </span>
+              </div>
+              <p className="text-[#0e315d] font-bold text-lg leading-tight">
+                Pedido de <span className="text-primary">{item.service}</span> en <span className="text-slate-500">{item.zone}</span>
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
 
 const SkeletonCard = () => (
   <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 animate-pulse flex flex-col h-full">
@@ -458,7 +370,7 @@ const EmptyState = ({ onSearchCityWide, onViewCategories }: { onSearchCityWide: 
     </div>
     <h3 className="text-xl font-bold text-foreground mb-3">¡Aún no hay proveedores en tu zona!</h3>
     <p className="text-muted-foreground mb-6 max-w-md mx-auto text-pretty">
-      Estamos trabajando para traer los mejores profesionales a tu área. 
+      Estamos trabajando para traer los mejores profesionales a tu área.
       Mientras tanto, probá con otros términos de búsqueda.
     </p>
     <div className="flex flex-col sm:flex-row gap-3 justify-center">
@@ -487,14 +399,14 @@ const ProvidersList = ({
   onSearchCityWide: () => void
   onViewCategories: () => void
 }) => (
-  <motion.section 
+  <motion.section
     className="px-4 py-4 flex-1"
     initial={{ opacity: 0 }}
     animate={{ opacity: 1 }}
     transition={{ duration: 0.5, delay: 0.6 }}
   >
     <div className="max-w-7xl mx-auto">
-      <motion.h2 
+      <motion.h2
         className="text-lg font-semibold text-foreground mb-4"
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
@@ -514,8 +426,8 @@ const ProvidersList = ({
             <div className="md:hidden -mx-4 px-4 overflow-x-auto">
               <div className="flex snap-x snap-mandatory snap-always space-x-4 pr-4">
                 {Array.from({ length: 4 }).map((_, i) => (
-                  <motion.div 
-                    key={i} 
+                  <motion.div
+                    key={i}
                     className="min-w-[85%] snap-center"
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -559,8 +471,8 @@ const ProvidersList = ({
             <div className="md:hidden -mx-4 px-4 overflow-x-auto pb-4">
               <div className="flex snap-x snap-mandatory snap-always space-x-4 pr-4 pb-2 items-stretch">
                 {providers.map((provider, index) => (
-                  <motion.div 
-                    key={provider.id} 
+                  <motion.div
+                    key={provider.id}
                     className="min-w-[85%] snap-center h-full"
                     initial={{ opacity: 0, x: 50 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -616,8 +528,8 @@ const FeedbackButton = () => {
       </button>
 
       {/* Modal para reportar problema */}
-      <Dialog 
-        open={isFeedbackModalOpen} 
+      <Dialog
+        open={isFeedbackModalOpen}
         onOpenChange={(open) => {
           setIsFeedbackModalOpen(open)
           if (!open) {
@@ -633,13 +545,13 @@ const FeedbackButton = () => {
           <DialogHeader>
             <DialogTitle>Reportar problema</DialogTitle>
           </DialogHeader>
-          
+
           <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="feedback-type">Tipo de reporte</Label>
               <Select
                 value={feedbackForm.type}
-                onValueChange={(value: 'bug' | 'feature_request' | 'complaint' | 'other') => 
+                onValueChange={(value: 'bug' | 'feature_request' | 'complaint' | 'other') =>
                   setFeedbackForm({ ...feedbackForm, type: value })
                 }
               >
@@ -724,7 +636,7 @@ const FeedbackButton = () => {
 
 // Main component
 export default function MiservicioHome() {
-  const { user } = useAuth()
+  const { user, isProvider } = useAuth()
   const router = useRouter()
   const [city, setCity] = useState<string>("")
   const [query, setQuery] = useState<string>("")
@@ -772,7 +684,7 @@ export default function MiservicioHome() {
     const loadData = async () => {
       try {
         setLoading(true)
-        
+
         // 1) Intentar obtener ubicación del usuario
         let location: { lat: number; lng: number } | null = null
         try {
@@ -808,11 +720,11 @@ export default function MiservicioHome() {
           review_count: provider.review_count || 0,
           distance_km: location
             ? ProvidersService.calculateDistance(
-                location.lat,
-                location.lng,
-                provider.lat || 0,
-                provider.lng || 0
-              )
+              location.lat,
+              location.lng,
+              provider.lat || 0,
+              provider.lng || 0
+            )
             : undefined,
           categories: provider.category ? [provider.category.name] : [],
           avatar_url: (provider as any).avatar_url,
@@ -888,7 +800,7 @@ export default function MiservicioHome() {
       category: activeCategory ?? undefined,
       userId: user?.id ?? undefined,
     })
-    
+
     // Si ya hay proveedores filtrados localmente, simplemente hacer scroll a los resultados
     // El filtro en tiempo real ya está funcionando
     if (filtered.length > 0) {
@@ -904,32 +816,32 @@ export default function MiservicioHome() {
       }
       return
     }
-    
+
     // Si no hay proveedores filtrados, hacer búsqueda en el backend
     try {
       setLoading(true)
       const searchParams: any = {
         query: query.trim()
       }
-      
+
       if (userLocation) {
         searchParams.lat = userLocation.lat
         searchParams.lng = userLocation.lng
         searchParams.radius_km = 50
       }
-      
+
       const response = await ProvidersService.searchProviders(searchParams)
-      
+
       let transformedProviders = response.providers.map(provider => ({
         ...provider,
         full_name: `${provider.first_name} ${provider.last_name}`,
         rating: provider.rating || 0,
         review_count: provider.review_count || 0,
-        distance_km: userLocation ? 
+        distance_km: userLocation ?
           ProvidersService.calculateDistance(
-            userLocation.lat, 
-            userLocation.lng, 
-            provider.lat || 0, 
+            userLocation.lat,
+            userLocation.lng,
+            provider.lat || 0,
             provider.lng || 0
           ) : undefined,
         categories: provider.category ? [provider.category.name] : [],
@@ -937,7 +849,7 @@ export default function MiservicioHome() {
       }))
 
       transformedProviders = await ProvidersService.enrichWithReviewSummaries(transformedProviders)
-      
+
       setProviders(transformedProviders)
       setFiltered(transformedProviders)
     } catch (err) {
@@ -1003,8 +915,8 @@ export default function MiservicioHome() {
           </div>
           <h2 className="text-lg font-semibold text-foreground mb-2">Algo salió mal</h2>
           <p className="text-muted-foreground">{error}</p>
-          <button 
-            onClick={() => window.location.reload()} 
+          <button
+            onClick={() => window.location.reload()}
             className="mt-4 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
           >
             Reintentar
@@ -1019,105 +931,202 @@ export default function MiservicioHome() {
   const isFilteredView = query.trim().length > 0 || !!activeCategory
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col pb-20 sm:pb-0 font-sans home-bg-vignette">
       <Header city={city} />
-      <HowItWorks />
-      <SearchSection query={query} onQueryChange={setQuery} onSearch={handleSearch} />
-      <ProvidersList providers={isFilteredView ? filtered : filtered.slice(0, 6)} loading={loading} onContact={handleContact} onSearchCityWide={handleSearchCityWide} onViewCategories={handleViewCategories} />
-      
-      {/* Secciones combinadas - Mejor layout en desktop */}
-      <section className="py-16 px-4">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
-            {/* Card de Proveedores */}
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-secondary/10 rounded-3xl blur-xl"></div>
-              <div className="relative bg-gradient-to-br from-card to-muted/50 rounded-3xl p-8 md:p-10 text-center premium-shadow-lg border border-border/50 h-full flex flex-col">
-                <div className="w-20 h-20 bg-gradient-to-br from-primary to-secondary rounded-3xl flex items-center justify-center mx-auto mb-6 premium-shadow-lg">
-                  <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                    />
-                  </svg>
-                </div>
-                <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-4">¿Ofrecés servicios profesionales?</h3>
-                <p className="text-base text-muted-foreground mb-6 flex-grow">
-                  Únete a miles de profesionales que ya confían en miservicio. Crea tu perfil gratis y empieza a recibir clientes hoy mismo.
-                </p>
-                <div className="flex flex-col sm:flex-row gap-3 justify-center items-center mb-6">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <svg className="w-5 h-5 text-primary" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                    </svg>
-                    Registro gratuito
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    Sin comisiones ocultas
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
-                    Soporte dedicado
-                  </div>
-                </div>
-                <Link href="/auth/register?provider=1" className="inline-block">
-                  <motion.div 
-                    className="group/crear relative px-8 py-4 bg-gradient-to-r from-primary to-secondary text-primary-foreground rounded-2xl font-bold text-lg premium-shadow-lg cursor-pointer hover:shadow-2xl hover:scale-[1.04] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 transition-all duration-200 ease-out overflow-hidden"
-                    whileHover={{ scale: 1.04, y: -2 }}
-                    whileTap={{ scale: 0.98 }}
+
+      <ActiveMarketplaceHero city={city} isProvider={!!isProvider} />
+
+      <RecentOrdersFeed city={city} />
+
+      <main className="flex-1 py-12 px-4 space-y-16">
+        {/* Categories Grid - Compact and elegant */}
+        <section className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-2xl font-black text-[#0e315d]">Categorías populares</h2>
+            <Link href="/pedidos/nuevo" className="text-primary font-bold hover:underline flex items-center gap-1">
+              Ver todas <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {CATEGORIES_WITH_ICONS.map((cat, idx) => {
+              return (
+                <Link key={cat.name} href={`/categorias/${cat.slug}`} className="h-full">
+                  <motion.div
+                    className="group relative flex flex-col items-center gap-3 p-6 bg-white border border-slate-200 rounded-[32px] hover:border-primary/30 transition-all text-center cursor-pointer h-full premium-shadow-sm hover:premium-shadow-lg"
+                    whileHover={{ y: -8 }}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: idx * 0.05 }}
                   >
-                    <span className="relative z-10">Crear perfil profesional</span>
-                    <div className="absolute inset-0 bg-gradient-to-r from-secondary to-primary opacity-0 group-hover/crear:opacity-100 transition-opacity duration-200"></div>
+                    <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center text-[#0e315d] group-hover:bg-[#ff7b00]/10 group-hover:text-[#ff7b00] transition-all duration-300 border border-slate-100 group-hover:border-[#ff7b00]/20">
+                      <cat.icon className="w-8 h-8 stroke-[2.5px]" />
+                    </div>
+                    <div className="space-y-1">
+                      <span className="font-black text-[#0e315d] text-base group-hover:text-primary transition-colors">{cat.name}</span>
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{cat.count}</p>
+                    </div>
+
+                    {/* Decorative element */}
+                    <div className="absolute top-4 right-4 w-2 h-2 bg-slate-200 rounded-full group-hover:bg-[#ff7b00] transition-colors" />
                   </motion.div>
                 </Link>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* Conditional role-based section */}
+        <section className="max-w-7xl mx-auto">
+          {isProvider ? (
+            <div className="bg-[#0e315d] rounded-[40px] p-8 md:p-12 text-white overflow-hidden relative">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full blur-3xl -mr-32 -mt-32" />
+              <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
+                <div className="max-w-lg text-center md:text-left">
+                  <span className="inline-block px-4 py-1.5 bg-primary/20 rounded-full text-xs font-bold uppercase tracking-widest mb-4">Panel del Profesional</span>
+                  <h2 className="text-3xl md:text-5xl font-black mb-6 leading-tight">
+                    Hay <span className="text-secondary">12 nuevos pedidos</span> esperando tu presupuesto.
+                  </h2>
+                  <p className="text-white/70 text-lg mb-8">
+                    No pierdas tiempo, los clientes están activos ahora mismo en {city.split(',')[0]}.
+                  </p>
+                  <Link href="/pedidos">
+                    <Button className="h-16 px-10 rounded-2xl bg-white text-[#0e315d] font-black text-lg hover:bg-white/90">
+                      Ver Tablero de Pedidos
+                    </Button>
+                  </Link>
+                </div>
+                <div className="w-full md:w-auto grid grid-cols-2 gap-4">
+                  <div className="bg-white/5 backdrop-blur-md p-6 rounded-3xl border border-white/10 text-center">
+                    <p className="text-4xl font-black text-primary mb-1">3</p>
+                    <p className="text-xs font-bold text-white/50 uppercase">Activas</p>
+                  </div>
+                  <div className="bg-white/5 backdrop-blur-md p-6 rounded-3xl border border-white/10 text-center">
+                    <p className="text-4xl font-black text-secondary mb-1">12</p>
+                    <p className="text-xs font-bold text-white/50 uppercase">Nuevas</p>
+                  </div>
+                </div>
               </div>
             </div>
+          ) : (
+            <div className="bg-gradient-to-br from-[#0e315d] to-[#0d519b] rounded-[40px] p-8 md:p-12 text-white relative overflow-hidden">
+              <div className="absolute -top-24 -left-24 w-64 h-64 bg-primary/20 rounded-full blur-3xl" />
+              <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-secondary/20 rounded-full blur-3xl" />
 
-            {/* Card de Sobre */}
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-secondary/10 rounded-3xl blur-xl"></div>
-              <div className="relative bg-gradient-to-br from-card to-muted/50 rounded-3xl p-8 md:p-10 text-center premium-shadow-lg border border-border/50 h-full flex flex-col">
-                <div className="w-20 h-20 bg-gradient-to-br from-primary to-secondary rounded-3xl flex items-center justify-center mx-auto mb-6 premium-shadow-lg">
-                  <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              <div className="relative z-10 flex flex-col md:flex-row items-center gap-12">
+                <div className="flex-1 space-y-6 text-center md:text-left">
+                  <h2 className="text-3xl md:text-5xl font-black leading-tight">¿Sos profesional y buscás trabajo?</h2>
+                  <p className="text-xl text-white/80">Unite a la red más grande de San Rafael y empezá a recibir pedidos hoy mismo.</p>
+                  <div className="pt-4">
+                    <Link href="/auth/register?provider=1">
+                      <Button className="h-16 px-10 rounded-2xl bg-white text-[#0e315d] font-black text-lg hover:bg-white/90 shadow-xl">
+                        Crear perfil profesional
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+                <div className="flex-shrink-0 bg-white/10 backdrop-blur-lg p-8 rounded-[32px] border border-white/20 w-full md:w-auto">
+                  <div className="space-y-4">
+                    {[
+                      { icon: CheckCircle2, text: "Sin comisiones por trabajo" },
+                      { icon: CheckCircle2, text: "Contacto directo con el cliente" },
+                      { icon: CheckCircle2, text: "Gestión fácil de pedidos" }
+                    ].map((item, i) => (
+                      <div key={i} className="flex items-center gap-3">
+                        <item.icon className="w-6 h-6 text-secondary" />
+                        <span className="font-bold">{item.text}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </section>
+
+        {/* Existing Providers search list - HIDDEN FOR CLIENTS to avoid cannibalization */}
+        {isProvider && (
+          <section id="providers-section" className="max-w-7xl mx-auto pt-8">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+              <div>
+                <h2 className="text-2xl font-black text-[#0e315d]">Explorar Profesionales</h2>
+                <p className="text-[#0d519b]/60 font-medium">Buscá y contactá directamente a los mejores calificados</p>
+              </div>
+              <div className="relative w-full md:w-96">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <Input
+                  placeholder="Ej: Gasista matriculado..."
+                  className="pl-12 h-14 rounded-2xl border-border/40 focus:ring-primary/20"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                />
+              </div>
+            </div>
+            <ProvidersList
+              providers={filtered}
+              loading={loading}
+              onContact={handleContact}
+              onSearchCityWide={handleSearchCityWide}
+              onViewCategories={handleViewCategories}
+            />
+          </section>
+        )}
+      </main>
+
+      <footer className="bg-slate-50 border-t border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 py-16">
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+            <div className="col-span-1 md:col-span-2">
+              <Link href="/" className="inline-block mb-6">
+                <span className="text-2xl font-black text-primary tracking-tighter">miservicio.ar</span>
+              </Link>
+              <p className="text-[#0d519b]/70 text-lg max-w-sm font-medium">
+                La forma más rápida y segura de encontrar profesionales de confianza para tu hogar.
+              </p>
+            </div>
+            <div>
+              <h4 className="font-black text-[#0e315d] mb-6 uppercase tracking-widest text-xs">Páginas</h4>
+              <ul className="space-y-4 font-bold text-[#0d519b]/60">
+                <li><Link href="/pedidos/nuevo" className="hover:text-primary transition-colors">Publicar Pedido</Link></li>
+                <li><Link href="/sobre" className="hover:text-primary transition-colors">Sobre nosotros</Link></li>
+                <li><Link href="/legal/terminos" className="hover:text-primary transition-colors">Términos</Link></li>
+                <li><Link href="/legal/privacidad" className="hover:text-primary transition-colors">Privacidad</Link></li>
+              </ul>
+            </div>
+            <div className="flex flex-col items-center md:items-end justify-between">
+              <div className="flex gap-4 mb-8">
+                {/* TikTok */}
+                <div className="w-12 h-12 bg-white rounded-2xl shadow-sm border border-slate-200 flex items-center justify-center text-[#0e315d] hover:bg-primary hover:text-white transition-colors cursor-pointer">
+                  <svg className="w-6 h-6 fill-current" viewBox="0 0 24 24">
+                    <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.17-2.89-.6-4.13-1.47-.23-.16-.45-.33-.66-.51v7.34c.06 5.45-5.63 8.85-10.12 5.73-3.66-2.54-4.04-7.85-1.1-10.81 1.61-1.63 4.15-2.26 6.24-1.57l-.02 4.03c-1.49-.61-3.32-.14-4.29 1.11-.87 1.13-.79 2.87.21 3.86.96.99 2.73 1.05 3.65.11 1.05-1.12 1.02-3 1.01-4.46V.02z" />
                   </svg>
                 </div>
-                <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-4">¿Querés saber más sobre miservicio?</h3>
-                <p className="text-base text-muted-foreground mb-6 flex-grow">
-                  Conocé nuestra historia, misión y cómo estamos digitalizando los oficios locales en San Rafael, Mendoza.
-                </p>
-                <Link href="/sobre" className="inline-block">
-                  <motion.div 
-                    className="group/sobre relative px-8 py-4 bg-gradient-to-r from-primary to-secondary text-primary-foreground rounded-2xl font-bold text-lg premium-shadow-lg cursor-pointer hover:shadow-2xl hover:scale-[1.04] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 transition-all duration-200 ease-out overflow-hidden"
-                    whileHover={{ scale: 1.04, y: -2 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    <span className="relative z-10 flex items-center justify-center gap-2">
-                      Más sobre miservicio
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    </span>
-                    <div className="absolute inset-0 bg-gradient-to-r from-secondary to-primary opacity-0 group-hover/sobre:opacity-100 transition-opacity duration-200"></div>
-                  </motion.div>
-                </Link>
+                {/* WhatsApp */}
+                <div className="w-12 h-12 bg-white rounded-2xl shadow-sm border border-slate-200 flex items-center justify-center text-[#0e315d] hover:bg-primary hover:text-white transition-colors cursor-pointer">
+                  <svg className="w-6 h-6 fill-current" viewBox="0 0 24 24">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.72.937 3.659 1.433 5.631 1.433h.005c6.554 0 11.89-5.335 11.893-11.892a11.826 11.826 0 00-3.481-8.414z" />
+                  </svg>
+                </div>
+                {/* LinkedIn */}
+                <div className="w-12 h-12 bg-white rounded-2xl shadow-sm border border-slate-200 flex items-center justify-center text-[#0e315d] hover:bg-primary hover:text-white transition-colors cursor-pointer">
+                  <svg className="w-6 h-6 fill-current" viewBox="0 0 24 24">
+                    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                  </svg>
+                </div>
               </div>
+              <FeedbackButton />
+            </div>
+          </div>
+          <div className="pt-8 border-t border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4 text-center">
+            <p className="text-[#0d519b]/40 font-bold text-sm">© 2025 miServicio.ar. Hecho con ❤️ en San Rafael.</p>
+            <div className="flex items-center gap-2 text-[#0d519b]/60 font-bold text-xs uppercase tracking-widest">
+              <MapPin className="w-4 h-4" /> San Rafael, Mendoza
             </div>
           </div>
         </div>
-      </section>
-
-      {/* Botón "Reportar problema" - Sutil al final */}
-      <div className="text-center py-6 pb-8">
-        <FeedbackButton />
-      </div>
+      </footer>
     </div>
   )
 }

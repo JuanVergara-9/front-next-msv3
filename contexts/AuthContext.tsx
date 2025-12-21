@@ -25,34 +25,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isProvider, setIsProvider] = useState(false)
   const [providerProfile, setProviderProfile] = useState<any | null>(null)
 
-  // Función para verificar si el usuario tiene un perfil de proveedor
-  const checkProviderProfile = async (userId: number) => {
-    // Validar que el userId sea válido
-    if (!userId || userId <= 0 || isNaN(userId)) {
-      console.log('Invalid userId, skipping provider profile check:', userId)
-      setIsProvider(false)
-      setProviderProfile(null)
-      return
-    }
-
+  // Función para obtener el perfil detallado del proveedor
+  const fetchProviderProfile = async () => {
     try {
-      console.log('Checking provider profile for user:', userId)
       const profile = await ProvidersService.getMyProviderProfile()
-      console.log('Provider profile result:', profile)
       if (profile) {
-        console.log('User has provider profile, setting isProvider to true')
-        setIsProvider(true)
         setProviderProfile(profile)
-      } else {
-        console.log('User does not have provider profile, setting isProvider to false')
-        setIsProvider(false)
-        setProviderProfile(null)
+        setIsProvider(true)
       }
-    } catch (error: any) {
-      console.error('Error checking provider profile:', error)
-      console.error('Error details:', error.response?.data || error.message)
-      setIsProvider(false)
-      setProviderProfile(null)
+    } catch (error) {
+      console.warn('Could not fetch provider profile details:', error)
     }
   }
 
@@ -64,8 +46,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const currentUser = AuthService.getCurrentUser()
           if (currentUser) {
             setUser(currentUser)
-            // Verificar si tiene perfil de proveedor
-            await checkProviderProfile(currentUser.id)
+            setIsProvider(!!currentUser.isProvider)
+
+            // Si es proveedor, cargar perfil detallado en background
+            if (currentUser.isProvider) {
+              void fetchProviderProfile()
+            }
           }
         }
       } catch (error: any) {
@@ -78,27 +64,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     checkAuth()
   }, [])
 
-  // Verificar perfil de proveedor cuando el usuario cambie
-  useEffect(() => {
-    if (user && user.id && !isProvider) {
-      // Verificar perfil de proveedor con un pequeño delay para evitar problemas de timing
-      const timeoutId = setTimeout(() => {
-        checkProviderProfile(user.id)
-      }, 2000) // Aumentar el delay para dar tiempo a que se complete el registro
-      
-      return () => clearTimeout(timeoutId)
-    }
-  }, [user, isProvider])
-
   const login = async (email: string, password: string) => {
     try {
       setIsLoading(true)
       const authData = await AuthService.login({ email, password })
       setUser(authData.user)
-      // Verificar si tiene perfil de proveedor
-      await checkProviderProfile(authData.user.id)
-    } catch (error: any) {
-      throw error
+      setIsProvider(!!authData.user.isProvider)
+
+      if (authData.user.isProvider) {
+        await fetchProviderProfile()
+      }
     } finally {
       setIsLoading(false)
     }
@@ -109,10 +84,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsLoading(true)
       const authData = await AuthService.register({ email, password })
       setUser(authData.user)
-      // No verificar perfil de proveedor inmediatamente después del registro
-      // Se verificará cuando se cargue la página principal
-    } catch (error: any) {
-      throw error
+      setIsProvider(!!authData.user.isProvider)
     } finally {
       setIsLoading(false)
     }
@@ -125,8 +97,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(null)
       setIsProvider(false)
       setProviderProfile(null)
-    } catch (error: any) {
-      console.error('Logout error:', error)
     } finally {
       setIsLoading(false)
     }
@@ -137,10 +107,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const currentUser = AuthService.getCurrentUser()
       if (currentUser) {
         setUser(currentUser)
-        // Verificar si tiene perfil de proveedor
-        await checkProviderProfile(currentUser.id)
+        setIsProvider(!!currentUser.isProvider)
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error refreshing user:', error)
     }
   }
@@ -155,7 +124,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     register,
     logout,
     refreshUser,
-    checkProviderProfile,
+    checkProviderProfile: async () => { await fetchProviderProfile() } // Mantener compatibilidad de interfaz
   }
 
   return (
