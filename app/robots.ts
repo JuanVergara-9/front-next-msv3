@@ -6,10 +6,18 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: '*',
       allow: '/',
+      disallow: [
+        '/admin/',
+        '/profile/',
+        '/chat/',
+        '/mensajes/',
+        '/api/',
+      ],
     },
     sitemap: `${host}/sitemap.xml`,
     host,
   }
 }
+
 
 
