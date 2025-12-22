@@ -200,4 +200,32 @@ export class AuthService {
       )
     }
   }
+
+  // Solicitar recuperación de contraseña
+  static async forgotPassword(email: string): Promise<{ success: boolean }> {
+    try {
+      const response = await apiClient.post(`${this.BASE_URL}/forgot-password`, { email })
+      return response.data
+    } catch (error: any) {
+      console.error('Forgot password error:', error)
+      throw new Error(
+        error.response?.data?.error?.message ||
+        'Error al procesar la solicitud. Intenta nuevamente.'
+      )
+    }
+  }
+
+  // Restablecer contraseña
+  static async resetPassword(token: string, newPassword: string): Promise<{ success: boolean }> {
+    try {
+      const response = await apiClient.post(`${this.BASE_URL}/reset-password`, { token, newPassword })
+      return response.data
+    } catch (error: any) {
+      console.error('Reset password error:', error)
+      throw new Error(
+        error.response?.data?.error?.message ||
+        'Error al restablecer la contraseña. El enlace puede ser inválido o haber expirado.'
+      )
+    }
+  }
 }
