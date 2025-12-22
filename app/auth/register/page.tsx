@@ -74,6 +74,7 @@ export default function RegisterPage() {
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({})
   const [isLoading, setIsLoading] = useState(false)
+  const [isSuccess, setIsSuccess] = useState(false)
 
   // Validar dominio de email (verificar que no sea un dominio inválido común)
   const validateEmailDomain = (email: string): boolean => {
@@ -207,8 +208,7 @@ export default function RegisterPage() {
       }
       
       toast.success('¡Cuenta creada exitosamente!')
-      // TODO: Rehabilitar redirección a email-sent cuando la verificación por correo esté operativa
-      router.push('/profile')
+      setIsSuccess(true)
     } catch (error: any) {
       console.error('Registration error:', error)
       const errorMessage = error.message || 'Error al crear la cuenta. Intenta nuevamente.'
@@ -273,8 +273,7 @@ export default function RegisterPage() {
         try { await ProvidersService.uploadMyAvatar(avatarFile) } catch (err) { console.warn('avatar upload failed', err) }
       }
       toast.success('¡Perfil de proveedor creado exitosamente!')
-      // 4. Redirigir al perfil (mostrará vista de proveedor)
-      router.push('/profile')
+      setIsSuccess(true)
     } catch (error: any) {
       console.error('Registration error:', error)
       const errorMessage = error.message || 'Error al crear la cuenta. Intenta nuevamente.'
@@ -329,12 +328,35 @@ export default function RegisterPage() {
           </CardHeader>
 
         <CardContent className="px-8 pb-8">
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.5 }}
-          >
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <AnimatePresence mode="wait">
+            {isSuccess ? (
+              <motion.div
+                key="success"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="text-center py-8"
+              >
+                <div className="mx-auto mb-6 w-20 h-20 bg-green-100 rounded-full flex items-center justify-center">
+                  <Mail className="w-10 h-10 text-green-600" />
+                </div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">¡Casi listo!</h2>
+                <p className="text-gray-600 mb-8 leading-relaxed">
+                  Hemos enviado un correo a tu casilla. Por favor, revisa tu bandeja de entrada y haz clic en el enlace para activar tu cuenta.
+                </p>
+                <Link href="/">
+                  <Button variant="outline" className="text-sm">
+                    Volver al inicio
+                  </Button>
+                </Link>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="form"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.5 }}
+              >
+                <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <motion.div 
                 className="mb-6"
                 initial={{ opacity: 0, y: -10 }}
@@ -956,7 +978,9 @@ export default function RegisterPage() {
               </TabsContent>
             </AnimatePresence>
           </Tabs>
-          </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </CardContent>
       </Card>
       </motion.div>

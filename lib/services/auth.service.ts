@@ -186,9 +186,7 @@ export class AuthService {
   // Verificar email con token
   static async verifyEmail(token: string): Promise<{ success: boolean; user?: User }> {
     try {
-      const response = await apiClient.get(`${this.BASE_URL}/verify-email`, {
-        params: { token }
-      })
+      const response = await apiClient.post(`${this.BASE_URL}/verify-email`, { token })
       // Actualizar usuario en localStorage si viene en la respuesta
       if (response.data.user) {
         localStorage.setItem(this.USER_KEY, JSON.stringify(response.data.user))
