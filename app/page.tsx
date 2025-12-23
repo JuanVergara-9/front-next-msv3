@@ -99,6 +99,133 @@ const CATEGORIES_WITH_ICONS = [
   { name: "Pintura", icon: Paintbrush, slug: "pintura", count: "11 profesionales" }
 ]
 
+// --- Hand-drawn elements ---
+const HandDrawnArrow = ({ className }: { className?: string }) => (
+  <svg viewBox="0 0 100 100" fill="none" className={className} xmlns="http://www.w3.org/2000/svg">
+    <path d="M10 50 Q 30 10 90 40 M 90 40 L 75 30 M 90 40 L 80 55" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+      <animate attributeName="stroke-dasharray" from="0, 150" to="150, 0" dur="1.5s" fill="freeze" />
+    </path>
+  </svg>
+)
+
+const HighlighterCircle = ({ className }: { className?: string }) => (
+  <svg viewBox="0 0 200 60" fill="none" className={className} xmlns="http://www.w3.org/2000/svg">
+    <path d="M10 30 Q 50 5 100 10 Q 150 15 190 40 Q 150 55 100 50 Q 50 45 15 35" stroke="#ff7b00" strokeWidth="3" strokeLinecap="round" opacity="0.4" fill="#ff7b00" fillOpacity="0.1">
+      <animate attributeName="stroke-dashoffset" from="500" to="0" dur="2s" />
+    </path>
+  </svg>
+)
+
+// --- How It Works ---
+const HowItWorks = () => {
+  const steps = [
+    {
+      title: "Describí tu necesidad",
+      desc: "Publicá lo que necesitás resolver en pocos pasos y 100% gratis.",
+      icon: (
+        <div className="relative">
+          <MessageSquare className="w-8 h-8 text-primary" />
+          <div className="absolute -top-2 -right-2 w-5 h-5 bg-amber-400 rounded-full flex items-center justify-center text-[10px] font-black text-white">1</div>
+        </div>
+      )
+    },
+    {
+      title: "Recibí presupuestos",
+      desc: "Los mejores profesionales locales te enviarán sus propuestas en minutos.",
+      icon: (
+        <div className="relative">
+          <TrendingUp className="w-8 h-8 text-emerald-600" />
+          <div className="absolute -top-2 -right-2 w-5 h-5 bg-amber-400 rounded-full flex items-center justify-center text-[10px] font-black text-white">2</div>
+        </div>
+      )
+    },
+    {
+      title: "Elegí y resolvé",
+      desc: "Compará perfiles, calificaciones y elegí al profesional que más te guste.",
+      icon: (
+        <div className="relative">
+          <CheckCircle2 className="w-8 h-8 text-secondary" />
+          <div className="absolute -top-2 -right-2 w-5 h-5 bg-amber-400 rounded-full flex items-center justify-center text-[10px] font-black text-white">3</div>
+        </div>
+      )
+    }
+  ]
+
+  return (
+    <section className="py-20 px-4 bg-white relative overflow-hidden">
+      <div className="max-w-7xl mx-auto">
+        <div className="text-center mb-16 relative">
+          <h2 className="text-4xl font-black text-[#0e315d] mb-4">¿Cómo funciona <span className="text-primary italic font-serif">miservicio</span>?</h2>
+          <p className="text-[#0d519b]/60 text-lg font-medium">Resolver problemas en tu hogar nunca fue tan fácil.</p>
+          <HighlighterCircle className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-64 h-auto pointer-events-none opacity-50" />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative">
+          {/* Connecting lines for desktop */}
+          <div className="hidden md:block absolute top-12 left-1/4 right-1/4 h-0.5 border-t-2 border-dashed border-slate-100 -z-10" />
+
+          {steps.map((step, i) => (
+            <motion.div
+              key={i}
+              className="flex flex-col items-center text-center space-y-4 p-8 rounded-[40px] hover:bg-slate-50 transition-colors"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.2 }}
+            >
+              <div className="w-20 h-20 bg-white shadow-xl rounded-3xl flex items-center justify-center border border-slate-50">
+                {step.icon}
+              </div>
+              <h3 className="text-xl font-bold text-[#0e315d]">{step.title}</h3>
+              <p className="text-slate-500 font-medium leading-relaxed">{step.desc}</p>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+const TrustSection = () => {
+  const pillars = [
+    {
+      title: "Identidad Validada",
+      desc: "Profesionales con perfiles verificados para tu total tranquilidad.",
+      icon: <ShieldCheck className="w-10 h-10 text-emerald-600" />
+    },
+    {
+      title: "Privacidad Segura",
+      desc: "Tu contacto y ubicación están protegidos bajo estándares de seguridad.",
+      icon: <CheckCircle2 className="w-10 h-10 text-primary" />
+    },
+    {
+      title: "Soporte Local",
+      desc: "Estamos en San Rafael para acompañarte en cada paso del proceso.",
+      icon: <MessageSquare className="w-10 h-10 text-secondary" />
+    }
+  ]
+
+  return (
+    <section className="py-20 px-4 bg-slate-50/50">
+      <div className="max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {pillars.map((pillar, i) => (
+            <div key={i} className="flex flex-col items-center md:items-start text-center md:text-left space-y-4 p-8 bg-white rounded-[32px] border border-slate-100 shadow-sm">
+              <div className="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center">
+                {pillar.icon}
+              </div>
+              <div>
+                <h3 className="text-xl font-black text-[#0e315d] mb-2">{pillar.title}</h3>
+                <p className="text-slate-500 font-medium leading-relaxed">{pillar.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
 // Subcomponents
 
 const ActiveMarketplaceHero = ({
@@ -108,19 +235,21 @@ const ActiveMarketplaceHero = ({
   city: string
   isProvider: boolean
 }) => {
-  const [stats, setStats] = useState({ resolved_this_month: 0, avg_rating: 0 });
+  const [stats, setStats] = useState({ resolved_this_month: 0, avg_rating: 0, total_providers: 500 });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchStats() {
       try {
-        const [orderStats, reviewStats] = await Promise.all([
+        const [orderStats, reviewStats, providersRes] = await Promise.all([
           OrdersService.getStats().catch(() => ({ resolved_this_month: 0, total_orders: 0 })),
-          MetricsService.getGlobalReviewsSummary().catch(() => ({ summary: { avgRating: 0 } }))
+          MetricsService.getGlobalReviewsSummary().catch(() => ({ summary: { avgRating: 0 } })),
+          ProvidersService.searchProviders({ limit: 1 }).catch(() => ({ total: 500 }))
         ]);
         setStats({
           resolved_this_month: orderStats.resolved_this_month,
-          avg_rating: reviewStats.summary?.avgRating || 0
+          avg_rating: reviewStats.summary?.avgRating || 0,
+          total_providers: providersRes.total || 500
         });
       } catch (e) {
         console.error('Error fetching stats:', e);
@@ -140,17 +269,20 @@ const ActiveMarketplaceHero = ({
 
   return (
     <motion.section
-      className="relative pt-24 pb-20 px-4 overflow-hidden border-b border-slate-100"
+      className="relative pt-24 pb-20 px-4 border-b border-slate-100"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.8 }}
     >
-      {/* Dynamic Background with technical grid */}
-      <div className="absolute inset-0 bg-[#f8fdff] -z-10" />
-      <div className="absolute inset-0 technical-grid -z-10" />
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[120px] -mr-64 -mt-64" />
-      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-secondary/10 rounded-full blur-[120px] -ml-64 -mb-64" />
-
+      {/* Dynamic Background Wrapper - contained */}
+      <div className="absolute inset-0 overflow-hidden -z-10">
+        <div className="absolute inset-0 bg-[#f8fdff]" />
+        <div className="absolute inset-0 technical-grid" />
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[120px] -mr-64 -mt-64" />
+        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-secondary/10 rounded-full blur-[120px] -ml-64 -mb-64" />
+        {/* Organic blob */}
+        <div className="absolute top-1/2 left-1/2 w-[600px] h-[600px] bg-amber-200/20 rounded-full blur-[100px] -translate-x-1/2 -translate-y-1/2 animate-pulse" style={{ borderRadius: '40% 60% 70% 30% / 40% 50% 60% 50%' }} />
+      </div>
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-12 relative">
         <div className="flex-1 flex flex-col items-start text-left z-10">
           {/* Elite Badge */}
@@ -174,8 +306,12 @@ const ActiveMarketplaceHero = ({
             <h1 className="text-5xl md:text-7xl font-black text-[#0e315d] mb-6 leading-[1.1] tracking-tight">
               Resolvé cualquier problema en tu hogar <span className="text-primary italic font-serif">hoy.</span>
             </h1>
-            <p className="text-xl md:text-2xl text-[#0d519b]/80 font-medium max-w-2xl">
-              Publicá tu necesidad y recibí presupuestos de profesionales locales en minutos. 100% Gratis.
+            <p className="text-xl md:text-2xl text-[#0d519b]/80 font-medium max-w-2xl text-balance relative">
+              Publicá tu necesidad y recibí presupuestos de <span className="font-bold text-[#0e315d]">profesionales locales</span> en <span className="font-bold text-[#0e315d]">minutos</span>.
+              <span className="relative inline-block ml-1">
+                <span className="font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md transform rotate-2 inline-block shadow-sm border border-emerald-100/50">100% Gratis.</span>
+                <HighlighterCircle className="absolute inset-0 -m-2 opacity-30 pointer-events-none" />
+              </span>
             </p>
           </motion.div>
 
@@ -196,19 +332,26 @@ const ActiveMarketplaceHero = ({
                 </Button>
               </Link>
             ) : (
-              <Link href="/pedidos/nuevo" className="w-full">
-                <Button
-                  className="w-full h-20 text-2xl font-black rounded-2xl bg-[#ff7b00] hover:bg-[#e66e00] text-white shadow-lg transition-all hover:scale-[1.02] active:scale-95 gap-3 border-b-4 border-[#cc5f00]"
-                >
-                  Publicar Pedido Gratis
-                  <PlusCircle className="w-7 h-7" />
-                </Button>
-              </Link>
+              <div className="relative group">
+                <Link href="/pedidos/nuevo" className="w-full">
+                  <Button
+                    className="w-full h-20 text-2xl font-black rounded-2xl bg-[#ff7b00] hover:bg-[#e66e00] text-white shadow-lg transition-all hover:scale-[1.02] active:scale-95 gap-3 border-b-4 border-[#cc5f00]"
+                  >
+                    Publicar Pedido Gratis
+                    <PlusCircle className="w-7 h-7" />
+                  </Button>
+                </Link>
+                {/* Hand drawn arrow pointing to button */}
+                <div className="hidden lg:block absolute -right-24 top-0 w-20 h-20 text-[#ff7b00] transform rotate-12 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                  <HandDrawnArrow className="w-full h-full" />
+                  <span className="absolute -bottom-4 left-0 text-[10px] font-black uppercase tracking-tighter whitespace-nowrap bg-amber-400 text-white px-2 py-0.5 rounded rotate-[-5deg]">¡Es gratis!</span>
+                </div>
+              </div>
             )}
 
             <div className="mt-8 flex flex-wrap justify-start gap-6 text-[#0e315d] font-bold text-sm uppercase tracking-wider">
               <div className="flex items-center gap-2 bg-white/50 px-3 py-1 rounded-full border border-slate-200">
-                <ShieldCheck className="w-5 h-5 text-emerald-600" /> +500 Profesionales
+                <ShieldCheck className="w-5 h-5 text-emerald-600" /> +{stats.total_providers} Profesionales
               </div>
               <div className="flex items-center gap-2 bg-white/50 px-3 py-1 rounded-full border border-slate-200">
                 <div className="flex gap-0.5">
@@ -224,7 +367,7 @@ const ActiveMarketplaceHero = ({
 
         {/* Human Factor Image - Desktop Only */}
         <motion.div
-          className="hidden md:block flex-1 relative"
+          className="hidden md:block flex-1 relative z-20"
           initial={{ x: 50, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.5 }}
@@ -234,7 +377,7 @@ const ActiveMarketplaceHero = ({
             <img
               src="/hero_professional.png"
               alt="Profesional trabajando"
-              className="w-full h-auto rounded-[40px] shadow-2xl grayscale-[0.2] hover:grayscale-0 transition-all duration-700 hover:scale-[1.02]"
+              className="w-full h-auto rounded-[40px] shadow-2xl grayscale-[0.2] hover:grayscale-0 transition-all duration-700 hover:scale-[1.02] -mb-12 border-4 border-white/50 backdrop-blur-sm"
             />
             {/* Trust Badges */}
             <div className="absolute -bottom-6 -left-6 bg-white p-4 rounded-2xl shadow-xl border border-slate-100 flex items-center gap-3">
@@ -285,18 +428,28 @@ const RecentOrdersFeed = ({ city }: { city: string }) => {
     return 'Hace más de un día';
   };
 
-  // If no orders, show static fallback examples
-  const displayItems = orders.length > 0
-    ? orders.map(o => ({
-      time: formatRelativeTime(o.created_at),
-      service: o.category_name,
-      zone: city.split(',')[0] || 'tu zona'
-    }))
-    : [
-      { time: "Recién", service: "Plomero", zone: city.split(',')[0] || "Tu ciudad" },
-      { time: "Hace 15 min", service: "Electricista", zone: city.split(',')[0] || "Tu ciudad" },
-      { time: "Hace 45 min", service: "Gasista", zone: city.split(',')[0] || "Tu ciudad" },
-    ];
+  if (loading) {
+    return (
+      <section className="py-12 bg-slate-50 border-y border-slate-200/60 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 mb-8">
+          <div className="h-6 w-64 bg-slate-200 rounded animate-pulse" />
+        </div>
+        <div className="flex gap-6 px-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="w-72 h-32 bg-white border border-slate-100 p-5 rounded-[24px] animate-pulse shrink-0" />
+          ))}
+        </div>
+      </section>
+    );
+  }
+
+  if (orders.length === 0) return null;
+
+  const displayItems = orders.map(o => ({
+    time: formatRelativeTime(o.created_at),
+    service: o.category_name,
+    zone: city.split(',')[0] || 'tu zona'
+  }));
 
   return (
     <section className="py-12 bg-slate-50 border-y border-slate-200/60 overflow-hidden">
@@ -515,8 +668,8 @@ const FeedbackButton = () => {
     message: '',
   })
 
-  // Si no hay usuario, no mostrar el botón
-  if (!user) return null
+  // Si no hay usuario, mostrar igual pero manejar el submit
+  // if (!user) return null
 
   return (
     <>
@@ -641,6 +794,14 @@ export default function MiservicioHome() {
   const [city, setCity] = useState<string>("")
   const [query, setQuery] = useState<string>("")
   const [activeCategory, setActiveCategory] = useState<string | null>(null)
+  const [stats, setStats] = useState({ total_providers: 0 })
+
+  useEffect(() => {
+    ProvidersService.searchProviders({ limit: 1 }).then(res => {
+      setStats({ total_providers: res.total || 500 })
+    }).catch(() => setStats({ total_providers: 500 }))
+  }, [])
+
   const [loading, setLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
   const [providers, setProviders] = useState<ProviderWithDetails[]>([])
@@ -936,9 +1097,39 @@ export default function MiservicioHome() {
 
       <ActiveMarketplaceHero city={city} isProvider={!!isProvider} />
 
+      <HowItWorks />
+
       <RecentOrdersFeed city={city} />
 
-      <main className="flex-1 py-12 px-4 space-y-16">
+      <main className="flex-1 py-12 px-4 space-y-20">
+        {/* Prominent Search Bar */}
+        <section className="max-w-4xl mx-auto text-center space-y-8">
+          <div className="space-y-4">
+            <h2 className="text-3xl md:text-4xl font-black text-[#0e315d]">¿Qué necesitás hoy?</h2>
+            <p className="text-slate-500 font-medium text-lg">Buscá entre más de {stats.total_providers} profesionales recomendados.</p>
+          </div>
+          <div className="relative max-w-2xl mx-auto group">
+            <div className="absolute inset-0 bg-primary/20 rounded-[32px] blur-2xl group-hover:bg-primary/30 transition-all -z-10" />
+            <div className="relative flex items-center bg-white border-2 border-slate-100 rounded-[32px] p-2 shadow-2xl focus-within:border-primary transition-all">
+              <Search className="w-6 h-6 text-slate-400 ml-4" />
+              <input
+                type="text"
+                placeholder="Ej: Plomero, Gasista, Electricista..."
+                className="flex-1 bg-transparent border-none focus:ring-0 text-lg px-4 py-3 placeholder:text-slate-300 font-medium"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+              />
+              <Button
+                onClick={handleSearch}
+                className="rounded-2xl px-8 h-12 bg-primary hover:bg-primary/90 text-white font-bold text-lg shadow-lg"
+              >
+                Buscar
+              </Button>
+            </div>
+          </div>
+        </section>
+
         {/* Categories Grid - Compact and elegant */}
         <section className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-8">
@@ -1044,35 +1235,37 @@ export default function MiservicioHome() {
           )}
         </section>
 
-        {/* Existing Providers search list - HIDDEN FOR CLIENTS to avoid cannibalization */}
-        {isProvider && (
-          <section id="providers-section" className="max-w-7xl mx-auto pt-8">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-              <div>
-                <h2 className="text-2xl font-black text-[#0e315d]">Explorar Profesionales</h2>
-                <p className="text-[#0d519b]/60 font-medium">Buscá y contactá directamente a los mejores calificados</p>
-              </div>
-              <div className="relative w-full md:w-96">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                <Input
-                  placeholder="Ej: Gasista matriculado..."
-                  className="pl-12 h-14 rounded-2xl border-border/40 focus:ring-primary/20"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                />
-              </div>
-            </div>
-            <ProvidersList
-              providers={filtered}
-              loading={loading}
-              onContact={handleContact}
-              onSearchCityWide={handleSearchCityWide}
-              onViewCategories={handleViewCategories}
-            />
-          </section>
-        )}
+        <TrustSection />
       </main>
+
+      {/* Existing Providers search list - HIDDEN FOR CLIENTS to avoid cannibalization */}
+      {isProvider && (
+        <section id="providers-section" className="max-w-7xl mx-auto pt-8">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+            <div>
+              <h2 className="text-2xl font-black text-[#0e315d]">Explorar Profesionales</h2>
+              <p className="text-[#0d519b]/60 font-medium">Buscá y contactá directamente a los mejores calificados</p>
+            </div>
+            <div className="relative w-full md:w-96">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <Input
+                placeholder="Ej: Gasista matriculado..."
+                className="pl-12 h-14 rounded-2xl border-border/40 focus:ring-primary/20"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+              />
+            </div>
+          </div>
+          <ProvidersList
+            providers={filtered}
+            loading={loading}
+            onContact={handleContact}
+            onSearchCityWide={handleSearchCityWide}
+            onViewCategories={handleViewCategories}
+          />
+        </section>
+      )}
 
       <footer className="bg-slate-50 border-t border-slate-200">
         <div className="max-w-7xl mx-auto px-4 py-16">
@@ -1097,30 +1290,46 @@ export default function MiservicioHome() {
             </div>
             <div className="flex flex-col items-center md:items-end justify-between">
               <div className="flex gap-4 mb-8">
-                {/* TikTok */}
-                <div className="w-12 h-12 bg-white rounded-2xl shadow-sm border border-slate-200 flex items-center justify-center text-[#0e315d] hover:bg-primary hover:text-white transition-colors cursor-pointer">
+                {/* Instagram */}
+                <a
+                  href="https://www.instagram.com/miservicio.ar"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-12 h-12 bg-white rounded-2xl shadow-sm border border-slate-200 flex items-center justify-center text-[#0e315d] hover:bg-primary hover:text-white transition-colors cursor-pointer"
+                >
                   <svg className="w-6 h-6 fill-current" viewBox="0 0 24 24">
-                    <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.17-2.89-.6-4.13-1.47-.23-.16-.45-.33-.66-.51v7.34c.06 5.45-5.63 8.85-10.12 5.73-3.66-2.54-4.04-7.85-1.1-10.81 1.61-1.63 4.15-2.26 6.24-1.57l-.02 4.03c-1.49-.61-3.32-.14-4.29 1.11-.87 1.13-.79 2.87.21 3.86.96.99 2.73 1.05 3.65.11 1.05-1.12 1.02-3 1.01-4.46V.02z" />
+                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 1.17.054 1.805.249 2.227.412.56.217.96.477 1.382.896.419.42.679.819.896 1.381.164.422.36 1.057.413 2.227.057 1.266.07 1.646.07 4.85s-.013 3.584-.07 4.85c-.054 1.17-.249 1.805-.413 2.227-.217.56-.477.96-.896 1.382-.42.419-.819.679-1.381.896-.422.164-1.057.36-2.227.413-1.266.057-1.646.07-4.85.07s-3.584-.013-4.85-.07c-1.17-.054-1.805-.249-2.227-.413-.56-.217-.96-.477-1.382-.896-.419-.42-.679-.819-.896-1.381-.164-.422-.36-1.057-.413-2.227-.057-1.266-.07-1.646-.07-4.85s.013-3.584.07-4.85c.054-1.17.249-1.805.413-2.227.217-.56.477-.96.896-1.382.42-.419.819-.679 1.381-.896.422-.164 1.057-.36 2.227-.413 1.266-.057 1.646-.07 4.85-.07zm0-2.163c-3.259 0-3.667.014-4.947.072-1.28.058-2.153.264-2.918.56-.791.307-1.462.716-2.132 1.386-.67.67-1.079 1.341-1.386 2.132-.296.765-.502 1.638-.56 2.918-.058 1.28-.072 1.688-.072 4.947s.014 3.667.072 4.947c.058 1.28.264 2.153.56 2.918.307.791.716 1.462 1.386 2.132.67.67 1.341 1.079 2.132 1.386.765.296 1.638.502 2.918.56 1.28.058 1.688.072 4.947.072s3.667-.014 4.947-.072c1.28-.058 2.153-.264 2.918-.56.791-.307 1.462-.716 2.132-1.386.67-.67 1.079-1.341 1.386-2.132.296-.765.502-1.638.56-2.918.058-1.28.072-1.688.072-4.947s-.014-3.667-.072-4.947c-.058-1.28-.264-2.153-.56-2.918-.307-.791-.716-1.462-1.386-2.132-.67-.67-1.341-1.079-2.132-1.386-.765-.296-1.638-.502-2.918-.56-1.28-.058-1.688-.072-4.947-.072zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.162 6.162 6.162 6.162-2.759 6.162-6.162-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.791-4-4s1.791-4 4-4 4 1.791 4 4-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
                   </svg>
-                </div>
+                </a>
                 {/* WhatsApp */}
-                <div className="w-12 h-12 bg-white rounded-2xl shadow-sm border border-slate-200 flex items-center justify-center text-[#0e315d] hover:bg-primary hover:text-white transition-colors cursor-pointer">
+                <a
+                  href="https://wa.me/542604275924"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-12 h-12 bg-white rounded-2xl shadow-sm border border-slate-200 flex items-center justify-center text-[#0e315d] hover:bg-primary hover:text-white transition-colors cursor-pointer"
+                >
                   <svg className="w-6 h-6 fill-current" viewBox="0 0 24 24">
                     <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.72.937 3.659 1.433 5.631 1.433h.005c6.554 0 11.89-5.335 11.893-11.892a11.826 11.826 0 00-3.481-8.414z" />
                   </svg>
-                </div>
+                </a>
                 {/* LinkedIn */}
-                <div className="w-12 h-12 bg-white rounded-2xl shadow-sm border border-slate-200 flex items-center justify-center text-[#0e315d] hover:bg-primary hover:text-white transition-colors cursor-pointer">
+                <a
+                  href="https://www.linkedin.com/company/miservicio-app/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-12 h-12 bg-white rounded-2xl shadow-sm border border-slate-200 flex items-center justify-center text-[#0e315d] hover:bg-primary hover:text-white transition-colors cursor-pointer"
+                >
                   <svg className="w-6 h-6 fill-current" viewBox="0 0 24 24">
                     <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
                   </svg>
-                </div>
+                </a>
               </div>
+
               <FeedbackButton />
             </div>
           </div>
           <div className="pt-8 border-t border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4 text-center">
-            <p className="text-[#0d519b]/40 font-bold text-sm">© 2025 miServicio.ar. Hecho con ❤️ en San Rafael.</p>
+            <p className="text-[#0d519b]/40 font-bold text-sm">© 2025 miservicio.ar</p>
             <div className="flex items-center gap-2 text-[#0d519b]/60 font-bold text-xs uppercase tracking-widest">
               <MapPin className="w-4 h-4" /> San Rafael, Mendoza
             </div>
