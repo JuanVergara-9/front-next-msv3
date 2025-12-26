@@ -1,11 +1,11 @@
 import { apiFetch } from '../apiClient';
-import type { 
-  Provider, 
-  ProviderWithDetails, 
-  SearchProvidersRequest, 
+import type {
+  Provider,
+  ProviderWithDetails,
+  SearchProvidersRequest,
   SearchProvidersResponse,
   Category,
-  ContactIntent 
+  ContactIntent
 } from '../../types/api';
 import { ReviewsService } from './reviews.service';
 
@@ -116,6 +116,11 @@ export class ProvidersService {
     return response.items;
   }
 
+  static async getCategoriesWithCounts(): Promise<(Category & { provider_count: number })[]> {
+    const response = await apiFetch<{ items: (Category & { provider_count: number })[] }>('/api/v1/categories/with-counts');
+    return response.items;
+  }
+
   static async createContactIntent(intent: Omit<ContactIntent, 'id' | 'created_at' | 'updated_at'>): Promise<ContactIntent> {
     return apiFetch<ContactIntent>('/api/v1/contact-intents', {
       method: 'POST',
@@ -128,11 +133,11 @@ export class ProvidersService {
     const R = 6371; // Radio de la Tierra en km
     const dLat = (lat2 - lat1) * Math.PI / 180;
     const dLng = (lng2 - lng1) * Math.PI / 180;
-    const a = 
-      Math.sin(dLat/2) * Math.sin(dLat/2) +
-      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
-      Math.sin(dLng/2) * Math.sin(dLng/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+      Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
   }
 
@@ -217,7 +222,7 @@ export class ProvidersService {
 
   // Subir avatar propio (multipart/form-data, field 'file')
   static async uploadMyAvatar(file: File): Promise<Provider> {
-    const base = (process.env.NEXT_PUBLIC_GATEWAY_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000').replace(/\/+$/,'')
+    const base = (process.env.NEXT_PUBLIC_GATEWAY_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000').replace(/\/+$/, '')
     const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null
     const form = new FormData()
     form.append('file', file)
@@ -235,7 +240,7 @@ export class ProvidersService {
   }
 
   static async deleteMyAvatar(): Promise<Provider> {
-    const base = (process.env.NEXT_PUBLIC_GATEWAY_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000').replace(/\/+$/,'')
+    const base = (process.env.NEXT_PUBLIC_GATEWAY_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000').replace(/\/+$/, '')
     const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null
     const res = await fetch(`${base}/api/v1/providers/mine/avatar`, {
       method: 'DELETE',

@@ -89,14 +89,14 @@ const TypewriterText = ({ words, className = "" }: { words: string[]; className?
 // Categories with icons for the UI
 // Categories with outline icons for modern look
 const CATEGORIES_WITH_ICONS = [
-  { name: "Plomería", icon: Droplets, slug: "plomeria", count: "15 profesionales" },
-  { name: "Gasistas", icon: Flame, slug: "gasistas", count: "8 profesionales" },
-  { name: "Electricidad", icon: Zap, slug: "electricidad", count: "12 profesionales" },
-  { name: "Jardinería", icon: Flower2, slug: "jardineria", count: "10 profesionales" },
-  { name: "Piletas", icon: Droplets, slug: "mantenimiento-limpieza-piletas", count: "6 profesionales" },
-  { name: "Técnicos", icon: Zap, slug: "reparacion-electrodomesticos", count: "14 profesionales" },
-  { name: "Carpintería", icon: Hammer, slug: "carpinteria", count: "9 profesionales" },
-  { name: "Pintura", icon: Paintbrush, slug: "pintura", count: "11 profesionales" }
+  { name: "Plomería", icon: Droplets, slug: "plomeria" },
+  { name: "Gasistas", icon: Flame, slug: "gasistas" },
+  { name: "Electricidad", icon: Zap, slug: "electricidad" },
+  { name: "Jardinería", icon: Flower2, slug: "jardineria" },
+  { name: "Piletas", icon: Droplets, slug: "mantenimiento-limpieza-piletas" },
+  { name: "Técnicos", icon: Zap, slug: "reparacion-electrodomesticos" },
+  { name: "Carpintería", icon: Hammer, slug: "carpinteria" },
+  { name: "Pintura", icon: Paintbrush, slug: "pintura" }
 ]
 
 // --- Hand-drawn elements ---
@@ -108,13 +108,6 @@ const HandDrawnArrow = ({ className }: { className?: string }) => (
   </svg>
 )
 
-const HighlighterCircle = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 200 60" fill="none" className={className} xmlns="http://www.w3.org/2000/svg">
-    <path d="M10 30 Q 50 5 100 10 Q 150 15 190 40 Q 150 55 100 50 Q 50 45 15 35" stroke="#ff7b00" strokeWidth="3" strokeLinecap="round" opacity="0.4" fill="#ff7b00" fillOpacity="0.1">
-      <animate attributeName="stroke-dashoffset" from="500" to="0" dur="2s" />
-    </path>
-  </svg>
-)
 
 // --- How It Works ---
 const HowItWorks = () => {
@@ -157,7 +150,6 @@ const HowItWorks = () => {
         <div className="text-center mb-16 relative">
           <h2 className="text-4xl font-black text-[#0e315d] mb-4">¿Cómo funciona <span className="text-primary italic font-serif">miservicio</span>?</h2>
           <p className="text-[#0d519b]/60 text-lg font-medium">Resolver problemas en tu hogar nunca fue tan fácil.</p>
-          <HighlighterCircle className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-64 h-auto pointer-events-none opacity-50" />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative">
@@ -308,9 +300,8 @@ const ActiveMarketplaceHero = ({
             </h1>
             <p className="text-xl md:text-2xl text-[#0d519b]/80 font-medium max-w-2xl text-balance relative">
               Publicá tu necesidad y recibí presupuestos de <span className="font-bold text-[#0e315d]">profesionales locales</span> en <span className="font-bold text-[#0e315d]">minutos</span>.
-              <span className="relative inline-block ml-1">
-                <span className="font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md transform rotate-2 inline-block shadow-sm border border-emerald-100/50">100% Gratis.</span>
-                <HighlighterCircle className="absolute inset-0 -m-2 opacity-30 pointer-events-none" />
+              <span className="inline-block ml-1">
+                <span className="font-black text-emerald-600 px-2 py-0.5 transform rotate-2 inline-block">100% Gratis.</span>
               </span>
             </p>
           </motion.div>
@@ -795,11 +786,19 @@ export default function MiservicioHome() {
   const [query, setQuery] = useState<string>("")
   const [activeCategory, setActiveCategory] = useState<string | null>(null)
   const [stats, setStats] = useState({ total_providers: 0 })
+  const [categoryCounts, setCategoryCounts] = useState<Record<string, number>>({})
 
   useEffect(() => {
     ProvidersService.searchProviders({ limit: 1 }).then(res => {
       setStats({ total_providers: res.total || 500 })
     }).catch(() => setStats({ total_providers: 500 }))
+
+    // Fetch category provider counts
+    ProvidersService.getCategoriesWithCounts().then(cats => {
+      const counts: Record<string, number> = {}
+      cats.forEach(c => { counts[c.slug] = Number(c.provider_count) || 0 })
+      setCategoryCounts(counts)
+    }).catch(console.error)
   }, [])
 
   const [loading, setLoading] = useState<boolean>(true)
@@ -1093,7 +1092,6 @@ export default function MiservicioHome() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col pb-20 sm:pb-0 font-sans home-bg-vignette">
-      <Header city={city} />
 
       <ActiveMarketplaceHero city={city} isProvider={!!isProvider} />
 
@@ -1155,7 +1153,11 @@ export default function MiservicioHome() {
                     </div>
                     <div className="space-y-1">
                       <span className="font-black text-[#0e315d] text-base group-hover:text-primary transition-colors">{cat.name}</span>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{cat.count}</p>
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                        {categoryCounts[cat.slug] !== undefined
+                          ? `${categoryCounts[cat.slug]} profesionales`
+                          : "Cargando..."}
+                      </p>
                     </div>
 
                     {/* Decorative element */}

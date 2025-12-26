@@ -214,7 +214,6 @@ export default function PedidosPage() {
 
     return (
         <div className="min-h-screen bg-background flex flex-col pb-20 sm:pb-0 underline-offset-4">
-            <Header city={city} />
 
             <main className="flex-1 max-w-5xl mx-auto w-full px-4 py-8">
                 <header className="mb-8">
@@ -471,10 +470,6 @@ export default function PedidosPage() {
                     remainingSlots={remainingSlots}
                 />
             </main>
-
-            <div className="sm:hidden">
-                <BottomNavBar />
-            </div>
         </div>
     )
 }
