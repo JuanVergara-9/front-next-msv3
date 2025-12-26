@@ -227,7 +227,17 @@ const ActiveMarketplaceHero = ({
   city: string
   isProvider: boolean
 }) => {
-  const [stats, setStats] = useState({ resolved_this_month: 0, avg_rating: 0, total_providers: 500 });
+  // Use cached value from localStorage to avoid layout shift
+  const getCachedStats = () => {
+    if (typeof window === 'undefined') return { resolved_this_month: 0, avg_rating: 4.9, total_providers: 15 };
+    try {
+      const cached = localStorage.getItem('home_stats');
+      if (cached) return JSON.parse(cached);
+    } catch { }
+    return { resolved_this_month: 0, avg_rating: 4.9, total_providers: 15 };
+  };
+
+  const [stats, setStats] = useState(getCachedStats);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -236,13 +246,16 @@ const ActiveMarketplaceHero = ({
         const [orderStats, reviewStats, providersRes] = await Promise.all([
           OrdersService.getStats().catch(() => ({ resolved_this_month: 0, total_orders: 0 })),
           MetricsService.getGlobalReviewsSummary().catch(() => ({ summary: { avgRating: 0 } })),
-          ProvidersService.searchProviders({ limit: 1 }).catch(() => ({ total: 500 }))
+          ProvidersService.searchProviders({ limit: 1 }).catch(() => ({ total: 15 }))
         ]);
-        setStats({
+        const newStats = {
           resolved_this_month: orderStats.resolved_this_month,
-          avg_rating: reviewStats.summary?.avgRating || 0,
-          total_providers: providersRes.total || 500
-        });
+          avg_rating: reviewStats.summary?.avgRating || 4.9,
+          total_providers: providersRes.total || 15
+        };
+        setStats(newStats);
+        // Cache for next page load
+        try { localStorage.setItem('home_stats', JSON.stringify(newStats)); } catch { }
       } catch (e) {
         console.error('Error fetching stats:', e);
       } finally {
@@ -342,7 +355,8 @@ const ActiveMarketplaceHero = ({
 
             <div className="mt-8 flex flex-wrap justify-start gap-6 text-[#0e315d] font-bold text-sm uppercase tracking-wider">
               <div className="flex items-center gap-2 bg-white/50 px-3 py-1 rounded-full border border-slate-200">
-                <ShieldCheck className="w-5 h-5 text-emerald-600" /> +{stats.total_providers} Profesionales
+                <ShieldCheck className="w-5 h-5 text-emerald-600" />
+                +{stats.total_providers} Profesionales
               </div>
               <div className="flex items-center gap-2 bg-white/50 px-3 py-1 rounded-full border border-slate-200">
                 <div className="flex gap-0.5">
