@@ -32,6 +32,7 @@ import {
   Flame,
   Search,
   PlusCircle,
+  SendHorizontal,
   Clock,
   MapPin,
   CheckCircle2,
@@ -113,49 +114,49 @@ const HandDrawnArrow = ({ className }: { className?: string }) => (
 const HowItWorks = () => {
   const steps = [
     {
-      title: "Describí tu necesidad",
-      desc: "Publicá lo que necesitás resolver en pocos pasos y 100% gratis.",
-      icon: (
-        <div className="relative">
-          <MessageSquare className="w-8 h-8 text-primary" />
-          <div className="absolute -top-2 -right-2 w-5 h-5 bg-amber-400 rounded-full flex items-center justify-center text-[10px] font-black text-white">1</div>
-        </div>
-      )
+      title: "1. Describí",
+      desc: "Tu necesidad en pocos pasos.",
+      icon: <MessageSquare className="w-7 h-7 md:w-8 md:h-8 text-primary" />
     },
     {
-      title: "Recibí presupuestos",
-      desc: "Los mejores profesionales locales te enviarán sus propuestas en minutos.",
-      icon: (
-        <div className="relative">
-          <TrendingUp className="w-8 h-8 text-emerald-600" />
-          <div className="absolute -top-2 -right-2 w-5 h-5 bg-amber-400 rounded-full flex items-center justify-center text-[10px] font-black text-white">2</div>
-        </div>
-      )
+      title: "2. Recibí",
+      desc: "Presupuestos en minutos.",
+      icon: <TrendingUp className="w-7 h-7 md:w-8 md:h-8 text-emerald-600" />
     },
     {
-      title: "Elegí y resolvé",
-      desc: "Compará perfiles, calificaciones y elegí al profesional que más te guste.",
-      icon: (
-        <div className="relative">
-          <CheckCircle2 className="w-8 h-8 text-secondary" />
-          <div className="absolute -top-2 -right-2 w-5 h-5 bg-amber-400 rounded-full flex items-center justify-center text-[10px] font-black text-white">3</div>
-        </div>
-      )
+      title: "3. Elegí",
+      desc: "Al mejor profesional.",
+      icon: <CheckCircle2 className="w-7 h-7 md:w-8 md:h-8 text-secondary" />
     }
   ]
 
   return (
-    <section className="py-20 px-4 bg-white relative overflow-hidden">
+    <section className="py-12 md:py-20 px-4 bg-white relative overflow-hidden text-center">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-16 relative">
-          <h2 className="text-4xl font-black text-[#0e315d] mb-4">¿Cómo funciona <span className="text-primary italic font-serif">miservicio</span>?</h2>
-          <p className="text-[#0d519b]/60 text-lg font-medium">Resolver problemas en tu hogar nunca fue tan fácil.</p>
+        <div className="mb-8 md:mb-16 relative">
+          <h2 className="text-3xl md:text-4xl font-black text-[#0e315d] mb-2 md:mb-4">¿Cómo funciona?</h2>
+          <p className="text-[#0d519b]/60 text-sm md:text-lg font-medium hidden md:block">Resolver problemas en tu hogar nunca fue tan fácil.</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative">
-          {/* Connecting lines for desktop */}
-          <div className="hidden md:block absolute top-12 left-1/4 right-1/4 h-0.5 border-t-2 border-dashed border-slate-100 -z-10" />
+        {/* Mobile: 3-Column Grid (All observable) */}
+        <div className="grid grid-cols-3 gap-1 md:hidden px-0">
+          {steps.map((step, i) => (
+            <div
+              key={i}
+              className="flex flex-col items-center text-center space-y-3"
+            >
+              <div className="w-16 h-16 bg-slate-0 rounded-2xl flex items-center justify-center border border-slate-100 shadow-sm mb-1">
+                {step.icon}
+              </div>
+              <h3 className="text-base font-black text-[#0e315d] leading-tight">{step.title}</h3>
+              <p className="text-sm text-slate-500 font-medium leading-[1.2] text-balance px-0.5">{step.desc}</p>
+            </div>
+          ))}
+        </div>
 
+        {/* Desktop: Grid */}
+        <div className="hidden md:grid grid-cols-3 gap-12 relative">
+          <div className="absolute top-12 left-1/4 right-1/4 h-0.5 border-t-2 border-dashed border-slate-100 -z-10" />
           {steps.map((step, i) => (
             <motion.div
               key={i}
@@ -181,26 +182,39 @@ const HowItWorks = () => {
 const TrustSection = () => {
   const pillars = [
     {
-      title: "Identidad Validada",
-      desc: "Profesionales con perfiles verificados para tu total tranquilidad.",
-      icon: <ShieldCheck className="w-10 h-10 text-emerald-600" />
+      title: "Verificado",
+      desc: "Validamos la identidad de cada profesional a través de un riguroso proceso de verificación para garantizar tu seguridad y total tranquilidad.",
+      icon: <ShieldCheck className="w-5 h-5 md:w-10 md:h-10 text-emerald-600" />
     },
     {
-      title: "Privacidad Segura",
-      desc: "Tu contacto y ubicación están protegidos bajo estándares de seguridad.",
-      icon: <CheckCircle2 className="w-10 h-10 text-primary" />
+      title: "Privado",
+      desc: "Tu información personal está totalmente protegida. Solo compartimos tus datos con el profesional que vos decidas contratar.",
+      icon: <CheckCircle2 className="w-5 h-5 md:w-10 md:h-10 text-primary" />
     },
     {
-      title: "Soporte Local",
-      desc: "Estamos en San Rafael para acompañarte en cada paso del proceso.",
-      icon: <MessageSquare className="w-10 h-10 text-secondary" />
+      title: "Local",
+      desc: "Estamos presentes en tu ciudad para brindarte soporte directo y asegurar que recibas el mejor servicio por parte de profesionales de tu zona.",
+      icon: <MessageSquare className="w-5 h-5 md:w-10 md:h-10 text-secondary" />
     }
   ]
 
   return (
-    <section className="py-20 px-4 bg-slate-50/50">
+    <section className="py-6 md:py-20 px-4 bg-slate-50/50">
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {/* Mobile: Simple 3-col Grid of Icons+Text */}
+        <div className="grid grid-cols-3 gap-2 md:hidden">
+          {pillars.map((pillar, i) => (
+            <div key={i} className="flex flex-col items-center text-center gap-2 p-3 bg-white rounded-xl border border-slate-100 shadow-sm">
+              <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center">
+                {pillar.icon}
+              </div>
+              <span className="text-[10px] font-bold text-[#0e315d] uppercase tracking-wide">{pillar.title}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* Desktop: Full Features */}
+        <div className="hidden md:grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
           {pillars.map((pillar, i) => (
             <div key={i} className="flex flex-col items-center md:items-start text-center md:text-left space-y-4 p-8 bg-white rounded-[32px] border border-slate-100 shadow-sm">
               <div className="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center">
@@ -274,7 +288,7 @@ const ActiveMarketplaceHero = ({
 
   return (
     <motion.section
-      className="relative pt-24 pb-20 px-4 border-b border-slate-100"
+      className="relative pt-20 pb-10 md:pt-24 md:pb-20 px-4 border-b border-slate-100"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.8 }}
@@ -308,10 +322,10 @@ const ActiveMarketplaceHero = ({
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.3 }}
           >
-            <h1 className="text-5xl md:text-7xl font-black text-[#0e315d] mb-6 leading-[1.1] tracking-tight">
+            <h1 className="text-4xl md:text-7xl font-black text-[#0e315d] mb-6 leading-[1.1] tracking-tight">
               Resolvé cualquier problema en tu hogar <span className="text-primary italic font-serif">hoy.</span>
             </h1>
-            <p className="text-xl md:text-2xl text-[#0d519b]/80 font-medium max-w-2xl text-balance relative">
+            <p className="text-lg md:text-2xl text-[#0d519b]/80 font-medium max-w-2xl text-balance relative">
               Publicá tu necesidad y recibí presupuestos de <span className="font-bold text-[#0e315d]">profesionales locales</span> en <span className="font-bold text-[#0e315d]">minutos</span>.
               <span className="inline-block ml-1">
                 <span className="font-black text-emerald-600 px-2 py-0.5 transform rotate-2 inline-block">100% Gratis.</span>
@@ -321,7 +335,7 @@ const ActiveMarketplaceHero = ({
 
           {/* Main XL Action Button */}
           <motion.div
-            className="w-full max-w-md"
+            className="w-full max-w-lg"
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.4 }}
@@ -329,20 +343,20 @@ const ActiveMarketplaceHero = ({
             {isProvider ? (
               <Link href="/pedidos" className="w-full">
                 <Button
-                  className="w-full h-20 text-xl font-black rounded-2xl bg-[#0e315d] hover:bg-[#0e315d]/90 text-white shadow-xl transition-all hover:scale-[1.02] active:scale-95 gap-3"
+                  className="w-full h-14 md:h-20 text-lg md:text-xl font-black rounded-xl md:rounded-2xl bg-[#0e315d] hover:bg-[#0e315d]/90 text-white shadow-xl transition-all hover:scale-[1.02] active:scale-95 gap-3"
                 >
                   Ir a buscar trabajos
-                  <ArrowRight className="w-6 h-6" />
+                  <ArrowRight className="w-5 h-5 md:w-6 md:h-6" />
                 </Button>
               </Link>
             ) : (
               <div className="relative group">
                 <Link href="/pedidos/nuevo" className="w-full">
                   <Button
-                    className="w-full h-20 text-2xl font-black rounded-2xl bg-[#ff7b00] hover:bg-[#e66e00] text-white shadow-lg transition-all hover:scale-[1.02] active:scale-95 gap-3 border-b-4 border-[#cc5f00]"
+                    className="w-full h-14 md:h-20 text-2xl md:text-2xl font-black rounded-xl md:rounded-2xl bg-[#ff7b00] hover:bg-[#e66e00] text-white shadow-lg transition-all hover:scale-[1.02] active:scale-95 gap-2 md:gap-3 border-b-4 border-[#cc5f00]"
                   >
-                    Publicar Pedido Gratis
-                    <PlusCircle className="w-7 h-7" />
+                    Solicitar ahora
+                    <SendHorizontal className="w-7 h-7 md:w-12 md:h-12 stroke-[3px]" />
                   </Button>
                 </Link>
                 {/* Hand drawn arrow pointing to button */}
@@ -353,15 +367,15 @@ const ActiveMarketplaceHero = ({
               </div>
             )}
 
-            <div className="mt-8 flex flex-wrap justify-start gap-6 text-[#0e315d] font-bold text-sm uppercase tracking-wider">
-              <div className="flex items-center gap-2 bg-white/50 px-3 py-1 rounded-full border border-slate-200">
-                <ShieldCheck className="w-5 h-5 text-emerald-600" />
+            <div className="mt-6 md:mt-8 flex flex-row flex-wrap md:flex-nowrap items-center gap-2 md:gap-6 text-[#0e315d] font-bold text-[10px] md:text-sm uppercase tracking-wider">
+              <div className="flex items-center gap-1.5 md:gap-2 bg-white/50 px-2 md:px-3 py-1 rounded-full border border-slate-200 whitespace-nowrap">
+                <ShieldCheck className="w-4 h-4 md:w-5 md:h-5 text-emerald-600" />
                 +{stats.total_providers} Profesionales
               </div>
-              <div className="flex items-center gap-2 bg-white/50 px-3 py-1 rounded-full border border-slate-200">
+              <div className="flex items-center gap-1.5 md:gap-2 bg-white/50 px-2 md:px-3 py-1 rounded-full border border-slate-200 whitespace-nowrap">
                 <div className="flex gap-0.5">
                   {[1, 2, 3, 4, 5].map((_, i) => (
-                    <StarIcon key={i} className="w-4 h-4 fill-amber-500 text-amber-500" />
+                    <StarIcon key={i} className="w-3 h-3 md:w-4 md:h-4 fill-amber-500 text-amber-500" />
                   ))}
                 </div>
                 4.9/5 Promedio
@@ -457,8 +471,8 @@ const RecentOrdersFeed = ({ city }: { city: string }) => {
   }));
 
   return (
-    <section className="py-12 bg-slate-50 border-y border-slate-200/60 overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 mb-8">
+    <section className="py-8 md:py-12 bg-slate-50 border-y border-slate-200/60 overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4 mb-6 md:mb-8">
         <h3 className="text-[#0e315d] text-lg font-bold flex items-center gap-2">
           <Clock className="w-5 h-5 text-primary" />
           Pedidos recientes en {city.split(',')[0] || "tu zona"}
@@ -572,7 +586,16 @@ const ProvidersList = ({
       >
         Cerca de mí
       </motion.h2>
-
+      {/*
+- [ ] Hero and Search Improvements
+    - [ ] Enable Search results for all users
+    - [ ] Implement floating Hero image on mobile (80% opacity)
+    - [ ] Resize "How It Works" cards and text on mobile
+    - [ ] Finalize standard title sizes and spacing
+- [x] Refine Category Slider
+    - [x] Remove white gradient shadow
+    - [x] Add scroll indicator (arrow or dots)
+      */}
       <AnimatePresence mode="wait">
         {loading ? (
           <motion.div
@@ -1113,28 +1136,28 @@ export default function MiservicioHome() {
 
       <RecentOrdersFeed city={city} />
 
-      <main className="flex-1 py-12 px-4 space-y-20">
+      <main className="flex-1 py-6 md:py-12 px-4 space-y-10 md:space-y-20">
         {/* Prominent Search Bar */}
-        <section className="max-w-4xl mx-auto text-center space-y-8">
+        <section className="max-w-4xl mx-auto text-center space-y-5 md:space-y-8">
           <div className="space-y-4">
             <h2 className="text-3xl md:text-4xl font-black text-[#0e315d]">¿Qué necesitás hoy?</h2>
             <p className="text-slate-500 font-medium text-lg">Buscá entre más de {stats.total_providers} profesionales recomendados.</p>
           </div>
           <div className="relative max-w-2xl mx-auto group">
             <div className="absolute inset-0 bg-primary/20 rounded-[32px] blur-2xl group-hover:bg-primary/30 transition-all -z-10" />
-            <div className="relative flex items-center bg-white border-2 border-slate-100 rounded-[32px] p-2 shadow-2xl focus-within:border-primary transition-all">
-              <Search className="w-6 h-6 text-slate-400 ml-4" />
+            <div className="relative flex items-center bg-white border-2 border-slate-100 rounded-[20px] md:rounded-[32px] p-1 md:p-2 shadow-xl focus-within:border-primary transition-all">
+              <Search className="w-5 h-5 md:w-6 md:h-6 text-slate-400 ml-3 md:ml-4" />
               <input
                 type="text"
-                placeholder="Ej: Plomero, Gasista, Electricista..."
-                className="flex-1 bg-transparent border-none focus:ring-0 text-lg px-4 py-3 placeholder:text-slate-300 font-medium"
+                placeholder="Ej: Plomero..."
+                className="flex-1 bg-transparent border-none focus:ring-0 text-sm md:text-lg px-2 md:px-4 py-2 md:py-3 placeholder:text-slate-300 font-medium h-10 md:h-auto"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
               />
               <Button
                 onClick={handleSearch}
-                className="rounded-2xl px-8 h-12 bg-primary hover:bg-primary/90 text-white font-bold text-lg shadow-lg"
+                className="rounded-xl md:rounded-2xl px-4 md:px-8 h-10 md:h-12 bg-primary hover:bg-primary/90 text-white font-bold text-sm md:text-lg shadow-md md:shadow-lg"
               >
                 Buscar
               </Button>
@@ -1142,27 +1165,67 @@ export default function MiservicioHome() {
           </div>
         </section>
 
-        {/* Categories Grid - Compact and elegant */}
-        <section className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-2xl font-black text-[#0e315d]">Categorías populares</h2>
-            <Link href="/pedidos/nuevo" className="text-primary font-bold hover:underline flex items-center gap-1">
-              Ver todas <ArrowRight className="w-4 h-4" />
+        {/* Categories: Mobile (Slider of Chips) & Desktop (Grid) */}
+        <section className="max-w-7xl mx-auto -mt-6 md:mt-0 relative z-10">
+          {/* Scroll Hint Gradient REMOVED */}
+
+
+          <div className="flex px-4 md:px-0 md:hidden overflow-x-auto snap-x snap-mandatory gap-3 pb-4 scrollbar-hide -mx-4">
+            {CATEGORIES_WITH_ICONS.map((cat, idx) => (
+              <Link key={cat.name} href={`/categorias/${cat.slug}`} className="snap-start flex-shrink-0">
+                <div className="flex flex-col items-center gap-3 p-5 w-[170px] bg-gray-100 rounded-[28px] border border-gray-200 shadow-sm active:scale-95 transition-transform">
+                  <div className="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center text-[#0e315d] border border-gray-100">
+                    <cat.icon className="w-7 h-7 stroke-[2.5px]" />
+                  </div>
+                  <div className="text-center space-y-0.5">
+                    <span className="text-sm font-black text-[#0e315d] leading-tight block">
+                      {cat.name}
+                    </span>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                      {categoryCounts[cat.slug] !== undefined
+                        ? `${categoryCounts[cat.slug]} prof.`
+                        : "..."}
+                    </p>
+                  </div>
+                </div>
+              </Link>
+            ))}
+            <Link href="/pedidos/nuevo" className="snap-start flex-shrink-0">
+              <div className="flex flex-col items-center justify-center gap-3 p-5 w-[170px] h-full bg-slate-50 rounded-[28px] border border-dashed border-slate-300 active:scale-95 transition-transform">
+                <div className="w-12 h-12 flex items-center justify-center text-slate-400">
+                  <PlusCircle className="w-8 h-8" />
+                </div>
+                <span className="text-xs font-bold text-slate-500 text-center uppercase tracking-wide">Ver todas</span>
+              </div>
             </Link>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {CATEGORIES_WITH_ICONS.map((cat, idx) => {
-              return (
+
+          {/* Scroll Indicator Mobile */}
+          <div className="md:hidden flex items-center justify-center gap-2 mt-4 text-slate-400 animate-pulse">
+            <span className="text-xs font-bold uppercase tracking-widest">Desliza</span>
+            <ArrowRight className="w-4 h-4" />
+          </div>
+
+          {/* Desktop Grid */}
+          <div className="hidden md:block">
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-2xl font-black text-[#0e315d]">Categorías populares</h2>
+              <Link href="/pedidos/nuevo" className="text-primary font-bold hover:underline flex items-center gap-1 text-base">
+                Ver todas <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+            <div className="grid grid-cols-4 gap-4">
+              {CATEGORIES_WITH_ICONS.map((cat, idx) => (
                 <Link key={cat.name} href={`/categorias/${cat.slug}`} className="h-full">
                   <motion.div
-                    className="group relative flex flex-col items-center gap-3 p-6 bg-white border border-slate-200 rounded-[32px] hover:border-primary/30 transition-all text-center cursor-pointer h-full premium-shadow-sm hover:premium-shadow-lg"
+                    className="group relative flex flex-col items-center gap-3 p-6 bg-gray-100 border border-gray-200 rounded-[32px] hover:border-primary/30 transition-all text-center cursor-pointer h-full premium-shadow-sm hover:premium-shadow-lg"
                     whileHover={{ y: -8 }}
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: idx * 0.05 }}
                   >
-                    <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center text-[#0e315d] group-hover:bg-[#ff7b00]/10 group-hover:text-[#ff7b00] transition-all duration-300 border border-slate-100 group-hover:border-[#ff7b00]/20">
+                    <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center text-[#0e315d] group-hover:bg-[#ff7b00]/10 group-hover:text-[#ff7b00] transition-all duration-300 border border-gray-100 group-hover:border-[#ff7b00]/20">
                       <cat.icon className="w-8 h-8 stroke-[2.5px]" />
                     </div>
                     <div className="space-y-1">
@@ -1173,77 +1236,103 @@ export default function MiservicioHome() {
                           : "Cargando..."}
                       </p>
                     </div>
-
-                    {/* Decorative element */}
-                    <div className="absolute top-4 right-4 w-2 h-2 bg-slate-200 rounded-full group-hover:bg-[#ff7b00] transition-colors" />
                   </motion.div>
                 </Link>
-              );
-            })}
+              ))}
+            </div>
           </div>
         </section>
 
-        {/* Conditional role-based section */}
-        <section className="max-w-7xl mx-auto">
+        {/* Conditional role-based section (Compacted for Mobile) */}
+        <section className="max-w-7xl mx-auto px-4 md:px-0">
           {isProvider ? (
-            <div className="bg-[#0e315d] rounded-[40px] p-8 md:p-12 text-white overflow-hidden relative">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full blur-3xl -mr-32 -mt-32" />
-              <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
-                <div className="max-w-lg text-center md:text-left">
-                  <span className="inline-block px-4 py-1.5 bg-primary/20 rounded-full text-xs font-bold uppercase tracking-widest mb-4">Panel del Profesional</span>
-                  <h2 className="text-3xl md:text-5xl font-black mb-6 leading-tight">
-                    Hay <span className="text-secondary">12 nuevos pedidos</span> esperando tu presupuesto.
-                  </h2>
-                  <p className="text-white/70 text-lg mb-8">
-                    No pierdas tiempo, los clientes están activos ahora mismo en {city.split(',')[0]}.
-                  </p>
-                  <Link href="/pedidos">
-                    <Button className="h-16 px-10 rounded-2xl bg-white text-[#0e315d] font-black text-lg hover:bg-white/90">
-                      Ver Tablero de Pedidos
-                    </Button>
-                  </Link>
+            <div className="bg-[#0e315d] rounded-2xl md:rounded-[40px] p-6 md:p-12 text-white overflow-hidden relative">
+              {/* Mobile Layout */}
+              <div className="md:hidden flex flex-col gap-4">
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-secondary mb-1 block">Panel del Profesional</span>
+                  <h2 className="text-xl font-black leading-tight">12 nuevos pedidos <span className="font-normal opacity-80">en tu zona.</span></h2>
                 </div>
-                <div className="w-full md:w-auto grid grid-cols-2 gap-4">
-                  <div className="bg-white/5 backdrop-blur-md p-6 rounded-3xl border border-white/10 text-center">
-                    <p className="text-4xl font-black text-primary mb-1">3</p>
-                    <p className="text-xs font-bold text-white/50 uppercase">Activas</p>
+                <Link href="/pedidos" className="w-full">
+                  <Button className="w-full h-10 rounded-xl bg-white text-[#0e315d] font-bold text-sm hover:bg-white/90">
+                    Ver Tablero
+                  </Button>
+                </Link>
+              </div>
+
+              {/* Desktop Layout preserved */}
+              <div className="hidden md:block">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full blur-3xl -mr-32 -mt-32" />
+                <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
+                  <div className="max-w-lg text-center md:text-left">
+                    <span className="inline-block px-4 py-1.5 bg-primary/20 rounded-full text-xs font-bold uppercase tracking-widest mb-4">Panel del Profesional</span>
+                    <h2 className="text-3xl md:text-5xl font-black mb-6 leading-tight">
+                      Hay <span className="text-secondary">12 nuevos pedidos</span> esperando tu presupuesto.
+                    </h2>
+                    <p className="text-white/70 text-lg mb-8">
+                      No pierdas tiempo, los clientes están activos ahora mismo en {city.split(',')[0]}.
+                    </p>
+                    <Link href="/pedidos">
+                      <Button className="h-16 px-10 rounded-2xl bg-white text-[#0e315d] font-black text-lg hover:bg-white/90">
+                        Ver Tablero de Pedidos
+                      </Button>
+                    </Link>
                   </div>
-                  <div className="bg-white/5 backdrop-blur-md p-6 rounded-3xl border border-white/10 text-center">
-                    <p className="text-4xl font-black text-secondary mb-1">12</p>
-                    <p className="text-xs font-bold text-white/50 uppercase">Nuevas</p>
+                  <div className="w-full md:w-auto grid grid-cols-2 gap-4">
+                    <div className="bg-white/5 backdrop-blur-md p-6 rounded-3xl border border-white/10 text-center">
+                      <p className="text-4xl font-black text-primary mb-1">3</p>
+                      <p className="text-xs font-bold text-white/50 uppercase">Activas</p>
+                    </div>
+                    <div className="bg-white/5 backdrop-blur-md p-6 rounded-3xl border border-white/10 text-center">
+                      <p className="text-4xl font-black text-secondary mb-1">12</p>
+                      <p className="text-xs font-bold text-white/50 uppercase">Nuevas</p>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           ) : (
-            <div className="bg-gradient-to-br from-[#0e315d] to-[#0d519b] rounded-[40px] p-8 md:p-12 text-white relative overflow-hidden">
-              <div className="absolute -top-24 -left-24 w-64 h-64 bg-primary/20 rounded-full blur-3xl" />
-              <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-secondary/20 rounded-full blur-3xl" />
-
-              <div className="relative z-10 flex flex-col md:flex-row items-center gap-12">
-                <div className="flex-1 space-y-6 text-center md:text-left">
-                  <h2 className="text-3xl md:text-5xl font-black leading-tight">¿Sos profesional y buscás trabajo?</h2>
-                  <p className="text-xl text-white/80">Unite a la red más grande de San Rafael y empezá a recibir pedidos hoy mismo.</p>
-                  <div className="pt-4">
-                    <Link href="/auth/register?provider=1">
-                      <Button className="h-16 px-10 rounded-2xl bg-white text-[#0e315d] font-black text-lg hover:bg-white/90 shadow-xl">
-                        Crear perfil profesional
-                      </Button>
-                    </Link>
-                  </div>
+            <div className="bg-gradient-to-br from-[#0e315d] to-[#0d519b] rounded-2xl md:rounded-[40px] p-6 md:p-12 text-white relative overflow-hidden">
+              {/* Mobile Compact Banner */}
+              <div className="md:hidden flex flex-col items-start gap-4 z-10 relative">
+                <div>
+                  <h2 className="text-lg font-black leading-tight mb-1">¿Sos profesional?</h2>
+                  <p className="text-sm text-white/80 leading-relaxed">Unite gratis y recibí pedidos hoy.</p>
                 </div>
-                <div className="flex-shrink-0 bg-white/10 backdrop-blur-lg p-8 rounded-[32px] border border-white/20 w-full md:w-auto">
-                  <div className="space-y-4">
-                    {[
-                      { icon: CheckCircle2, text: "Sin comisiones por trabajo" },
-                      { icon: CheckCircle2, text: "Contacto directo con el cliente" },
-                      { icon: CheckCircle2, text: "Gestión fácil de pedidos" }
-                    ].map((item, i) => (
-                      <div key={i} className="flex items-center gap-3">
-                        <item.icon className="w-6 h-6 text-secondary" />
-                        <span className="font-bold">{item.text}</span>
-                      </div>
-                    ))}
+                <Link href="/auth/register?provider=1" className="w-full">
+                  <Button className="w-full h-10 rounded-xl bg-white text-[#0e315d] font-bold text-sm hover:bg-white/90 shadow-sm">
+                    Crear perfil profesional
+                  </Button>
+                </Link>
+              </div>
+
+              {/* Desktop Rich Layout */}
+              <div className="hidden md:block relative z-10">
+                <div className="flex flex-col md:flex-row items-center gap-12">
+                  <div className="flex-1 space-y-6 text-center md:text-left">
+                    <h2 className="text-3xl md:text-5xl font-black leading-tight">¿Sos profesional y buscás trabajo?</h2>
+                    <p className="text-xl text-white/80">Unite a la red más grande de San Rafael y empezá a recibir pedidos hoy mismo.</p>
+                    <div className="pt-4">
+                      <Link href="/auth/register?provider=1">
+                        <Button className="h-16 px-10 rounded-2xl bg-white text-[#0e315d] font-black text-lg hover:bg-white/90 shadow-xl">
+                          Crear perfil profesional
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                  <div className="flex-shrink-0 bg-white/10 backdrop-blur-lg p-8 rounded-[32px] border border-white/20 w-full md:w-auto">
+                    <div className="space-y-4">
+                      {[
+                        { icon: CheckCircle2, text: "Sin comisiones por trabajo" },
+                        { icon: CheckCircle2, text: "Contacto directo con el cliente" },
+                        { icon: CheckCircle2, text: "Gestión fácil de pedidos" }
+                      ].map((item, i) => (
+                        <div key={i} className="flex items-center gap-3">
+                          <item.icon className="w-6 h-6 text-secondary" />
+                          <span className="font-bold">{item.text}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1286,8 +1375,8 @@ export default function MiservicioHome() {
       <footer className="bg-slate-50 border-t border-slate-200">
         <div className="max-w-7xl mx-auto px-4 py-16">
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
-            <div className="col-span-1 md:col-span-2">
+          <div className="flex flex-col md:grid md:grid-cols-4 gap-8 md:gap-12 mb-12">
+            <div className="w-full md:col-span-2">
               <Link href="/" className="inline-block mb-6">
                 <span className="text-2xl font-black text-primary tracking-tighter">miservicio.ar</span>
               </Link>
@@ -1295,59 +1384,63 @@ export default function MiservicioHome() {
                 La forma más rápida y segura de encontrar profesionales de confianza para tu hogar.
               </p>
             </div>
-            <div>
-              <h4 className="font-black text-[#0e315d] mb-6 uppercase tracking-widest text-xs">Páginas</h4>
-              <ul className="space-y-4 font-bold text-[#0d519b]/60">
-                <li><Link href="/pedidos/nuevo" className="hover:text-primary transition-colors">Publicar Pedido</Link></li>
-                <li><Link href="/sobre" className="hover:text-primary transition-colors">Sobre nosotros</Link></li>
-                <li><Link href="/legal/terminos" className="hover:text-primary transition-colors">Términos</Link></li>
-                <li><Link href="/legal/privacidad" className="hover:text-primary transition-colors">Privacidad</Link></li>
-              </ul>
-            </div>
-            <div className="flex flex-col items-center md:items-end justify-between">
-              <div className="flex gap-4 mb-8">
-                {/* Instagram */}
-                <a
-                  href="https://www.instagram.com/miservicio.ar"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-12 h-12 bg-white rounded-2xl shadow-sm border border-slate-200 flex items-center justify-center text-[#0e315d] hover:bg-primary hover:text-white transition-colors cursor-pointer"
-                >
-                  <svg className="w-6 h-6 fill-current" viewBox="0 0 24 24">
-                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 1.17.054 1.805.249 2.227.412.56.217.96.477 1.382.896.419.42.679.819.896 1.381.164.422.36 1.057.413 2.227.057 1.266.07 1.646.07 4.85s-.013 3.584-.07 4.85c-.054 1.17-.249 1.805-.413 2.227-.217.56-.477.96-.896 1.382-.42.419-.819.679-1.381.896-.422.164-1.057.36-2.227.413-1.266.057-1.646.07-4.85.07s-3.584-.013-4.85-.07c-1.17-.054-1.805-.249-2.227-.413-.56-.217-.96-.477-1.382-.896-.419-.42-.679-.819-.896-1.381-.164-.422-.36-1.057-.413-2.227-.057-1.266-.07-1.646-.07-4.85s.013-3.584.07-4.85c.054-1.17.249-1.805.413-2.227.217-.56.477-.96.896-1.382.42-.419.819-.679 1.381-.896.422-.164 1.057-.36 2.227-.413 1.266-.057 1.646-.07 4.85-.07zm0-2.163c-3.259 0-3.667.014-4.947.072-1.28.058-2.153.264-2.918.56-.791.307-1.462.716-2.132 1.386-.67.67-1.079 1.341-1.386 2.132-.296.765-.502 1.638-.56 2.918-.058 1.28-.072 1.688-.072 4.947s.014 3.667.072 4.947c.058 1.28.264 2.153.56 2.918.307.791.716 1.462 1.386 2.132.67.67 1.341 1.079 2.132 1.386.765.296 1.638.502 2.918.56 1.28.058 1.688.072 4.947.072s3.667-.014 4.947-.072c1.28-.058 2.153-.264 2.918-.56.791-.307 1.462-.716 2.132-1.386.67-.67 1.079-1.341 1.386-2.132.296-.765.502-1.638.56-2.918.058-1.28.072-1.688.072-4.947s-.014-3.667-.072-4.947c-.058-1.28-.264-2.153-.56-2.918-.307-.791-.716-1.462-1.386-2.132-.67-.67-1.341-1.079-2.132-1.386-.765-.296-1.638-.502-2.918-.56-1.28-.058-1.688-.072-4.947-.072zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.162 6.162 6.162 6.162-2.759 6.162-6.162-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.791-4-4s1.791-4 4-4 4 1.791 4 4-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
-                  </svg>
-                </a>
-                {/* WhatsApp */}
-                <a
-                  href="https://wa.me/542604275924"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-12 h-12 bg-white rounded-2xl shadow-sm border border-slate-200 flex items-center justify-center text-[#0e315d] hover:bg-primary hover:text-white transition-colors cursor-pointer"
-                >
-                  <svg className="w-6 h-6 fill-current" viewBox="0 0 24 24">
-                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.72.937 3.659 1.433 5.631 1.433h.005c6.554 0 11.89-5.335 11.893-11.892a11.826 11.826 0 00-3.481-8.414z" />
-                  </svg>
-                </a>
-                {/* LinkedIn */}
-                <a
-                  href="https://www.linkedin.com/company/miservicio-app/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-12 h-12 bg-white rounded-2xl shadow-sm border border-slate-200 flex items-center justify-center text-[#0e315d] hover:bg-primary hover:text-white transition-colors cursor-pointer"
-                >
-                  <svg className="w-6 h-6 fill-current" viewBox="0 0 24 24">
-                    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
-                  </svg>
-                </a>
+            {/* Mobile: 2 Columns for Pages & Socials */}
+            <div className="grid grid-cols-2 gap-4 w-full md:contents">
+              <div>
+                <h4 className="font-black text-[#0e315d] mb-6 uppercase tracking-widest text-xs">Páginas</h4>
+                <ul className="space-y-4 font-bold text-[#0d519b]/60">
+                  <li><Link href="/pedidos/nuevo" className="hover:text-primary transition-colors">Publicar Pedido</Link></li>
+                  <li><Link href="/sobre" className="hover:text-primary transition-colors">Sobre nosotros</Link></li>
+                  <li><Link href="/legal/terminos" className="hover:text-primary transition-colors">Términos</Link></li>
+                  <li><Link href="/legal/privacidad" className="hover:text-primary transition-colors">Privacidad</Link></li>
+                </ul>
               </div>
+              <div className="flex flex-col items-start md:items-end justify-between">
+                <div className="flex flex-col gap-3 mb-0">
+                  {/* Instagram */}
+                  <a
+                    href="https://www.instagram.com/miservicio.ar"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-10 h-10 bg-white rounded-xl shadow-sm border border-slate-200 flex items-center justify-center text-[#0e315d] hover:bg-primary hover:text-white transition-colors cursor-pointer"
+                  >
+                    <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                      <path d="M12 2.163c3.204 0 3.584.012 4.85.07 1.17.054 1.805.249 2.227.412.56.217.96.477 1.382.896.419.42.679.819.896 1.381.164.422.36 1.057.413 2.227.057 1.266.07 1.646.07 4.85s-.013 3.584-.07 4.85c-.054 1.17-.249 1.805-.413 2.227-.217.56-.477.96-.896 1.382-.42.419-.819.679-1.381.896-.422.164-1.057.36-2.227.413-1.266.057-1.646.07-4.85.07s-3.584-.013-4.85-.07c-1.17-.054-1.805-.249-2.227-.413-.56-.217-.96-.477-1.382-.896-.419-.42-.679-.819-.896-1.381-.164-.422-.36-1.057-.413-2.227-.057-1.266-.07-1.646-.07-4.85s.013-3.584.07-4.85c.054-1.17.249-1.805.413-2.227.217-.56.477-.96.896-1.382.42-.419.819-.679 1.381-.896.422-.164 1.057-.36 2.227-.413 1.266-.057 1.646-.07 4.85-.07zm0-2.163c-3.259 0-3.667.014-4.947.072-1.28.058-2.153.264-2.918.56-.791.307-1.462.716-2.132 1.386-.67.67-1.079 1.341-1.386 2.132-.296.765-.502 1.638-.56 2.918-.058 1.28-.072 1.688-.072 4.947s.014 3.667.072 4.947c.058 1.28.264 2.153.56 2.918.307.791.716 1.462 1.386 2.132.67.67 1.341 1.079 2.132 1.386.765.296 1.638.502 2.918.56 1.28.058 1.688.072 4.947.072s3.667-.014 4.947-.072c1.28-.058 2.153-.264 2.918-.56.791-.307 1.462-.716 2.132-1.386.67-.67 1.079-1.341 1.386-2.132.296-.765.502-1.638.56-2.918.058-1.28.072-1.688.072-4.947s-.014-3.667-.072-4.947c-.058-1.28-.264-2.153-.56-2.918-.307-.791-.716-1.462-1.386-2.132-.67-.67-1.341-1.079-2.132-1.386-.765-.296-1.638-.502-2.918-.56-1.28-.058-1.688-.072-4.947-.072zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.162 6.162 6.162 6.162-2.759 6.162-6.162-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.791-4-4s1.791-4 4-4 4 1.791 4 4-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+                    </svg>
+                  </a>
+                  {/* WhatsApp */}
+                  <a
+                    href="https://wa.me/542604275924"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-10 h-10 bg-white rounded-xl shadow-sm border border-slate-200 flex items-center justify-center text-[#0e315d] hover:bg-primary hover:text-white transition-colors cursor-pointer"
+                  >
+                    <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.72.937 3.659 1.433 5.631 1.433h.005c6.554 0 11.89-5.335 11.893-11.892a11.826 11.826 0 00-3.481-8.414z" />
+                    </svg>
+                  </a>
+                  {/* LinkedIn */}
+                  <a
+                    href="https://www.linkedin.com/company/miservicio-app/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-10 h-10 bg-white rounded-xl shadow-sm border border-slate-200 flex items-center justify-center text-[#0e315d] hover:bg-primary hover:text-white transition-colors cursor-pointer"
+                  >
+                    <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                    </svg>
+                  </a>
+                </div>
 
-              <FeedbackButton />
+                <FeedbackButton />
+              </div>
             </div>
           </div>
-          <div className="pt-8 border-t border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4 text-center">
-            <p className="text-[#0d519b]/40 font-bold text-sm">© 2025 miservicio.ar</p>
-            <div className="flex items-center gap-2 text-[#0d519b]/60 font-bold text-xs uppercase tracking-widest">
-              <MapPin className="w-4 h-4" /> San Rafael, Mendoza
+
+          <div className="pt-4 border-t border-slate-200 flex flex-row justify-between items-center gap-2 text-center md:text-left">
+            <p className="text-[#0d519b]/40 font-bold text-xs md:text-sm">© 2025 miservicio.ar</p>
+            <div className="flex items-center gap-1.5 md:gap-2 text-[#0d519b]/60 font-bold text-[10px] md:text-xs uppercase tracking-widest">
+              <MapPin className="w-3 h-3 md:w-4 md:h-4" /> San Rafael, Mendoza
             </div>
           </div>
         </div>

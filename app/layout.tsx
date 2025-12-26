@@ -4,6 +4,7 @@ import { GeistMono } from 'geist/font/mono'
 import { Analytics } from '@vercel/analytics/next'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { CityProvider } from '@/contexts/CityContext'
+import { UnreadCountProvider } from '@/contexts/UnreadCountContext'
 import { BottomNavBar } from '@/components/BottomNavBar'
 import { LayoutHeader } from '@/components/LayoutHeader'
 import { Toaster } from '@/components/Toaster'
@@ -12,13 +13,13 @@ import './globals.css'
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://miservicio.ar'),
-  title: { default: 'miservicio', template: '%s | miservicio' },
-  description: 'La plataforma más confiable para encontrar servicios de calidad en tu zona. Conectamos clientes con los mejores profesionales locales.',
-  keywords: 'servicios, profesionales, plomería, electricidad, gasistas, jardinería, mantenimiento, San Rafael, Mendoza, Argentina',
+  title: { default: 'Profesionales y Oficios de Confianza en Argentina | miservicio.ar', template: '%s | miservicio.ar' },
+  description: 'Publicá tu pedido gratis y recibí presupuestos de profesionales verificados en tu zona en minutos. Plomeros, electricistas, fletes y más. Resolvé hoy con miservicio.ar.',
+  keywords: 'servicios, profesionales, plomería, electricidad, gasistas, jardinería, mantenimiento, San Rafael, Mendoza, Argentina, presupuestos gratis',
   generator: 'miservicio.ar',
-  authors: [{ name: 'miservicio' }],
-  creator: 'miservicio',
-  publisher: 'miservicio',
+  authors: [{ name: 'miservicio.ar' }],
+  creator: 'miservicio.ar',
+  publisher: 'miservicio.ar',
   robots: { index: true, follow: true },
   alternates: { canonical: '/' },
   icons: {
@@ -30,22 +31,22 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'es_AR',
     url: '/',
-    title: 'miservicio - Conectamos personas con profesionales locales',
-    description: 'La plataforma más confiable para encontrar servicios de calidad en tu zona.',
-    siteName: 'miservicio',
+    title: 'Profesionales y Oficios de Confianza en Argentina | miservicio.ar',
+    description: 'Publicá tu pedido gratis y recibí presupuestos de profesionales verificados en tu zona en minutos. Plomeros, electricistas, fletes y más.',
+    siteName: 'miservicio.ar',
     images: [
       {
         url: '/logo.png',
         width: 1200,
         height: 630,
-        alt: 'miservicio - Conectamos personas con profesionales locales',
+        alt: 'miservicio.ar - Profesionales y Oficios de Confianza en Argentina',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'miservicio - Conectamos personas con profesionales locales',
-    description: 'La plataforma más confiable para encontrar servicios de calidad en tu zona.',
+    title: 'Profesionales y Oficios de Confianza en Argentina | miservicio.ar',
+    description: 'Publicá tu pedido gratis y recibí presupuestos de profesionales verificados en tu zona en minutos.',
   },
 }
 
@@ -61,9 +62,20 @@ export default function RootLayout({
           const orgLd = {
             "@context": "https://schema.org",
             "@type": "Organization",
-            name: "miservicio",
+            name: "miservicio.ar",
             url: "https://miservicio.ar",
             logo: "https://miservicio.ar/logo.png",
+            description: "Plataforma para conectar personas con profesionales de oficios verificados en Argentina.",
+            areaServed: {
+              "@type": "Country",
+              name: "Argentina",
+            },
+            contactPoint: {
+              "@type": "ContactPoint",
+              contactType: "customer support",
+              url: "https://miservicio.ar",
+              availableLanguage: "Spanish",
+            },
           }
           const websiteLd = {
             "@context": "https://schema.org",
@@ -85,13 +97,15 @@ export default function RootLayout({
         })()}
         <AuthProvider>
           <CityProvider>
-            <div className="min-h-screen flex flex-col">
-              <LayoutHeader />
-              <main className="flex-1">
-                {children}
-              </main>
-              <BottomNavBar />
-            </div>
+            <UnreadCountProvider>
+              <div className="min-h-screen flex flex-col overflow-x-hidden">
+                <LayoutHeader />
+                <main className="flex-1">
+                  {children}
+                </main>
+                <BottomNavBar />
+              </div>
+            </UnreadCountProvider>
           </CityProvider>
         </AuthProvider>
         <Toaster />

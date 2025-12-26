@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next'
 import { ProvidersService } from '@/lib/services/providers.service'
+import { getAllLocalizedUrls } from '@/lib/seo-config'
 
 const SITE = 'https://miservicio.ar'
 
@@ -11,6 +12,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE}/legal/terminos`, changeFrequency: 'yearly', priority: 0.2 },
     { url: `${SITE}/legal/privacidad`, changeFrequency: 'yearly', priority: 0.2 },
   ]
+
+  // Localized Service URLs (/servicios/[categoria]/[provincia]/[ciudad])
+  // These are high-priority SEO pages for local search
+  const localizedUrls = getAllLocalizedUrls()
+  for (const loc of localizedUrls) {
+    urls.push({
+      url: `${SITE}/servicios/${loc.categoria}/${loc.provincia}/${loc.ciudad}`,
+      changeFrequency: 'daily',
+      priority: 0.9, // High priority for local SEO
+    })
+  }
 
   // Dynamic Categories
   try {

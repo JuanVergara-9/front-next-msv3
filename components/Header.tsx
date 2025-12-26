@@ -5,7 +5,7 @@ import { useAuth } from "@/contexts/AuthContext"
 import { Button } from "@/components/ui/button"
 import { LogOut, User, MessageSquare, LayoutDashboard, Home, Zap, PlusCircle, ChevronDown, MapPin, Settings, HelpCircle, Shield } from "lucide-react"
 import { usePathname } from "next/navigation"
-import { useUnreadCount } from "@/hooks/use-unread-count"
+import { useUnreadCount } from "@/contexts/UnreadCountContext"
 import { isAdmin } from "@/lib/utils/admin"
 import { motion } from "framer-motion"
 import {
@@ -27,7 +27,7 @@ interface HeaderProps {
 }
 
 export const Header = ({ city }: HeaderProps) => {
-  const { user, isAuthenticated, logout } = useAuth()
+  const { user, isAuthenticated, logout, isLoading } = useAuth()
   const pathname = usePathname()
   const { unreadCount } = useUnreadCount()
   const admin = isAdmin(user)
@@ -140,7 +140,13 @@ export const Header = ({ city }: HeaderProps) => {
 
         {/* Acciones de usuario */}
         <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-          {isAuthenticated ? (
+          {isLoading ? (
+            // Skeleton loader for auth state
+            <div className="flex items-center gap-2">
+              <div className="h-8 w-20 bg-slate-100 rounded-lg animate-pulse hidden sm:block"></div>
+              <div className="h-9 w-9 bg-slate-100 rounded-full animate-pulse border-2 border-slate-50"></div>
+            </div>
+          ) : isAuthenticated ? (
             <>
               {/* Publicar Pedido CTA */}
               <Link

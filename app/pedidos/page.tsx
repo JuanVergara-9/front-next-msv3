@@ -446,14 +446,14 @@ export default function PedidosPage() {
                                 ))}
                             </div>
                         ) : (
-                            <div className="text-center py-20 bg-muted/20 rounded-[32px] border-2 border-dashed border-border/50">
-                                <ClipboardList className="w-20 h-20 text-muted-foreground mx-auto mb-6 opacity-20" />
-                                <h3 className="text-2xl font-bold mb-3">No tenés pedidos activos</h3>
-                                <p className="text-muted-foreground mb-8 max-w-sm mx-auto text-lg leading-relaxed">
+                            <div className="text-center py-12 bg-muted/20 rounded-[32px] border-2 border-dashed border-border/50">
+                                <ClipboardList className="w-16 h-16 text-muted-foreground mx-auto mb-4 opacity-20" />
+                                <h3 className="text-xl font-bold mb-2">No tenés pedidos activos</h3>
+                                <p className="text-muted-foreground mb-6 max-w-sm mx-auto text-base leading-relaxed">
                                     ¿Necesitás resolver algo? Publicá tu pedido y recibí presupuestos de profesionales locales.
                                 </p>
                                 <Link href="/pedidos/nuevo">
-                                    <Button className="bg-primary text-white scale-110 h-14 px-10 rounded-2xl font-extrabold text-xl premium-shadow-lg active:scale-95 transition-all">
+                                    <Button className="bg-primary text-white h-12 px-8 rounded-2xl font-bold text-lg premium-shadow-lg active:scale-95 transition-all">
                                         Publicar mi primer pedido
                                     </Button>
                                 </Link>
