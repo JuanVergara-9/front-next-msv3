@@ -116,6 +116,11 @@ export class ProvidersService {
     return response.items;
   }
 
+  static async getCategoriesWithCounts(): Promise<(Category & { provider_count: number })[]> {
+    const response = await apiFetch<{ items: (Category & { provider_count: number })[] }>('/api/v1/categories/with-counts');
+    return response.items;
+  }
+
   static async createContactIntent(intent: Omit<ContactIntent, 'id' | 'created_at' | 'updated_at'>): Promise<ContactIntent> {
     return apiFetch<ContactIntent>('/api/v1/contact-intents', {
       method: 'POST',

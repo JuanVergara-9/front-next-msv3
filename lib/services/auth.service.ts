@@ -5,6 +5,7 @@ export interface User {
   email: string
   role: string
   isEmailVerified: boolean
+  isProvider: boolean
   created_at: string
   updated_at: string
 }

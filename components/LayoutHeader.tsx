@@ -1,9 +1,9 @@
 "use client"
 
-import { Header } from "@/components/Header"
-import { useLocation } from "@/contexts/LocationContext"
+import { useCity } from '@/contexts/CityContext'
+import { Header } from '@/components/Header'
 
 export function LayoutHeader() {
-    const { city } = useLocation()
+    const { city } = useCity()
     return <Header city={city} />
 }

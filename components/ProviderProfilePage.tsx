@@ -17,6 +17,7 @@ import {
   MapPin,
   Phone,
   MessageCircle,
+  Shield,
   BadgeCheck,
   Wrench,
   Camera,
@@ -27,19 +28,23 @@ import {
   LogOut,
   X,
   Edit,
+  Clock,
+  Check,
+  CheckCheck,
 } from "lucide-react"
 import { useAuth } from "@/contexts/AuthContext"
 import { ReviewsService, type ReviewItem } from "@/lib/services/reviews.service"
 import { ProvidersService } from "@/lib/services/providers.service"
 import { InsightsService } from "@/lib/services/insights.service"
-
+import { Header } from "@/components/Header"
 import { useRouter } from "next/navigation"
 import { isAdmin } from "@/lib/utils/admin"
 import { EditReviewPhotosDialog } from "./EditReviewPhotosDialog"
 import { motion, AnimatePresence } from "framer-motion"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { ShieldCheck } from "lucide-react"
-import { IdentityVerificationCard } from "./IdentityVerificationCard"
+import { ChatRoom } from "@/components/chat/ChatRoom"
+import { ChatService, Conversation } from "@/lib/services/chat.service"
+import { io } from 'socket.io-client'
+import { AuthService } from '@/lib/services/auth.service'
 
 interface ProviderProfilePageProps {
   providerProfile?: any
@@ -153,6 +158,13 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
   const maxCommentLength = 2000
   const maxPhotos = 6
 
+  // Chat state
+  const [isChatOpen, setIsChatOpen] = useState(false)
+  const [chatConversationId, setChatConversationId] = useState<number | null>(null)
+  const [chatOtherUser, setChatOtherUser] = useState<{ name: string, avatar: string, profession: string } | null>(null)
+  const [conversations, setConversations] = useState<Conversation[]>([])
+  const [loadingConversations, setLoadingConversations] = useState(false)
+
   // Availability state
   const [availability, setAvailability] = useState<{ businessHours: any, emergencyAvailable: boolean } | null>(null)
   const [isAvailDialogOpen, setIsAvailDialogOpen] = useState<boolean>(false)
@@ -165,6 +177,31 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
       return u.protocol === 'http:' || u.protocol === 'https:'
     } catch {
       return false
+    }
+  }
+
+  // Format message time: show hour if today, "Ayer" if yesterday, date otherwise
+  function formatMessageTime(dateString: string): string {
+    if (!dateString) return '';
+
+    const messageDate = new Date(dateString);
+    const now = new Date();
+
+    // Reset hours to compare only dates
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const msgDate = new Date(messageDate.getFullYear(), messageDate.getMonth(), messageDate.getDate());
+
+    if (msgDate.getTime() === today.getTime()) {
+      // Today: show time
+      return messageDate.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
+    } else if (msgDate.getTime() === yesterday.getTime()) {
+      // Yesterday
+      return 'Ayer';
+    } else {
+      // Older: show date
+      return messageDate.toLocaleDateString('es-AR');
     }
   }
 
@@ -216,7 +253,7 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
       province: profile.province || "Provincia",
       ratingAvg: profile.rating || 0,
       reviewsCount90d: profile.review_count || 0,
-      identityVerified: profile.identity_status === 'verified',
+      isVerified: profile.status === 'active',
       isLicensed: !!profile.is_licensed,
       emergencyAvailable: profile.emergency_available || false,
       description: profile.description || "Descripción no disponible",
@@ -309,7 +346,96 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
     }
     loadAvailability()
     return () => { cancelled = true }
+    loadAvailability()
+    return () => { cancelled = true }
   }, [providerIdNum])
+
+  // Load conversations if owner
+  const fetchConversations = async () => {
+    if (!isOwner) return;
+    try {
+      setLoadingConversations(true)
+      const data = await ChatService.getConversations()
+      setConversations(data)
+    } catch (error) {
+      console.error('Error loading conversations:', error)
+      toast({ title: 'Error', description: 'No se pudieron cargar los mensajes' })
+    } finally {
+      setLoadingConversations(false)
+    }
+  }
+
+  // Load conversations initially for badge to work
+  useEffect(() => {
+    if (isOwner) {
+      fetchConversations()
+    }
+  }, [isOwner]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Reload conversations when entering mensajes tab (for fresh data)
+  useEffect(() => {
+    if (isOwner && activeTab === 'mensajes') {
+      fetchConversations()
+    }
+  }, [activeTab]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Socket listener for real-time message updates
+  useEffect(() => {
+    if (!isOwner) return;
+
+    const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:4003';
+    const token = AuthService.getAccessToken();
+    
+    if (!token) return;
+
+    const socket = io(socketUrl, {
+      auth: { token },
+      transports: ['websocket', 'polling']
+    });
+
+    socket.on('connect', () => {
+      console.log('Provider profile socket connected for notifications');
+    });
+
+    // Listen for new messages to update conversations list
+    socket.on('new_message_notification', (message: any) => {
+      console.log('Received new message notification:', message);
+      // Reload conversations to get updated unread counts and last message
+      fetchConversations();
+    });
+
+    // Listen for message status updates
+    socket.on('message_status_update', () => {
+      // Reload conversations when message status changes (e.g., read)
+      fetchConversations();
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [isOwner]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Marcar mensajes como leídos cuando se abre el chat
+  useEffect(() => {
+    if (isChatOpen && chatConversationId) {
+      const markAsRead = async () => {
+        try {
+          await ChatService.markAsRead(chatConversationId)
+          // Actualizar el estado local para que la badge se actualice inmediatamente
+          setConversations(prev => 
+            prev.map(c => 
+              c.id === chatConversationId 
+                ? { ...c, unreadCount: 0 }
+                : c
+            )
+          )
+        } catch (error) {
+          console.error('Error marking messages as read:', error)
+        }
+      }
+      markAsRead()
+    }
+  }, [isChatOpen, chatConversationId])
 
   function minutesToTime(m: number) {
     const h = Math.floor(m / 60).toString().padStart(2, '0')
@@ -429,14 +555,121 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
     return null;
   }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-[#2F66F5] via-[#3b82f6] to-[#2563EB]">
+  // Listen for real-time updates
+  useEffect(() => {
+    const token = AuthService.getAccessToken();
+    if (!token) return;
 
+    const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:4003';
+    const socket = io(socketUrl, {
+      auth: { token },
+      transports: ['websocket', 'polling']
+    });
+
+    socket.on('connect', () => {
+      console.log('Connected to socket for notifications');
+    });
+
+    socket.on('new_message_notification', (message: any) => {
+      console.log('New message notification:', message);
+
+      // Update conversations list
+      setConversations(prev => {
+        const existingConvIndex = prev.findIndex(c => c.id === message.conversationId);
+
+        if (existingConvIndex !== -1) {
+          // Si el chat está abierto para esta conversación, no incrementar unreadCount
+          const isCurrentChatOpen = isChatOpen && chatConversationId === message.conversationId;
+          const currentUnreadCount = prev[existingConvIndex].unreadCount || 0;
+          
+          // Move to top and update last message
+          const updatedConv = {
+            ...prev[existingConvIndex],
+            lastMessage: {
+              content: message.content,
+              createdAt: message.createdAt,
+              senderId: message.senderId
+            },
+            // Solo incrementar si el chat NO está abierto
+            unreadCount: isCurrentChatOpen ? currentUnreadCount : currentUnreadCount + 1,
+            updatedAt: message.createdAt
+          };
+
+          const newConvs = [...prev];
+          newConvs.splice(existingConvIndex, 1);
+          return [updatedConv, ...newConvs];
+        } else {
+          // New conversation (would need to fetch details, but for now just ignore or reload)
+          // Ideally we should fetch the conversation details here
+          fetchConversations();
+          return prev;
+        }
+      });
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [fetchConversations, isChatOpen, chatConversationId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Listen for new messages to update conversation list
+  useEffect(() => {
+    const token = AuthService.getAccessToken();
+    if (!token) return;
+
+    const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:4003';
+    const { io } = require('socket.io-client');
+    const socket = io(socketUrl, {
+      auth: { token },
+      transports: ['websocket', 'polling']
+    });
+
+    socket.on('new_message_notification', (message: any) => {
+      setConversations(prev => {
+        const existingConvIndex = prev.findIndex(c => c.id === message.conversationId);
+        if (existingConvIndex !== -1) {
+          // Si el chat está abierto para esta conversación, no incrementar unreadCount
+          const isCurrentChatOpen = isChatOpen && chatConversationId === message.conversationId;
+          const currentUnreadCount = prev[existingConvIndex].unreadCount || 0;
+          
+          const updatedConv = {
+            ...prev[existingConvIndex],
+            lastMessage: {
+              content: message.content,
+              createdAt: message.createdAt,
+              senderId: message.senderId
+            },
+            // Solo incrementar si el chat NO está abierto
+            unreadCount: isCurrentChatOpen ? currentUnreadCount : currentUnreadCount + 1,
+            updatedAt: message.createdAt
+          };
+          const newConvs = [...prev];
+          newConvs.splice(existingConvIndex, 1);
+          return [updatedConv, ...newConvs];
+        }
+        // If conversation doesn't exist in list, we might want to fetch it or ignore
+        // For now, we ignore to avoid complex fetching logic here
+        return prev;
+      });
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [isChatOpen, chatConversationId]);
+
+  return (
+    <div className="min-h-screen bg-[#F9FAFB] pb-20">
+      <Header city={`${providerData.city}, ${providerData.province}`} />
 
       <div className="glass-effect min-h-[calc(100vh-80px)]">
         <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
           {/* Header Principal */}
-          <div className="cascade-in cascade-delay-1">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
             <Card className="rounded-2xl shadow-xl border-0 overflow-hidden">
               <CardContent className="p-6">
                 <div className="flex flex-col md:flex-row gap-6">
@@ -526,24 +759,17 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
                               </Badge>
                             </motion.div>
                           )}
-                          {providerData.identityVerified && (
+                          {providerData.isVerified && (
                             <motion.div
                               initial={{ opacity: 0, scale: 0.8 }}
                               animate={{ opacity: 1, scale: 1 }}
-                              transition={{ duration: 0.3, delay: 0.6 }}
+                              transition={{ duration: 0.3, delay: 0.65 }}
                               whileHover={{ scale: 1.1, y: -2 }}
                             >
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Badge className="bg-blue-600 text-white border-blue-600 hover:bg-blue-700 cursor-help gap-1 pl-1">
-                                    <ShieldCheck className="h-4 w-4" />
-                                    Identidad Verificada
-                                  </Badge>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p>Identidad revisada por miservicio</p>
-                                </TooltipContent>
-                              </Tooltip>
+                              <Badge variant="outline" className="border-green-500 text-green-700">
+                                <Shield className="h-3 w-3 mr-1" />
+                                Verificado
+                              </Badge>
                             </motion.div>
                           )}
                           {providerData.emergencyAvailable && (
@@ -664,16 +890,42 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
                         >
                           <Button
                             variant="outline"
-                            className="cursor-pointer"
-                            onClick={() => {
+                            className="cursor-pointer relative overflow-visible"
+                            onClick={async () => {
                               if (!user) {
                                 const next = window.location.pathname + window.location.search + window.location.hash
                                 router.push(`/auth/login?next=${encodeURIComponent(next)}`)
                                 return
                               }
+
+                              try {
+                                // Import dynamically or use apiClient directly to avoid circular deps if any
+                                const { apiClient } = require('@/lib/apiClient');
+                                const res = await apiClient.post('/api/v1/chat/conversations', {
+                                  targetId: providerIdNum
+                                });
+                                const conversation = res.data;
+                                setChatConversationId(conversation.id);
+                                setChatOtherUser({
+                                  name: `${providerData.firstName} ${providerData.lastName}`,
+                                  avatar: providerData.avatar,
+                                  profession: providerData.category
+                                });
+                                setIsChatOpen(true);
+                              } catch (error) {
+                                console.error('Error starting chat:', error);
+                                toast({
+                                  title: "Error",
+                                  description: "No se pudo iniciar el chat. Intenta nuevamente."
+                                });
+                              }
                             }}
                           >
-                            Enviar consulta
+                            <MessageCircle className="h-4 w-4 mr-2" />
+                            Enviar mensaje
+                            <span className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 px-1.5 py-0.5 text-[10px] font-bold rounded bg-yellow-500 text-yellow-900 shadow-sm z-10 whitespace-nowrap">
+                              BETA
+                            </span>
                           </Button>
                         </motion.div>
                       </>
@@ -735,10 +987,14 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
                 </div>
               </CardContent>
             </Card>
-          </div>
+          </motion.div>
 
           {/* Tabs de contenido */}
-          <div className="cascade-in cascade-delay-2">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.6 }}
+          >
             <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
               <motion.div
                 className="w-full"
@@ -754,35 +1010,22 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
                   options={[
                     { value: "informacion", label: "Información" },
                     { value: "resenas", label: "Reseñas" },
-                    ...(SHOW_GALLERY ? [{ value: "galeria", label: "Galería" }] : [])
+                    ...(SHOW_GALLERY ? [{ value: "galeria", label: "Galería" }] : []),
+                    ...(isOwner ? (() => {
+                      const unreadCount = conversations.reduce((sum, conv) => sum + (conv.unreadCount || 0), 0);
+                      return [{
+                        value: "mensajes",
+                        label: "Mensajes",
+                        beta: true,
+                        ...(unreadCount > 0 && { badge: unreadCount })
+                      }];
+                    })() : [])
                   ]}
                 />
               </motion.div>
 
               <AnimatePresence mode="wait">
                 <TabsContent value="informacion" key="informacion" className="space-y-6">
-                  {/* Verificación de Identidad - Solo para el dueño */}
-                  {isOwner && (
-                    <IdentityVerificationCard
-                      providerProfile={propProviderProfile || {}}
-                      onUpdate={async () => {
-                        // Refrescar el perfil del proveedor
-                        try {
-                          const updated = await ProvidersService.getMyProviderProfile()
-                          if (updated) {
-                            // Actualizar el contexto de auth si es necesario
-                            // Por ahora, recargamos la página para mostrar los cambios
-                            window.location.reload()
-                          }
-                        } catch (error) {
-                          console.error('Error refreshing profile:', error)
-                          // Si falla, recargar de todas formas
-                          window.location.reload()
-                        }
-                      }}
-                    />
-                  )}
-
                   {/* Descripción */}
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -988,25 +1231,16 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
                                   transition={{ duration: 0.3, delay: 0.4 + index * 0.05 }}
                                 >
                                   <Avatar className="h-10 w-10">
-                                    <AvatarImage src={review.user_avatar || "/placeholder.svg"} alt={review.user_name?.trim() || "Usuario"} />
+                                    <AvatarImage src={review.user_avatar || "/placeholder.svg"} alt={review.user_name || "Usuario"} />
                                     <AvatarFallback>
-                                      {(() => {
-                                        const name = (review.user_name || '').trim();
-                                        if (!name || name === 'Usuario') return 'U';
-                                        return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-                                      })()}
+                                      {(review.user_name || 'Usuario').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
                                     </AvatarFallback>
                                   </Avatar>
                                 </motion.div>
                                 <div className="flex-1">
                                   <div className="flex items-center justify-between mb-2">
                                     <div className="flex items-center gap-2">
-                                      <span className="font-semibold text-[#111827]">
-                                        {(() => {
-                                          const name = (review.user_name || '').trim();
-                                          return name && name !== 'Usuario' ? name : 'Usuario';
-                                        })()}
-                                      </span>
+                                      <span className="font-semibold text-[#111827]">{review.user_name || 'Usuario'}</span>
                                       <span className="text-sm text-[#6B7280]">
                                         {review.created_at ? (() => {
                                           try {
@@ -1297,66 +1531,185 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
                     </motion.div>
                   </TabsContent>
                 )}
+
+                {isOwner && (
+                  <TabsContent value="mensajes" key="mensajes" className="space-y-6">
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -20 }}
+                      transition={{ duration: 0.4 }}
+                    >
+                      <Card className="rounded-2xl shadow-lg border-0">
+                        <CardHeader>
+                          <h2 className="text-xl font-semibold text-[#111827]">Mensajes</h2>
+                        </CardHeader>
+                        <CardContent>
+                          {loadingConversations ? (
+                            <div className="flex justify-center py-8">
+                              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                            </div>
+                          ) : conversations.length === 0 ? (
+                            <div className="text-center py-8 text-gray-500">
+                              <MessageCircle className="h-12 w-12 mx-auto mb-3 opacity-20" />
+                              <p>No tenés mensajes todavía.</p>
+                            </div>
+                          ) : (
+                            <div className="space-y-2">
+                              {conversations.map((conv) => (
+                                <motion.div
+                                  key={conv.id}
+                                  whileHover={{ scale: 1.01, backgroundColor: "rgba(249, 250, 251, 0.5)" }}
+                                  whileTap={{ scale: 0.99 }}
+                                  onClick={() => {
+                                    setChatConversationId(conv.id)
+                                    setChatOtherUser({
+                                      name: `${conv.otherUser?.firstName || ''} ${conv.otherUser?.lastName || ''}`.trim() || 'Usuario',
+                                      avatar: conv.otherUser?.avatarUrl || '/placeholder.svg',
+                                      profession: '' // Podríamos agregar esto después si lo necesitamos
+                                    })
+                                    setIsChatOpen(true)
+                                  }}
+                                  className="flex items-center gap-4 p-4 rounded-xl border border-gray-100 hover:border-blue-100 cursor-pointer transition-colors bg-white"
+                                >
+                                  <Avatar className="h-12 w-12">
+                                    <AvatarImage src={conv.otherUser?.avatarUrl} />
+                                    <AvatarFallback>{conv.otherUser?.firstName?.[0]}</AvatarFallback>
+                                  </Avatar>
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex justify-between items-start mb-1">
+                                      <h3 className="font-semibold text-gray-900 truncate">
+                                        {conv.otherUser?.firstName} {conv.otherUser?.lastName}
+                                      </h3>
+                                      <span className="text-xs text-gray-500 whitespace-nowrap ml-2">
+                                        {formatMessageTime(conv.lastMessage?.createdAt || conv.updatedAt)}
+                                      </span>
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                      {conv.lastMessage?.senderId === user?.id && (
+                                        <CheckCheck className="w-3 h-3 text-blue-500" />
+                                      )}
+                                      <p className={`text-sm truncate ${(conv.unreadCount || 0) > 0 ? 'text-gray-900 font-medium' : 'text-gray-500'
+                                        }`}>
+                                        {conv.lastMessage?.content || 'Iniciar conversación'}
+                                      </p>
+                                    </div>
+                                  </div>
+                                  {(conv.unreadCount || 0) > 0 && (
+                                    <div className="flex-shrink-0 ml-2 bg-red-500 text-white text-xs font-bold h-5 min-w-[20px] px-1.5 rounded-full flex items-center justify-center">
+                                      {conv.unreadCount}
+                                    </div>
+                                  )}
+                                </motion.div>
+                              ))}
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  </TabsContent>
+                )}
               </AnimatePresence>
             </Tabs>
-          </div>
+          </motion.div>
 
           {/* Sección de proveedores similares removida para evitar datos mock */}
         </div>
       </div>
 
       {/* Diálogo para editar fotos de reseña */}
-      {editingReviewId !== null && (
-        <EditReviewPhotosDialog
-          reviewId={editingReviewId}
-          currentPhotos={editingReviewPhotos}
-          open={editingReviewId !== null}
-          onOpenChange={(open) => {
-            if (!open) {
+      {
+        editingReviewId !== null && (
+          <EditReviewPhotosDialog
+            reviewId={editingReviewId}
+            currentPhotos={editingReviewPhotos}
+            open={editingReviewId !== null}
+            onOpenChange={(open) => {
+              if (!open) {
+                setEditingReviewId(null)
+                setEditingReviewPhotos([])
+              }
+            }}
+            onSuccess={() => {
+              loadReviews()
               setEditingReviewId(null)
               setEditingReviewPhotos([])
-            }
+            }}
+          />
+        )
+      }
+
+      {/* Botón fijo en mobile: solo visible si NO es el dueño */}
+      {
+        !isOwner && (
+          <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-200 md:hidden">
+            <Button
+              className="w-full bg-green-600 hover:bg-green-700 text-white shadow-lg cursor-pointer"
+              onClick={() => {
+                if (!user) {
+                  const next = window.location.pathname + window.location.search + window.location.hash
+                  router.push(`/auth/login?next=${encodeURIComponent(next)}`)
+                  return
+                }
+                if (providerData.whatsapp) {
+                  if (providerIdNum) {
+                    void InsightsService.trackContactClick({
+                      providerId: providerIdNum,
+                      channel: 'whatsapp',
+                      city: providerData.city,
+                      category: typeof primaryCategoryValue === 'string' ? primaryCategoryValue : undefined,
+                      userId: user?.id ?? undefined,
+                    })
+                  }
+                  const message = encodeURIComponent("Hola 👋, te contacto desde miservicio. Vi tu perfil y me interesa tu servicio, quería hacerte una consulta rápida.")
+                  window.open(`https://wa.me/${providerData.whatsapp}?text=${message}`, "_blank")
+                }
+              }}
+            >
+              <MessageCircle className="h-4 w-4 mr-2" />
+              Contactar por WhatsApp
+            </Button>
+          </div>
+        )
+      }
+
+      {/* Render ChatRoom at the end */}
+      {isChatOpen && (
+        <ChatRoom
+          conversationId={chatConversationId}
+          currentUserId={user?.id || 0}
+          provider={chatOtherUser || {
+            name: `${providerData.firstName} ${providerData.lastName}`,
+            avatar: providerData.avatar,
+            profession: providerData.category
           }}
-          onSuccess={() => {
-            loadReviews()
-            setEditingReviewId(null)
-            setEditingReviewPhotos([])
+          isOpen={isChatOpen}
+          onClose={() => setIsChatOpen(false)}
+          onMessageSent={(content) => {
+            // Update conversation list optimistically
+            setConversations(prev => {
+              const existingConvIndex = prev.findIndex(c => c.id === chatConversationId);
+              if (existingConvIndex !== -1) {
+                const updatedConv = {
+                  ...prev[existingConvIndex],
+                  lastMessage: {
+                    content,
+                    createdAt: new Date().toISOString(),
+                    senderId: user?.id || 0
+                  },
+                  updatedAt: new Date().toISOString(),
+                  unreadCount: 0 // Asegurar que se mantenga en 0
+                };
+                const newConvs = [...prev];
+                newConvs.splice(existingConvIndex, 1);
+                return [updatedConv, ...newConvs];
+              }
+              return prev;
+            });
           }}
         />
       )}
-
-      {/* Botón fijo en mobile: solo visible si NO es el dueño */}
-      {!isOwner && (
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-200 md:hidden">
-          <Button
-            className="w-full bg-green-600 hover:bg-green-700 text-white shadow-lg cursor-pointer"
-            onClick={() => {
-              if (!user) {
-                const next = window.location.pathname + window.location.search + window.location.hash
-                router.push(`/auth/login?next=${encodeURIComponent(next)}`)
-                return
-              }
-              if (providerData.whatsapp) {
-                if (providerIdNum) {
-                  void InsightsService.trackContactClick({
-                    providerId: providerIdNum,
-                    channel: 'whatsapp',
-                    city: providerData.city,
-                    category: typeof primaryCategoryValue === 'string' ? primaryCategoryValue : undefined,
-                    userId: user?.id ?? undefined,
-                  })
-                }
-                const message = encodeURIComponent("Hola 👋, te contacto desde miservicio. Vi tu perfil y me interesa tu servicio, quería hacerte una consulta rápida.")
-                window.open(`https://wa.me/${providerData.whatsapp}?text=${message}`, "_blank")
-              }
-            }}
-          >
-            <MessageCircle className="h-4 w-4 mr-2" />
-            Contactar por WhatsApp
-          </Button>
-        </div>
-      )}
-    </div>
+    </div >
   )
 }
 
