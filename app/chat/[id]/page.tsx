@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { ChatRoom } from "@/components/chat/ChatRoom"
 import { useAuth } from "@/contexts/AuthContext"
-import { Header } from "@/components/Header"
+import { LayoutHeader } from "@/components/LayoutHeader"
 
 export default function ChatPage() {
     const params = useParams()
@@ -44,7 +44,7 @@ export default function ChatPage() {
 
     return (
         <div className="min-h-screen bg-gray-50">
-            <Header />
+            <LayoutHeader />
             <main className="container mx-auto px-4 py-8">
                 <div className="max-w-4xl mx-auto">
                     <ChatRoom
