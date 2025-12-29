@@ -141,31 +141,29 @@ export class ProvidersService {
     return R * c;
   }
 
-  // Helper para obtener ubicación del usuario
+  // Helper para obtener ubicación del usuario por IP (no requiere permiso)
   static async getCurrentLocation(): Promise<{ lat: number; lng: number }> {
-    return new Promise((resolve, reject) => {
-      if (!navigator.geolocation) {
-        reject(new Error('Geolocation is not supported by this browser'));
-        return;
-      }
+    try {
+      const response = await fetch('https://ipapi.co/json/', {
+        cache: 'no-store',
+        signal: AbortSignal.timeout(5000) // 5s timeout
+      });
 
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          resolve({
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          });
-        },
-        (error) => {
-          reject(error);
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 300000, // 5 minutos
+      if (response.ok) {
+        const data = await response.json();
+        if (data.latitude && data.longitude) {
+          console.log('Location from IP:', data.city, data.region);
+          return {
+            lat: data.latitude,
+            lng: data.longitude,
+          };
         }
-      );
-    });
+      }
+      throw new Error('Invalid response from IP geolocation');
+    } catch (error) {
+      console.warn('IP geolocation failed:', error);
+      throw new Error('Could not determine location');
+    }
   }
 
   // Helper para obtener ciudad desde coordenadas (usando geolocation service)
@@ -272,5 +270,45 @@ export class ProvidersService {
       body: JSON.stringify(payload)
     });
     return res.availability;
+  }
+
+  // Subir documentos de identidad
+  static async uploadIdentityDocs(files: { dniFront: File; dniBack: File; selfie: File }): Promise<void> {
+    const base = (process.env.NEXT_PUBLIC_GATEWAY_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000').replace(/\/+$/, '')
+    const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null
+
+    const formData = new FormData()
+    formData.append('dni_front', files.dniFront)
+    formData.append('dni_back', files.dniBack)
+    formData.append('selfie', files.selfie)
+
+    const res = await fetch(`${base}/api/v1/providers/mine/identity`, {
+      method: 'POST',
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      } as any,
+      body: formData,
+    })
+
+    if (!res.ok) {
+      const text = await res.text()
+      throw new Error(text || 'Error al subir documentos')
+    }
+
+    return res.json()
+  }
+
+  // Admin: Obtener proveedores pendientes de verificación
+  static async getPendingVerifications(): Promise<Provider[]> {
+    const res = await apiFetch<{ count: number; items: Provider[] }>('/api/v1/providers/admin/list?identityStatus=pending&limit=100')
+    return res.items || []
+  }
+
+  // Admin: Revisar identidad (aprobar/rechazar)
+  static async reviewIdentity(providerId: number, status: 'verified' | 'rejected', reason?: string): Promise<void> {
+    await apiFetch(`/api/v1/providers/${providerId}/identity-review`, {
+      method: 'PUT',
+      body: JSON.stringify({ status, rejection_reason: reason }),
+    })
   }
 }

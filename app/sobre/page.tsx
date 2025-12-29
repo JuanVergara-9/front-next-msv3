@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { Mail, Phone, MapPin, Heart, Users, Shield, Star } from 'lucide-react'
+import { Mail, Phone, MapPin, Users, Shield, Star, MessageCircle } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Sobre miservicio - Conectamos personas con profesionales locales',
@@ -14,7 +14,12 @@ export default function SobrePage() {
         {/* Header */}
         <div className="text-center mb-12">
           <div className="w-20 h-20 bg-gradient-to-br from-primary to-secondary rounded-3xl flex items-center justify-center mx-auto mb-6 premium-shadow-lg">
-            <Heart className="w-10 h-10 text-white" />
+            <img
+              src="/logo.png"
+              alt="Logo miservicio"
+              className="w-14 h-14 object-contain"
+              loading="lazy"
+            />
           </div>
           <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
             Sobre miservicio
@@ -144,7 +149,7 @@ export default function SobrePage() {
               <div className="bg-white/50 rounded-xl p-6">
                 <h3 className="font-semibold text-foreground mb-3">¿Necesitás ayuda?</h3>
                 <p className="text-muted-foreground text-sm mb-4">
-                  Estamos aquí para ayudarte. Enviá un email o llamanos y te responderemos lo antes posible.
+                  Estamos aquí para ayudarte. Escribinos por WhatsApp, enviá un email o llamanos y te responderemos lo antes posible.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-2">
                   <a 
@@ -153,6 +158,15 @@ export default function SobrePage() {
                   >
                     <Mail className="w-4 h-4" />
                     Enviar email
+                  </a>
+                  <a 
+                    href="https://wa.me/542604275924"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors text-sm font-medium"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    WhatsApp
                   </a>
                   <a 
                     href="tel:+542604275924"

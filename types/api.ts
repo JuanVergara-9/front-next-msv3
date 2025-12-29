@@ -21,6 +21,7 @@ export interface Provider {
   description?: string;
   province?: string;
   city?: string;
+  locality?: string;
   address?: string;
   lat?: number;
   lng?: number;
@@ -30,8 +31,15 @@ export interface Provider {
   emergency_available: boolean;
   is_licensed?: boolean;
   business_hours?: Record<string, any>;
+  avatar_url?: string;
   created_at: string;
   updated_at: string;
+  // Nuevos campos para identidad
+  identity_status?: 'not_submitted' | 'pending' | 'verified' | 'rejected' | string;
+  identity_rejection_reason?: string | null;
+  identity_dni_front_url?: string;
+  identity_dni_back_url?: string;
+  identity_selfie_url?: string;
   // Relaciones
   category?: Category;
   user?: User;

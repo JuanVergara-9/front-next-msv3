@@ -16,10 +16,10 @@ export default function PrivacidadPage() {
             Política de Privacidad
           </h1>
           <p className="text-lg text-muted-foreground">
-            <strong>miservicio</strong>
+            <strong>Aplicación:</strong> miservicio
           </p>
           <p className="text-sm text-muted-foreground">
-            Última actualización: Octubre 2025
+            Última actualización: Diciembre 2025
           </p>
         </div>
 
@@ -27,7 +27,7 @@ export default function PrivacidadPage() {
         <div className="prose prose-lg max-w-none">
           <div className="bg-card rounded-2xl p-6 md:p-8 border border-border/50 shadow-sm">
             <p className="text-muted-foreground mb-6">
-              En miservicio valoramos tu privacidad. Esta Política explica cómo recolectamos, usamos y protegemos tu información personal.
+              En <strong>miservicio</strong> nos tomamos muy en serio la protección de tus datos personales. Esta política detalla cómo recopilamos, utilizamos y protegemos tu información, en cumplimiento con la <strong>Ley de Protección de Datos Personales N° 25.326</strong> de la República Argentina.
             </p>
 
             <div className="space-y-8">
@@ -35,17 +35,19 @@ export default function PrivacidadPage() {
               <section>
                 <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-3">
                   <span className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">1</span>
-                  Datos que recopilamos
+                  Información que recopilamos
                 </h2>
                 <div className="pl-11 space-y-3">
                   <p className="text-muted-foreground">
-                    Cuando te registrás o usás la app, podemos solicitar:
+                    Para el funcionamiento de la aplicación, recabamos los siguientes datos:
                   </p>
                   <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-4">
-                    <li>Nombre, apellido, correo electrónico, contraseña</li>
-                    <li>Teléfono, provincia, ciudad, y foto de perfil</li>
-                    <li>Información profesional (en caso de proveedores)</li>
-                    <li>Ubicación (si aceptás compartirla para mostrarte resultados cercanos)</li>
+                    <li><strong>Datos de Registro:</strong> Nombre, apellido, correo electrónico, contraseña y foto de perfil.</li>
+                    <li><strong>Datos de Contacto:</strong> Número de teléfono celular y dirección (provincia, ciudad, domicilio aproximado).</li>
+                    <li><strong>Datos del Perfil (Proveedores):</strong> Profesión, descripción de habilidades, fotos de trabajos previos y matrícula (si aplica).</li>
+                    <li><strong>Datos de Ubicación:</strong> Recopilamos tu ubicación precisa o aproximada (a través del GPS o red) <strong>solo si nos das permiso</strong>, para mostrarte servicios o clientes cercanos.</li>
+                    <li><strong>Datos Técnicos:</strong> Información sobre tu dispositivo, dirección IP y sistema operativo para fines de seguridad y mejora de la app.</li>
+                    <li><strong>Datos de Verificación de Identidad (Opcional):</strong> Si decidís verificar tu perfil, recopilaremos imágenes de tu DNI (frente y dorso) y una selfie para cotejar la identidad. Estos datos son sensibles y tienen protección reforzada.</li>
                   </ul>
                 </div>
               </section>
@@ -54,21 +56,18 @@ export default function PrivacidadPage() {
               <section>
                 <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-3">
                   <span className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">2</span>
-                  Uso de la información
+                  Finalidad: ¿Para qué usamos tus datos?
                 </h2>
                 <div className="pl-11 space-y-3">
                   <p className="text-muted-foreground">
-                    Utilizamos tus datos para:
+                    Tus datos personales serán utilizados con las siguientes finalidades:
                   </p>
-                  <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-4">
-                    <li>Crear y gestionar tu cuenta</li>
-                    <li>Mostrarte trabajadores o servicios cercanos</li>
-                    <li>Permitir la comunicación entre usuarios y proveedores</li>
-                    <li>Mejorar la experiencia en la plataforma</li>
-                  </ul>
-                  <p className="text-muted-foreground font-medium">
-                    No vendemos ni compartimos tus datos personales con terceros ajenos al funcionamiento de miservicio.
-                  </p>
+                  <ol className="list-decimal list-inside space-y-2 text-muted-foreground ml-4">
+                    <li><strong>Conexión de Servicios:</strong> Permitir que Clientes y Proveedores se encuentren y comuniquen.</li>
+                    <li><strong>Gestión de Cuenta y Verificación:</strong> Crear tu perfil, brindarte soporte y, si lo solicitás, procesar tus documentos de identidad para otorgar la insignia de “Perfil Verificado”.</li>
+                    <li><strong>Seguridad:</strong> Detectar y prevenir fraudes o usos indebidos de la plataforma.</li>
+                    <li><strong>Comunicaciones:</strong> Enviarte notificaciones sobre tu cuenta o actualizaciones del servicio.</li>
+                  </ol>
                 </div>
               </section>
 
@@ -76,15 +75,17 @@ export default function PrivacidadPage() {
               <section>
                 <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-3">
                   <span className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">3</span>
-                  Protección de datos
+                  Compartición de datos con terceros
                 </h2>
                 <div className="pl-11 space-y-3">
                   <p className="text-muted-foreground">
-                    Adoptamos medidas de seguridad razonables para proteger tu información frente a accesos no autorizados, pérdidas o usos indebidos.
+                    <strong>miservicio</strong> no vende tus datos personales. Sin embargo, para que la aplicación cumpla su función, es necesario compartir cierta información:
                   </p>
-                  <p className="text-muted-foreground">
-                    Aun así, ningún sistema es completamente seguro, por lo que no podemos garantizar una protección absoluta.
-                  </p>
+                  <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-4">
+                    <li><strong>Entre Usuarios:</strong> Al iniciar una solicitud de servicio, compartiremos datos necesarios (como nombre, foto, calificación y teléfono) con la otra parte (Cliente o Proveedor) para facilitar la coordinación. <strong>Las imágenes de tu DNI y tu selfie de verificación son de uso exclusivo del equipo de administración de miservicio y nunca se comparten ni se publican en tu perfil.</strong></li>
+                    <li><strong>Proveedores de Servicios Externos:</strong> Podemos usar servicios de terceros para alojamiento web, mapas (ej. Google Maps) o análisis de datos, quienes solo accederán a la información necesaria para prestar su servicio y bajo obligación de confidencialidad.</li>
+                    <li><strong>Requerimiento Legal:</strong> Compartiremos información si una autoridad judicial competente lo solicita formalmente.</li>
+                  </ul>
                 </div>
               </section>
 
@@ -92,17 +93,11 @@ export default function PrivacidadPage() {
               <section>
                 <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-3">
                   <span className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">4</span>
-                  Derechos del usuario
+                  Consentimiento
                 </h2>
                 <div className="pl-11 space-y-3">
                   <p className="text-muted-foreground">
-                    Podés acceder, modificar o eliminar tus datos en cualquier momento enviando una solicitud a{' '}
-                    <a 
-                      href="mailto:app.miservicio@gmail.com" 
-                      className="text-primary hover:text-primary/80 transition-colors font-medium"
-                    >
-                      app.miservicio@gmail.com
-                    </a>
+                    Al registrarte, declarás que los datos proporcionados son verdaderos y otorgás tu <strong>consentimiento expreso</strong> para que <strong>miservicio</strong> los procese conforme a esta política. La provisión de datos es voluntaria, pero la negativa a proporcionar los datos obligatorios impedirá el uso de la aplicación.
                   </p>
                 </div>
               </section>
@@ -111,14 +106,11 @@ export default function PrivacidadPage() {
               <section>
                 <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-3">
                   <span className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">5</span>
-                  Uso de cookies y almacenamiento
+                  Seguridad de la información
                 </h2>
                 <div className="pl-11 space-y-3">
                   <p className="text-muted-foreground">
-                    Podemos usar cookies o almacenamiento local (por ejemplo, tokens de sesión) para mejorar el funcionamiento de la app.
-                  </p>
-                  <p className="text-muted-foreground">
-                    Podés desactivarlas desde la configuración de tu navegador o dispositivo.
+                    Implementamos medidas técnicas y organizativas razonables para proteger tus datos contra acceso no autorizado, alteración o pérdida. Sin embargo, ningún sistema de transmisión por internet es 100% seguro, por lo que no podemos garantizar la seguridad absoluta de la información transmitida.
                   </p>
                 </div>
               </section>
@@ -127,15 +119,20 @@ export default function PrivacidadPage() {
               <section>
                 <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-3">
                   <span className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">6</span>
-                  Cambios en esta política
+                  Tus Derechos (Acceso, Rectificación y Supresión)
                 </h2>
                 <div className="pl-11 space-y-3">
                   <p className="text-muted-foreground">
-                    Podemos actualizar esta Política de Privacidad en cualquier momento.
+                    Como titular de los datos, tenés derecho a acceder a tu información, rectificarla si es errónea o solicitar su eliminación (derecho al olvido), enviando un correo a <strong>app.miservicio@gmail.com</strong>.
                   </p>
-                  <p className="text-muted-foreground">
-                    Si hay cambios importantes, te lo informaremos en la app o por correo electrónico.
-                  </p>
+                  <div className="bg-muted/50 rounded-lg p-4 mt-4 space-y-2">
+                    <p className="text-muted-foreground italic text-sm">
+                      "El titular de los datos personales tiene la facultad de ejercer el derecho de acceso a los mismos en forma gratuita a intervalos no inferiores a seis meses, salvo que se acredite un interés legítimo al efecto conforme lo establecido en el artículo 14, inciso 3 de la Ley Nº 25.326".
+                    </p>
+                    <p className="text-muted-foreground italic text-sm">
+                      "La Agencia de Acceso a la Información Pública, Órgano de Control de la Ley Nº 25.326, tiene la atribución de atender las denuncias y reclamos que se interpongan con relación al incumplimiento de las normas sobre protección de datos personales".
+                    </p>
+                  </div>
                 </div>
               </section>
 
@@ -143,11 +140,37 @@ export default function PrivacidadPage() {
               <section>
                 <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-3">
                   <span className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">7</span>
+                  Retención de datos
+                </h2>
+                <div className="pl-11 space-y-3">
+                  <p className="text-muted-foreground">
+                    Mantendremos tu información mientras tu cuenta esté activa o sea necesario para cumplir con obligaciones legales. Si decidís eliminar tu cuenta, tus datos personales serán bloqueados o eliminados, salvo aquellos que debamos conservar por ley.
+                  </p>
+                </div>
+              </section>
+
+              {/* Section 8 */}
+              <section>
+                <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-3">
+                  <span className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">8</span>
+                  Cambios en la Política
+                </h2>
+                <div className="pl-11 space-y-3">
+                  <p className="text-muted-foreground">
+                    Podemos actualizar esta política ocasionalmente. Te notificaremos sobre cambios significativos a través de la app o por email. El uso continuado de la app implica la aceptación de los nuevos términos.
+                  </p>
+                </div>
+              </section>
+
+              {/* Section 9 */}
+              <section>
+                <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-3">
+                  <span className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">9</span>
                   Contacto
                 </h2>
                 <div className="pl-11 space-y-3">
                   <p className="text-muted-foreground">
-                    Para consultas o reclamos sobre privacidad, escribinos a:
+                    Para dudas sobre privacidad, contactanos en:
                   </p>
                   <div className="bg-muted/50 rounded-lg p-4">
                     <a 

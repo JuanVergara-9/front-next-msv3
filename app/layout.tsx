@@ -9,6 +9,7 @@ import { UnreadCountProvider } from '@/contexts/UnreadCountContext'
 import { BottomNavBar } from '@/components/BottomNavBar'
 import { LayoutHeader } from '@/components/LayoutHeader'
 import { Toaster } from '@/components/Toaster'
+import { TermsUpdateHandler } from '@/components/TermsUpdateHandler'
 import Link from 'next/link'
 import './globals.css'
 
@@ -99,6 +100,7 @@ export default function RootLayout({
         <AuthProvider>
           <CityProvider>
             <UnreadCountProvider>
+              <TermsUpdateHandler />
               <div className="min-h-screen flex flex-col overflow-x-hidden">
                 <LayoutHeader />
                 <main className="flex-1">
@@ -116,3 +118,4 @@ export default function RootLayout({
     </html>
   )
 }
+

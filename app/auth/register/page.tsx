@@ -23,7 +23,7 @@ import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import toast from "react-hot-toast"
 
-const RUBROS = ["Plomería", "Gasistas", "Electricidad", "Jardinería", "Mantenimiento y limpieza de piletas", "Reparación de electrodomésticos"]
+const RUBROS = ["Plomería", "Gasistas", "Electricidad", "Jardinería", "Mantenimiento y limpieza de piletas", "Reparación de electrodomésticos", "Pintura"]
 
 // Mapeo de rubros a category_id (basado en el seeder del backend)
 const RUBRO_TO_CATEGORY_ID: { [key: string]: number } = {
@@ -32,7 +32,8 @@ const RUBRO_TO_CATEGORY_ID: { [key: string]: number } = {
   "Electricidad": 3,
   "Jardinería": 4,
   "Mantenimiento y limpieza de piletas": 5,
-  "Reparación de electrodomésticos": 6
+  "Reparación de electrodomésticos": 6,
+  "Pintura": 8
 }
 
 export default function RegisterPage() {
@@ -73,6 +74,7 @@ export default function RegisterPage() {
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({})
   const [isLoading, setIsLoading] = useState(false)
+  const [isSuccess, setIsSuccess] = useState(false)
 
   // Validar dominio de email (verificar que no sea un dominio inválido común)
   const validateEmailDomain = (email: string): boolean => {
@@ -141,6 +143,7 @@ export default function RegisterPage() {
   const validateProviderStep2 = () => {
     const newErrors: { [key: string]: string } = {}
 
+    if (!avatarFile) newErrors.avatar = "La foto de perfil es obligatoria"
     if (!providerForm.firstName) newErrors.firstName = "El nombre es requerido"
     if (!providerForm.lastName) newErrors.lastName = "El apellido es requerido"
     if (providerForm.rubros.length === 0) newErrors.rubros = "Debes seleccionar al menos un rubro"
@@ -153,6 +156,9 @@ export default function RegisterPage() {
       Number.parseInt(providerForm.yearsExperience) > 80
     ) {
       newErrors.yearsExperience = "Los años de experiencia deben estar entre 0 y 80"
+    }
+    if (!providerForm.description || providerForm.description.trim().length === 0) {
+      newErrors.description = "La descripción es obligatoria"
     }
     if (!providerForm.acceptTerms) {
       newErrors.acceptTerms = "Debes aceptar los términos y condiciones"
@@ -202,8 +208,7 @@ export default function RegisterPage() {
       }
       
       toast.success('¡Cuenta creada exitosamente!')
-      // TODO: Rehabilitar redirección a email-sent cuando la verificación por correo esté operativa
-      router.push('/profile')
+      setIsSuccess(true)
     } catch (error: any) {
       console.error('Registration error:', error)
       const errorMessage = error.message || 'Error al crear la cuenta. Intenta nuevamente.'
@@ -268,8 +273,7 @@ export default function RegisterPage() {
         try { await ProvidersService.uploadMyAvatar(avatarFile) } catch (err) { console.warn('avatar upload failed', err) }
       }
       toast.success('¡Perfil de proveedor creado exitosamente!')
-      // 4. Redirigir al perfil (mostrará vista de proveedor)
-      router.push('/profile')
+      setIsSuccess(true)
     } catch (error: any) {
       console.error('Registration error:', error)
       const errorMessage = error.message || 'Error al crear la cuenta. Intenta nuevamente.'
@@ -324,12 +328,35 @@ export default function RegisterPage() {
           </CardHeader>
 
         <CardContent className="px-8 pb-8">
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.5 }}
-          >
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <AnimatePresence mode="wait">
+            {isSuccess ? (
+              <motion.div
+                key="success"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="text-center py-8"
+              >
+                <div className="mx-auto mb-6 w-20 h-20 bg-green-100 rounded-full flex items-center justify-center">
+                  <Mail className="w-10 h-10 text-green-600" />
+                </div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">¡Casi listo!</h2>
+                <p className="text-gray-600 mb-8 leading-relaxed">
+                  Hemos enviado un correo a tu casilla. Por favor, revisa tu bandeja de entrada y haz clic en el enlace para activar tu cuenta.
+                </p>
+                <Link href="/">
+                  <Button variant="outline" className="text-sm">
+                    Volver al inicio
+                  </Button>
+                </Link>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="form"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.5 }}
+              >
+                <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <motion.div 
                 className="mb-6"
                 initial={{ opacity: 0, y: -10 }}
@@ -692,16 +719,23 @@ export default function RegisterPage() {
                             <h3 className="font-medium text-gray-900 mb-4">Perfil profesional</h3>
                     <div className="space-y-2">
                       <Label htmlFor="avatar" className="text-sm font-medium text-gray-700">
-                        Foto de perfil (opcional)
+                        Foto de perfil <span className="text-red-500">*</span>
                       </Label>
                       <Input 
                         id="avatar" 
                         type="file" 
                         accept="image/*" 
-                        onChange={(e) => setAvatarFile(e.target.files?.[0] || null)}
-                        className="file:bg-white file:cursor-pointer file:border file:border-gray-300 file:rounded-md file:px-4 file:py-2 file:mr-4 file:hover:bg-gray-50 file:text-sm file:font-medium file:text-gray-700 cursor-pointer"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0] || null
+                          setAvatarFile(file)
+                          if (file && errors.avatar) {
+                            setErrors({ ...errors, avatar: "" })
+                          }
+                        }}
+                        className={`file:bg-white file:cursor-pointer file:border file:rounded-md file:px-4 file:py-2 file:mr-4 file:hover:bg-gray-50 file:text-sm file:font-medium file:text-gray-700 cursor-pointer ${errors.avatar ? "file:border-red-500 border-red-500" : "file:border-gray-300"}`}
                       />
                       <p className="text-xs text-gray-500">JPG/PNG/WEBP hasta 5MB</p>
+                      {errors.avatar && <p className="text-red-500 text-sm">{errors.avatar}</p>}
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
@@ -850,17 +884,23 @@ export default function RegisterPage() {
 
                     <div className="space-y-2">
                       <Label htmlFor="description" className="text-sm font-medium text-gray-700">
-                        Descripción
+                        Descripción <span className="text-red-500">*</span>
                       </Label>
                       <Textarea
                         id="description"
                         placeholder="Describe tu experiencia y servicios (máx. 2000 caracteres)"
                         value={providerForm.description}
-                        onChange={(e) => setProviderForm({ ...providerForm, description: e.target.value })}
+                        onChange={(e) => {
+                          setProviderForm({ ...providerForm, description: e.target.value })
+                          if (e.target.value.trim().length > 0 && errors.description) {
+                            setErrors({ ...errors, description: "" })
+                          }
+                        }}
                         maxLength={2000}
-                        className="min-h-[100px] border-gray-300 focus:border-blue-600 focus:ring-blue-600"
+                        className={`min-h-[100px] border-gray-300 focus:border-blue-600 focus:ring-blue-600 ${errors.description ? "border-red-500" : ""}`}
                       />
                       <p className="text-xs text-gray-500 text-right">{providerForm.description.length}/2000</p>
+                      {errors.description && <p className="text-red-500 text-sm">{errors.description}</p>}
                     </div>
 
                     <div className="flex items-start space-x-2 pt-2">
@@ -938,7 +978,9 @@ export default function RegisterPage() {
               </TabsContent>
             </AnimatePresence>
           </Tabs>
-          </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </CardContent>
       </Card>
       </motion.div>

@@ -20,6 +20,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import toast from "react-hot-toast"
 import { ProvidersService } from "@/lib/services/providers.service"
 import { apiFetch } from "@/lib/apiClient"
+import { IdentityVerificationCard } from "./IdentityVerificationCard"
 
 interface UserProfile {
   id?: number
@@ -37,7 +38,7 @@ interface UserProfile {
 }
 
 export function UserProfilePage() {
-  const { user, isProvider, logout, providerProfile } = useAuth()
+  const { user, isProvider, logout, providerProfile, checkProviderProfile } = useAuth()
   const router = useRouter()
   const [userData, setUserData] = useState<UserProfileData>({
     reviewsPublished: 0,
@@ -82,12 +83,12 @@ export function UserProfilePage() {
   useEffect(() => {
     const loadBasicProfile = async () => {
       if (!user) return
-      
+
       try {
         setIsLoading(true)
         // Solo cargar el perfil básico primero para mostrar la UI rápidamente
         const myProfile = await UserProfileService.getMyProfile()
-        
+
         if (myProfile?.profile) {
           const profile = myProfile.profile
           setUserProfile(profile)
@@ -99,7 +100,7 @@ export function UserProfilePage() {
             locality: profile.locality || '',
             address: profile.address || '',
           })
-          
+
           // Si el perfil no tiene first_name y last_name, intentar recargar en background
           // sin bloquear la UI
           if (!profile.first_name && !profile.last_name) {
@@ -138,7 +139,7 @@ export function UserProfilePage() {
   useEffect(() => {
     const loadStats = async () => {
       if (!user || isLoading) return
-      
+
       try {
         setIsLoadingStats(true)
         // Intentar cargar solo estadísticas (más rápido que todo el perfil)
@@ -278,18 +279,18 @@ export function UserProfilePage() {
     // Priorizar created_at del perfil de usuario, luego del user
     // Sequelize devuelve created_at en snake_case cuando se usa underscored: true
     const dateString = createdAt || userProfile?.created_at || (userProfile as any)?.createdAt || user?.created_at
-    
+
     if (!dateString) {
       return 'N/A'
     }
-    
+
     try {
       const date = new Date(dateString)
-      
+
       if (isNaN(date.getTime())) {
         return 'N/A'
       }
-      
+
       const month = String(date.getMonth() + 1).padStart(2, '0')
       const year = date.getFullYear()
       return `${month}/${year}`
@@ -360,7 +361,7 @@ export function UserProfilePage() {
     e.preventDefault()
     e.stopPropagation()
     setIsDragging(false)
-    
+
     const file = e.dataTransfer.files?.[0]
     if (file) {
       handleFileSelect(file)
@@ -436,20 +437,20 @@ export function UserProfilePage() {
       setIsLoadingLocation(true)
       // Obtener ubicación actual
       const location = await ProvidersService.getCurrentLocation()
-      
+
       // Obtener ciudad y provincia desde coordenadas usando apiFetch
       const data = await apiFetch<{ city: string; province: string }>(
         `/api/v1/geo/reverse?lat=${location.lat}&lng=${location.lng}`,
         { cacheTtlMs: 0 } // No cachear para obtener datos frescos
       )
-      
+
       // Autocompletar solo si los campos están vacíos
       setEditForm(prev => ({
         ...prev,
         city: prev.city || data.city || '',
         province: prev.province || data.province || '',
       }))
-      
+
       toast.success('Ubicación autocompletada correctamente')
     } catch (error: any) {
       console.error('Error autocompletando ubicación:', error)
@@ -469,8 +470,8 @@ export function UserProfilePage() {
         <div className="text-center">
           <h1 className="text-2xl font-bold text-white mb-4">No estás autenticado</h1>
           <p className="text-white/80 mb-6">Inicia sesión para ver tu perfil</p>
-          <Link 
-            href="/auth/login" 
+          <Link
+            href="/auth/login"
             className="bg-white text-[#2563EB] px-6 py-3 rounded-lg font-medium hover:bg-gray-100 transition-colors"
           >
             Iniciar sesión
@@ -482,13 +483,13 @@ export function UserProfilePage() {
 
   if (isLoading) {
     return (
-      <motion.div 
+      <motion.div
         className="min-h-screen bg-gradient-to-br from-[#2F66F5] via-[#3b82f6] to-[#2563EB] flex items-center justify-center"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.3 }}
       >
-        <motion.div 
+        <motion.div
           className="text-center"
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -498,7 +499,7 @@ export function UserProfilePage() {
             <div className="absolute inset-0 border-4 border-white/20 rounded-full"></div>
             <div className="absolute inset-0 border-4 border-transparent border-t-white rounded-full animate-spin"></div>
           </div>
-          <motion.p 
+          <motion.p
             className="text-white"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -512,683 +513,639 @@ export function UserProfilePage() {
   }
 
   return (
-    <motion.div 
+    <motion.div
       className="min-h-screen bg-gradient-to-br from-[#2F66F5] via-[#3b82f6] to-[#2563EB]"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
-      {/* Header fijo */}
-      <header 
-        className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-white/20 px-4 py-3"
-      >
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          {/* Logo + marca (igual que en categorías) */}
-          <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity flex-shrink-0">
-            <img src="/logo.png" alt="miservicio" className="w-7 h-7 rounded-lg shadow-sm" />
-            <span className="text-[#2563EB] font-bold text-lg leading-none">miservicio</span>
-          </Link>
-          <div className="flex items-center gap-2">
-            <nav className="hidden sm:block text-sm text-gray-600">
-              <span>Inicio</span> / <span className="text-[#2563EB]">Perfil de Usuario</span>
-            </nav>
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Button
-                onClick={logout}
-                variant="outline"
-                size="sm"
-                aria-label="Cerrar sesión"
-                className="flex items-center gap-2"
-              >
-                <LogOut className="h-4 w-4" />
-                <span className="hidden sm:inline">Cerrar sesión</span>
-              </Button>
-            </motion.div>
-          </div>
-        </div>
-      </header>
+
 
       {/* Contenido principal con efecto glass */}
       <div className="glass-effect min-h-[calc(100vh-80px)]">
         <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
-        {/* Header Principal */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-        >
-          <Card className="rounded-2xl shadow-xl border-0 overflow-hidden">
-            <CardContent className="p-6">
-              <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
-                <motion.div 
-                  className="relative inline-block"
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.3, ease: "easeOut" }}
-                  whileHover={{ scale: 1.02 }}
-                >
-                  <Avatar className="h-24 w-24 border-4 border-white shadow-lg" key={userProfile?.avatar_url || 'no-avatar'}>
-                    {userProfile?.avatar_url ? (
-                      <AvatarImage 
-                        src={userProfile.avatar_url} 
-                        alt={getDisplayName()}
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement
-                          target.src = '/placeholder.svg'
-                        }}
-                      />
-                    ) : null}
-                    <AvatarFallback className="text-2xl bg-[#2563EB] text-white">
-                      {getInitials()}
-                    </AvatarFallback>
-                  </Avatar>
-                  {!isProvider && (
-                    <motion.button
-                      onClick={() => setIsAvatarModalOpen(true)}
-                      className="absolute -bottom-1 -right-1 cursor-pointer bg-[#2563EB] text-white rounded-full p-2 shadow-lg hover:bg-[#1d4ed8] transition-colors z-10"
-                      title="Cambiar foto de perfil"
-                      whileHover={{ scale: 1.1, rotate: 90 }}
-                      whileTap={{ scale: 0.9 }}
-                    >
-                      <Camera className="h-4 w-4" />
-                    </motion.button>
-                  )}
-                </motion.div>
-
-                <motion.div 
-                  className="flex-1 text-center md:text-left"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.5, delay: 0.4 }}
-                >
-                  <div className="flex items-center justify-center md:justify-start gap-2 mb-2">
-                    <motion.h1 
-                      className="text-3xl font-bold text-[#111827] text-balance"
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.5, delay: 0.5 }}
-                    >
-                      {getDisplayName()}
-                    </motion.h1>
+          {/* Header Principal */}
+          <div className="cascade-in cascade-delay-1">
+            <Card className="rounded-2xl shadow-xl border-0 overflow-hidden">
+              <CardContent className="p-6">
+                <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
+                  <div
+                    className="relative inline-block cascade-in cascade-delay-2"
+                  >
+                    <Avatar className="h-24 w-24 border-4 border-white shadow-lg" key={userProfile?.avatar_url || 'no-avatar'}>
+                      {userProfile?.avatar_url ? (
+                        <AvatarImage
+                          src={userProfile.avatar_url}
+                          alt={getDisplayName()}
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement
+                            target.src = '/placeholder.svg'
+                          }}
+                        />
+                      ) : null}
+                      <AvatarFallback className="text-2xl bg-[#2563EB] text-white">
+                        {getInitials()}
+                      </AvatarFallback>
+                    </Avatar>
+                    {!isProvider && (
+                      <motion.button
+                        onClick={() => setIsAvatarModalOpen(true)}
+                        className="absolute -bottom-1 -right-1 cursor-pointer bg-[#2563EB] text-white rounded-full p-2 shadow-lg hover:bg-[#1d4ed8] transition-colors z-10"
+                        title="Cambiar foto de perfil"
+                        whileHover={{ scale: 1.1, rotate: 90 }}
+                        whileTap={{ scale: 0.9 }}
+                      >
+                        <Camera className="h-4 w-4" />
+                      </motion.button>
+                    )}
                   </div>
-                  {!isProvider && (
-                    <div className="flex justify-center md:justify-start mb-2">
+
+                  <motion.div
+                    className="flex-1 text-center md:text-left"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5, delay: 0.4 }}
+                  >
+                    <div className="flex items-center justify-center md:justify-start gap-2 mb-2">
+                      <motion.h1
+                        className="text-3xl font-bold text-[#111827] text-balance"
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.5 }}
+                      >
+                        {getDisplayName()}
+                      </motion.h1>
+                    </div>
+                    {!isProvider && (
+                      <div className="flex justify-center md:justify-start mb-2">
+                        <motion.div
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setIsEditing(!isEditing)}
+                            className="h-8 px-3 cursor-pointer"
+                          >
+                            <Edit2 className="h-4 w-4 mr-1" />
+                            {isEditing ? 'Cancelar edición' : 'Editar perfil'}
+                          </Button>
+                        </motion.div>
+                      </div>
+                    )}
+                    <motion.div
+                      className="flex items-center justify-center md:justify-start gap-4 text-[#6B7280] mb-3"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.5, delay: 0.6 }}
+                    >
+                      <div className="flex items-center gap-1">
+                        <UserIcon className="h-4 w-4" />
+                        <span>{user.email}</span>
+                      </div>
+                    </motion.div>
+                    <motion.div
+                      className="flex flex-wrap gap-2 justify-center md:justify-start"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, delay: 0.7 }}
+                    >
+                      {[
+                        <Badge key="member" className="bg-[#2563EB] text-white">
+                          <Calendar className="h-3 w-3 mr-1" />
+                          Miembro desde {formatMemberSince(userProfile?.created_at || user?.created_at)}
+                        </Badge>,
+                        <Badge key="type" variant="outline" className="border-blue-500 text-blue-600">
+                          {isProvider ? 'Proveedor' : 'Usuario'}
+                        </Badge>
+                      ].map((badge, index) => (
+                        <motion.div
+                          key={index}
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ duration: 0.3, delay: 0.8 + index * 0.1 }}
+                        >
+                          {badge}
+                        </motion.div>
+                      ))}
+                    </motion.div>
+                  </motion.div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Banner para completar perfil */}
+          {hasIncompleteProfile() && !isEditing && (
+            <div className="cascade-in cascade-delay-3">
+              <Card className="rounded-2xl shadow-lg border-2 border-yellow-400 bg-gradient-to-r from-yellow-50 to-orange-50">
+                <CardContent className="p-6">
+                  <div className="flex flex-col md:flex-row items-center md:items-start gap-4">
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold text-[#111827] mb-2">
+                        Termina de configurar tu perfil
+                      </h3>
+                      <p className="text-[#6B7280] text-sm">
+                        Completa tu información de ubicación (provincia, ciudad, localidad y dirección) para mejorar tu experiencia en la plataforma.
+                      </p>
+                    </div>
+                    {!isProvider && (
                       <motion.div
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                       >
                         <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setIsEditing(!isEditing)}
-                          className="h-8 px-3 cursor-pointer"
+                          onClick={() => setIsEditing(true)}
+                          className="bg-[#2563EB] hover:bg-[#1d4ed8] text-white whitespace-nowrap"
                         >
-                          <Edit2 className="h-4 w-4 mr-1" />
-                          {isEditing ? 'Cancelar edición' : 'Editar perfil'}
+                          <Edit2 className="h-4 w-4 mr-2" />
+                          Editar perfil
                         </Button>
                       </motion.div>
-                    </div>
-                  )}
-                  <motion.div 
-                    className="flex items-center justify-center md:justify-start gap-4 text-[#6B7280] mb-3"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.5, delay: 0.6 }}
-                  >
-                    <div className="flex items-center gap-1">
-                      <UserIcon className="h-4 w-4" />
-                      <span>{user.email}</span>
-                    </div>
-                  </motion.div>
-                  <motion.div 
-                    className="flex flex-wrap gap-2 justify-center md:justify-start"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.7 }}
-                  >
-                    {[
-                      <Badge key="member" className="bg-[#2563EB] text-white">
-                        <Calendar className="h-3 w-3 mr-1" />
-                        Miembro desde {formatMemberSince(userProfile?.created_at || user?.created_at)}
-                      </Badge>,
-                      <Badge key="type" variant="outline" className="border-blue-500 text-blue-600">
-                        {isProvider ? 'Proveedor' : 'Usuario'}
-                      </Badge>
-                    ].map((badge, index) => (
-                      <motion.div
-                        key={index}
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.3, delay: 0.8 + index * 0.1 }}
-                      >
-                        {badge}
-                      </motion.div>
-                    ))}
-                  </motion.div>
-                </motion.div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        {/* Banner para completar perfil */}
-        {hasIncompleteProfile() && !isEditing && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.3 }}
-          >
-            <Card className="rounded-2xl shadow-lg border-2 border-yellow-400 bg-gradient-to-r from-yellow-50 to-orange-50">
-              <CardContent className="p-6">
-                <div className="flex flex-col md:flex-row items-center md:items-start gap-4">
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-[#111827] mb-2">
-                      Termina de configurar tu perfil
-                    </h3>
-                    <p className="text-[#6B7280] text-sm">
-                      Completa tu información de ubicación (provincia, ciudad, localidad y dirección) para mejorar tu experiencia en la plataforma.
-                    </p>
-                  </div>
-                  {!isProvider && (
-                    <motion.div
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <Button
-                        onClick={() => setIsEditing(true)}
-                        className="bg-[#2563EB] hover:bg-[#1d4ed8] text-white whitespace-nowrap"
-                      >
-                        <Edit2 className="h-4 w-4 mr-2" />
-                        Editar perfil
-                      </Button>
-                    </motion.div>
-                  )}
-                  {isProvider && (
-                    <motion.div
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <Button
-                        onClick={() => router.push('/proveedores/editar')}
-                        className="bg-[#2563EB] hover:bg-[#1d4ed8] text-white whitespace-nowrap"
-                      >
-                        <Edit2 className="h-4 w-4 mr-2" />
-                        Editar perfil
-                      </Button>
-                    </motion.div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        )}
-
-        {/* Formulario de edición */}
-        <AnimatePresence>
-          {!isProvider && isEditing && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.4, ease: "easeInOut" }}
-              className="overflow-hidden"
-            >
-              <motion.div
-                initial={{ y: -20 }}
-                animate={{ y: 0 }}
-                exit={{ y: -20 }}
-                transition={{ duration: 0.3 }}
-              >
-                <Card className="rounded-2xl shadow-lg border-0">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <h2 className="text-xl font-semibold text-[#111827]">Editar perfil</h2>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={handleAutoFillLocation}
-                    disabled={isLoadingLocation}
-                    className="flex items-center gap-2"
-                  >
-                    {isLoadingLocation ? (
-                      <>
-                        <motion.div
-                          animate={{ rotate: 360 }}
-                          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                          className="h-4 w-4 border-b-2 border-current rounded-full"
-                        />
-                        Obteniendo...
-                      </>
-                    ) : (
-                      <>
-                        <MapPin className="h-4 w-4" />
-                        Usar mi ubicación
-                      </>
                     )}
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="first_name" className="block mb-2">Nombre</Label>
-                    <Input
-                      id="first_name"
-                      value={editForm.first_name}
-                      onChange={(e) => setEditForm({ ...editForm, first_name: e.target.value })}
-                      placeholder="Ej: Juan"
-                      className="bg-white"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="last_name" className="block mb-2">Apellido</Label>
-                    <Input
-                      id="last_name"
-                      value={editForm.last_name}
-                      onChange={(e) => setEditForm({ ...editForm, last_name: e.target.value })}
-                      placeholder="Ej: Pérez"
-                      className="bg-white"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="province" className="block mb-2">Provincia</Label>
-                    <Input
-                      id="province"
-                      value={editForm.province}
-                      onChange={(e) => setEditForm({ ...editForm, province: e.target.value })}
-                      placeholder="Ej: Mendoza"
-                      className="bg-white"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="city" className="block mb-2">Ciudad o Departamento</Label>
-                    <Input
-                      id="city"
-                      value={editForm.city}
-                      onChange={(e) => setEditForm({ ...editForm, city: e.target.value })}
-                      placeholder="Ej: San Rafael"
-                      className="bg-white"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="locality" className="block mb-2">Localidad</Label>
-                    <Input
-                      id="locality"
-                      value={editForm.locality}
-                      onChange={(e) => setEditForm({ ...editForm, locality: e.target.value })}
-                      placeholder="Ej: Centro"
-                      className="bg-white"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="address" className="block mb-2">Dirección</Label>
-                    <Input
-                      id="address"
-                      value={editForm.address}
-                      onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
-                      placeholder="Ej: Calle 123"
-                      className="bg-white"
-                    />
-                  </div>
-                </div>
-                <div className="flex gap-2 justify-end">
-                  <motion.div
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        setIsEditing(false)
-                        // Restaurar valores originales
-                        if (userProfile) {
-                          setEditForm({
-                            first_name: userProfile.first_name || '',
-                            last_name: userProfile.last_name || '',
-                            province: userProfile.province || '',
-                            city: userProfile.city || '',
-                            locality: userProfile.locality || '',
-                            address: userProfile.address || '',
-                          })
-                        }
-                      }}
-                      disabled={isSaving}
-                      className="cursor-pointer"
-                    >
-                      Cancelar
-                    </Button>
-                  </motion.div>
-                  <motion.div
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <Button
-                      onClick={handleSaveProfile}
-                      disabled={isSaving}
-                      className="bg-[#2563EB] hover:bg-[#1d4ed8] text-white cursor-pointer"
-                    >
-                      {isSaving ? (
-                        <>
-                          <motion.div
-                            animate={{ rotate: 360 }}
-                            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                            className="h-4 w-4 border-b-2 border-white mr-2 rounded-full"
-                          />
-                          Guardando...
-                        </>
-                      ) : (
-                        <>
-                          <Save className="h-4 w-4 mr-2" />
-                          Guardar cambios
-                        </>
-                      )}
-                    </Button>
-                  </motion.div>
-                </div>
-              </CardContent>
-            </Card>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* CTA: Convertirse en proveedor */}
-        <AnimatePresence>
-          {!isProvider && (
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.5, delay: 0.9 }}
-            >
-              <Card className="rounded-2xl shadow-lg border-0">
-                <CardContent className="p-6">
-                  <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-                    <div className="text-center md:text-left">
-                      <h3 className="text-xl font-semibold text-[#111827] mb-1">¿Ofrecés servicios profesionales?</h3>
-                      <p className="text-[#6B7280]">Crea tu perfil y empezá a recibir clientes hoy mismo.</p>
-                    </div>
-                    <motion.div
-                      whileHover={{ scale: 1.05, y: -2 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <Button
-                        className="h-11 px-6 text-white"
-                        style={{ backgroundColor: "#2563EB" }}
-                        onClick={() => router.push('/auth/register?provider=1')}
+                    {isProvider && (
+                      <motion.div
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
                       >
-                        Convertirme en proveedor
-                      </Button>
-                    </motion.div>
+                        <Button
+                          onClick={() => router.push('/proveedores/editar')}
+                          className="bg-[#2563EB] hover:bg-[#1d4ed8] text-white whitespace-nowrap"
+                        >
+                          <Edit2 className="h-4 w-4 mr-2" />
+                          Editar perfil
+                        </Button>
+                      </motion.div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
+            </div>
+          )}
+
+          {/* Tarjeta de verificación de identidad (solo para proveedores) */}
+          {isProvider && providerProfile && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="mb-6"
+            >
+              <IdentityVerificationCard
+                providerProfile={{
+                  identity_status: (providerProfile.identity_status as any) || 'not_submitted',
+                  identity_rejection_reason: providerProfile.identity_rejection_reason
+                }}
+                onUpdate={async () => {
+                  // Recargar para ver los cambios
+                  window.location.reload()
+                }}
+              />
             </motion.div>
           )}
-        </AnimatePresence>
 
-        {/* Actividad */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 1.0 }}
-        >
-          <Card className="rounded-2xl shadow-lg border-0">
-            <CardHeader>
-              <h2 className="text-xl font-semibold text-[#111827]">Actividad</h2>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <motion.div 
-                  className="text-center p-6 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl"
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.4, delay: 1.1 }}
-                  whileHover={{ scale: 1.05, y: -5 }}
+          {/* Formulario de edición */}
+          <AnimatePresence>
+            {!isProvider && isEditing && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.4, ease: "easeInOut" }}
+                className="overflow-hidden"
+              >
+                <motion.div
+                  initial={{ y: -20 }}
+                  animate={{ y: 0 }}
+                  exit={{ y: -20 }}
+                  transition={{ duration: 0.3 }}
                 >
-                  <motion.div 
-                    className="text-3xl font-bold text-[#2563EB] mb-2"
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ duration: 0.5, delay: 1.2, type: "spring", stiffness: 200 }}
-                  >
-                    {isLoadingStats ? (
-                      <div className="inline-block h-8 w-8 border-2 border-[#2563EB] border-t-transparent rounded-full animate-spin" />
-                    ) : (
-                      userData.reviewsPublished
-                    )}
-                  </motion.div>
-                  <div className="text-[#6B7280] font-medium">Reseñas publicadas</div>
+                  <Card className="rounded-2xl shadow-lg border-0">
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <h2 className="text-xl font-semibold text-[#111827]">Editar perfil</h2>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={handleAutoFillLocation}
+                          disabled={isLoadingLocation}
+                          className="flex items-center gap-2"
+                        >
+                          {isLoadingLocation ? (
+                            <>
+                              <motion.div
+                                animate={{ rotate: 360 }}
+                                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                                className="h-4 w-4 border-b-2 border-current rounded-full"
+                              />
+                              Obteniendo...
+                            </>
+                          ) : (
+                            <>
+                              <MapPin className="h-4 w-4" />
+                              Usar mi ubicación
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="first_name" className="block mb-2">Nombre</Label>
+                          <Input
+                            id="first_name"
+                            value={editForm.first_name}
+                            onChange={(e) => setEditForm({ ...editForm, first_name: e.target.value })}
+                            placeholder="Ej: Juan"
+                            className="bg-white"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="last_name" className="block mb-2">Apellido</Label>
+                          <Input
+                            id="last_name"
+                            value={editForm.last_name}
+                            onChange={(e) => setEditForm({ ...editForm, last_name: e.target.value })}
+                            placeholder="Ej: Pérez"
+                            className="bg-white"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="province" className="block mb-2">Provincia</Label>
+                          <Input
+                            id="province"
+                            value={editForm.province}
+                            onChange={(e) => setEditForm({ ...editForm, province: e.target.value })}
+                            placeholder="Ej: Mendoza"
+                            className="bg-white"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="city" className="block mb-2">Ciudad o Departamento</Label>
+                          <Input
+                            id="city"
+                            value={editForm.city}
+                            onChange={(e) => setEditForm({ ...editForm, city: e.target.value })}
+                            placeholder="Ej: San Rafael"
+                            className="bg-white"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="locality" className="block mb-2">Localidad</Label>
+                          <Input
+                            id="locality"
+                            value={editForm.locality}
+                            onChange={(e) => setEditForm({ ...editForm, locality: e.target.value })}
+                            placeholder="Ej: Centro"
+                            className="bg-white"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="address" className="block mb-2">Dirección</Label>
+                          <Input
+                            id="address"
+                            value={editForm.address}
+                            onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
+                            placeholder="Ej: Calle 123"
+                            className="bg-white"
+                          />
+                        </div>
+                      </div>
+                      <div className="flex gap-2 justify-end">
+                        <motion.div
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          <Button
+                            variant="outline"
+                            onClick={() => {
+                              setIsEditing(false)
+                              // Restaurar valores originales
+                              if (userProfile) {
+                                setEditForm({
+                                  first_name: userProfile.first_name || '',
+                                  last_name: userProfile.last_name || '',
+                                  province: userProfile.province || '',
+                                  city: userProfile.city || '',
+                                  locality: userProfile.locality || '',
+                                  address: userProfile.address || '',
+                                })
+                              }
+                            }}
+                            disabled={isSaving}
+                            className="cursor-pointer"
+                          >
+                            Cancelar
+                          </Button>
+                        </motion.div>
+                        <motion.div
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          <Button
+                            onClick={handleSaveProfile}
+                            disabled={isSaving}
+                            className="bg-[#2563EB] hover:bg-[#1d4ed8] text-white cursor-pointer"
+                          >
+                            {isSaving ? (
+                              <>
+                                <motion.div
+                                  animate={{ rotate: 360 }}
+                                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                                  className="h-4 w-4 border-b-2 border-white mr-2 rounded-full"
+                                />
+                                Guardando...
+                              </>
+                            ) : (
+                              <>
+                                <Save className="h-4 w-4 mr-2" />
+                                Guardar cambios
+                              </>
+                            )}
+                          </Button>
+                        </motion.div>
+                      </div>
+                    </CardContent>
+                  </Card>
                 </motion.div>
-                <motion.div 
-                  className="text-center p-6 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl"
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.4, delay: 1.15 }}
-                  whileHover={{ scale: 1.05, y: -5 }}
-                >
-                  <motion.div 
-                    className="text-3xl font-bold text-green-600 mb-2"
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ duration: 0.5, delay: 1.25, type: "spring", stiffness: 200 }}
-                  >
-                    {isLoadingStats ? (
-                      <div className="inline-block h-8 w-8 border-2 border-green-600 border-t-transparent rounded-full animate-spin" />
-                    ) : (
-                      userData.contactsLast30Days
-                    )}
-                  </motion.div>
-                  <div className="text-[#6B7280] font-medium">Contactos a proveedores (30 días)</div>
-                </motion.div>
-              </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-              <h3 className="text-lg font-semibold text-[#111827] mb-4">Reseñas publicadas</h3>
-              <AnimatePresence mode="wait">
-                {userData.reviews && userData.reviews.length > 0 ? (
-                  <motion.div 
-                    className="space-y-4"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                  >
-                    {userData.reviews.map((review, index) => (
+          {/* CTA: Convertirse en proveedor */}
+          <AnimatePresence>
+            {!isProvider && (
+              <div className="cascade-in cascade-delay-4">
+                <Card className="rounded-2xl shadow-lg border-0">
+                  <CardContent className="p-6">
+                    <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                      <div className="text-center md:text-left">
+                        <h3 className="text-xl font-semibold text-[#111827] mb-1">¿Ofrecés servicios profesionales?</h3>
+                        <p className="text-[#6B7280]">Crea tu perfil y empezá a recibir clientes hoy mismo.</p>
+                      </div>
                       <motion.div
-                        key={review.id}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.4, delay: 1.3 + index * 0.1 }}
-                        whileHover={{ scale: 1.02, y: -2 }}
+                        whileHover={{ scale: 1.05, y: -2 }}
+                        whileTap={{ scale: 0.95 }}
                       >
-                        <Card className="rounded-xl border border-gray-200 hover:shadow-md transition-shadow">
-                          <CardContent className="p-4">
-                            <div className="flex items-start justify-between mb-3">
-                              <div className="flex items-center gap-2">
-                                <div className="flex items-center gap-1">
-                                  {[1, 2, 3, 4, 5].map((star) => (
-                                    <Star
-                                      key={star}
-                                      className={`h-4 w-4 ${star <= review.rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"}`}
-                                    />
-                                  ))}
-                                </div>
-                                <span className="font-semibold text-[#111827]">{review.category}</span>
-                                <span className="text-[#6B7280]">•</span>
-                                <span className="text-[#6B7280]">{review.providerName}</span>
-                              </div>
-                              <span className="text-sm text-[#6B7280]">{review.date}</span>
-                            </div>
-                            <p className="text-[#6B7280] leading-relaxed mb-3 line-clamp-3">{review.comment}</p>
-                            <button 
-                              onClick={() => router.push(`/proveedores/${review.providerId}`)}
-                              className="text-[#2563EB] hover:text-[#1d4ed8] text-sm font-medium flex items-center gap-1 transition-colors"
-                            >
-                              <Eye className="h-3 w-3" />
-                              Ver perfil del proveedor
-                            </button>
-                          </CardContent>
-                        </Card>
+                        <Button
+                          className="h-11 px-6 text-white"
+                          style={{ backgroundColor: "#2563EB" }}
+                          onClick={() => router.push('/auth/register?provider=1')}
+                        >
+                          Convertirme en proveedor
+                        </Button>
                       </motion.div>
-                    ))}
-                  </motion.div>
-                ) : (
-                  <motion.div 
-                    className="text-center py-8 text-[#6B7280]"
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+          </AnimatePresence>
+
+          {/* Actividad */}
+          <div className="cascade-in cascade-delay-5">
+            <Card className="rounded-2xl shadow-lg border-0">
+              <CardHeader>
+                <h2 className="text-xl font-semibold text-[#111827]">Actividad</h2>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                  <motion.div
+                    className="text-center p-6 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl"
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.4 }}
+                    transition={{ duration: 0.4, delay: 1.1 }}
+                    whileHover={{ scale: 1.05, y: -5 }}
                   >
-                    <Star className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                    <p className="text-lg font-medium mb-2">Aún no has publicado reseñas</p>
-                    <p className="text-sm">Cuando contactes con proveedores, podrás calificar su servicio aquí.</p>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        {/* Preferencias - Lazy loaded */}
-        <motion.div
-          ref={setPreferencesRef}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          <Card className="rounded-2xl shadow-lg border-0">
-            <CardHeader>
-              <h2 className="text-xl font-semibold text-[#111827]">Preferencias</h2>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div>
-                  <h3 className="font-medium text-[#111827] mb-3">Categorías más buscadas</h3>
-                  {isLoadingPreferences ? (
-                    <div className="flex flex-wrap gap-2">
-                      {[1, 2, 3].map((i) => (
-                        <div
-                          key={i}
-                          className="h-6 w-24 bg-gray-200 rounded-full animate-pulse"
-                        />
-                      ))}
-                    </div>
-                  ) : userData.preferredCategories && userData.preferredCategories.length > 0 ? (
-                    <div className="flex flex-wrap gap-2">
-                      {userData.preferredCategories.map((category, index) => (
-                        <motion.div
-                          key={index}
-                          initial={{ opacity: 0, scale: 0.9 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={{ duration: 0.2, delay: index * 0.03 }}
-                          whileHover={{ scale: 1.05, y: -2 }}
-                        >
-                          <Badge variant="outline" className="border-[#2563EB] text-[#2563EB]">
-                            {category}
-                          </Badge>
-                        </motion.div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-[#6B7280] text-sm">Aún no has buscado categorías específicas.</p>
-                  )}
-                </div>
-
-                <div>
-                  <h3 className="font-medium text-[#111827] mb-3">Ciudades utilizadas</h3>
-                  {isLoadingPreferences ? (
-                    <div className="flex flex-wrap gap-2">
-                      {[1, 2, 3].map((i) => (
-                        <div
-                          key={i}
-                          className="h-6 w-28 bg-gray-200 rounded-full animate-pulse"
-                        />
-                      ))}
-                    </div>
-                  ) : userData.citiesUsed && userData.citiesUsed.length > 0 ? (
-                    <div className="flex flex-wrap gap-2">
-                      {userData.citiesUsed.map((city, index) => (
-                        <motion.div
-                          key={index}
-                          initial={{ opacity: 0, scale: 0.9 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={{ duration: 0.2, delay: index * 0.03 }}
-                          whileHover={{ scale: 1.05, y: -2 }}
-                        >
-                          <Badge variant="outline" className="border-gray-400 text-gray-600">
-                            <MapPin className="h-3 w-3 mr-1" />
-                            {city}
-                          </Badge>
-                        </motion.div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-[#6B7280] text-sm">Aún no has buscado en ciudades específicas.</p>
-                  )}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        {/* Privacidad */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 1.7 }}
-        >
-          <Card className="rounded-2xl shadow-lg border-0 bg-gradient-to-r from-gray-50 to-blue-50">
-            <CardContent className="p-6">
-              <div className="flex items-start gap-3">
-                <motion.div
-                  initial={{ rotate: -180, scale: 0 }}
-                  animate={{ rotate: 0, scale: 1 }}
-                  transition={{ duration: 0.5, delay: 1.8, type: "spring", stiffness: 200 }}
-                >
-                  <Shield className="h-5 w-5 text-[#2563EB] mt-0.5" />
-                </motion.div>
-                <div className="flex-1">
-                  <h3 className="font-semibold text-[#111827] mb-2">Privacidad</h3>
-                  <p className="text-[#6B7280] text-sm leading-relaxed mb-4">
-                    Tu email permanece privado y solo es visible para ti. Tu nombre de usuario se genera automáticamente 
-                    a partir de tu email para proteger tu identidad. Tus datos están seguros y encriptados.
-                  </p>
-                  <motion.div 
-                    className="flex flex-wrap gap-4"
-                    whileHover={{ scale: 1.05 }}
-                  >
-                    <Link 
-                      href="/sobre" 
-                      className="text-[#2563EB] hover:text-[#1d4ed8] text-sm font-medium transition-colors"
+                    <motion.div
+                      className="text-3xl font-bold text-[#2563EB] mb-2"
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ duration: 0.5, delay: 1.2, type: "spring", stiffness: 200 }}
                     >
-                      Más sobre miservicio
-                    </Link>
+                      {isLoadingStats ? (
+                        <div className="inline-block h-8 w-8 border-2 border-[#2563EB] border-t-transparent rounded-full animate-spin" />
+                      ) : (
+                        userData.reviewsPublished
+                      )}
+                    </motion.div>
+                    <div className="text-[#6B7280] font-medium">Reseñas publicadas</div>
+                  </motion.div>
+                  <motion.div
+                    className="text-center p-6 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl"
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.4, delay: 1.15 }}
+                    whileHover={{ scale: 1.05, y: -5 }}
+                  >
+                    <motion.div
+                      className="text-3xl font-bold text-green-600 mb-2"
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ duration: 0.5, delay: 1.25, type: "spring", stiffness: 200 }}
+                    >
+                      {isLoadingStats ? (
+                        <div className="inline-block h-8 w-8 border-2 border-green-600 border-t-transparent rounded-full animate-spin" />
+                      ) : (
+                        userData.contactsLast30Days
+                      )}
+                    </motion.div>
+                    <div className="text-[#6B7280] font-medium">Contactos a proveedores (30 días)</div>
                   </motion.div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
 
-        {/* Botón "Reportar problema" - Sutil al final */}
-        <div className="text-center py-4">
-          <button
-            onClick={() => setIsFeedbackModalOpen(true)}
-            className="text-sm text-[#6B7280] hover:text-[#2563EB] transition-colors cursor-pointer"
+                <h3 className="text-lg font-semibold text-[#111827] mb-4">Reseñas publicadas</h3>
+                <AnimatePresence mode="wait">
+                  {userData.reviews && userData.reviews.length > 0 ? (
+                    <motion.div
+                      className="space-y-4"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                    >
+                      {userData.reviews.map((review, index) => (
+                        <motion.div
+                          key={review.id}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ duration: 0.4, delay: 1.3 + index * 0.1 }}
+                          whileHover={{ scale: 1.02, y: -2 }}
+                        >
+                          <Card className="rounded-xl border border-gray-200 hover:shadow-md transition-shadow">
+                            <CardContent className="p-4">
+                              <div className="flex items-start justify-between mb-3">
+                                <div className="flex items-center gap-2">
+                                  <div className="flex items-center gap-1">
+                                    {[1, 2, 3, 4, 5].map((star) => (
+                                      <Star
+                                        key={star}
+                                        className={`h-4 w-4 ${star <= review.rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"}`}
+                                      />
+                                    ))}
+                                  </div>
+                                  <span className="font-semibold text-[#111827]">{review.category}</span>
+                                  <span className="text-[#6B7280]">•</span>
+                                  <span className="text-[#6B7280]">{review.providerName}</span>
+                                </div>
+                                <span className="text-sm text-[#6B7280]">{review.date}</span>
+                              </div>
+                              <p className="text-[#6B7280] leading-relaxed mb-3 line-clamp-3">{review.comment}</p>
+                              <button
+                                onClick={() => router.push(`/proveedores/${review.providerId}`)}
+                                className="text-[#2563EB] hover:text-[#1d4ed8] text-sm font-medium flex items-center gap-1 transition-colors"
+                              >
+                                <Eye className="h-3 w-3" />
+                                Ver perfil del proveedor
+                              </button>
+                            </CardContent>
+                          </Card>
+                        </motion.div>
+                      ))}
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      className="text-center py-8 text-[#6B7280]"
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.4 }}
+                    >
+                      <Star className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                      <p className="text-lg font-medium mb-2">Aún no has publicado reseñas</p>
+                      <p className="text-sm">Cuando contactes con proveedores, podrás calificar su servicio aquí.</p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Preferencias - Lazy loaded */}
+          <div
+            ref={setPreferencesRef}
+            className="cascade-in cascade-delay-6"
           >
-            Reportar problema
-          </button>
-        </div>
+            <Card className="rounded-2xl shadow-lg border-0">
+              <CardHeader>
+                <h2 className="text-xl font-semibold text-[#111827]">Preferencias</h2>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="font-medium text-[#111827] mb-3">Categorías más buscadas</h3>
+                    {isLoadingPreferences ? (
+                      <div className="flex flex-wrap gap-2">
+                        {[1, 2, 3].map((i) => (
+                          <div
+                            key={i}
+                            className="h-6 w-24 bg-gray-200 rounded-full animate-pulse"
+                          />
+                        ))}
+                      </div>
+                    ) : userData.preferredCategories && userData.preferredCategories.length > 0 ? (
+                      <div className="flex flex-wrap gap-2">
+                        {userData.preferredCategories.map((category, index) => (
+                          <motion.div
+                            key={index}
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.2, delay: index * 0.03 }}
+                            whileHover={{ scale: 1.05, y: -2 }}
+                          >
+                            <Badge variant="outline" className="border-[#2563EB] text-[#2563EB]">
+                              {category}
+                            </Badge>
+                          </motion.div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-[#6B7280] text-sm">Aún no has buscado categorías específicas.</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <h3 className="font-medium text-[#111827] mb-3">Ciudades utilizadas</h3>
+                    {isLoadingPreferences ? (
+                      <div className="flex flex-wrap gap-2">
+                        {[1, 2, 3].map((i) => (
+                          <div
+                            key={i}
+                            className="h-6 w-28 bg-gray-200 rounded-full animate-pulse"
+                          />
+                        ))}
+                      </div>
+                    ) : userData.citiesUsed && userData.citiesUsed.length > 0 ? (
+                      <div className="flex flex-wrap gap-2">
+                        {userData.citiesUsed.map((city, index) => (
+                          <motion.div
+                            key={index}
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.2, delay: index * 0.03 }}
+                            whileHover={{ scale: 1.05, y: -2 }}
+                          >
+                            <Badge variant="outline" className="border-gray-400 text-gray-600">
+                              <MapPin className="h-3 w-3 mr-1" />
+                              {city}
+                            </Badge>
+                          </motion.div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-[#6B7280] text-sm">Aún no has buscado en ciudades específicas.</p>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Privacidad */}
+          <div className="cascade-in cascade-delay-7">
+            <Card className="rounded-2xl shadow-lg border-0 bg-gradient-to-r from-gray-50 to-blue-50">
+              <CardContent className="p-6">
+                <div className="flex items-start gap-3">
+                  <div>
+                    <Shield className="h-5 w-5 text-[#2563EB] mt-0.5" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-[#111827] mb-2">Privacidad</h3>
+                    <p className="text-[#6B7280] text-sm leading-relaxed mb-4">
+                      Tu email permanece privado y solo es visible para ti. Tu nombre de usuario se genera automáticamente
+                      a partir de tu email para proteger tu identidad. Tus datos están seguros y encriptados.
+                    </p>
+                    <div className="flex flex-wrap gap-4">
+                      <Link
+                        href="/sobre"
+                        className="text-[#2563EB] hover:text-[#1d4ed8] text-sm font-medium transition-colors"
+                      >
+                        Más sobre miservicio
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Botón "Reportar problema" - Sutil al final */}
+          <div className="text-center py-4">
+            <button
+              onClick={() => setIsFeedbackModalOpen(true)}
+              className="text-sm text-[#6B7280] hover:text-[#2563EB] transition-colors cursor-pointer"
+            >
+              Reportar problema
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Modal para reportar problema */}
-      <Dialog 
-        open={isFeedbackModalOpen} 
+      <Dialog
+        open={isFeedbackModalOpen}
         onOpenChange={(open) => {
           setIsFeedbackModalOpen(open)
           if (!open) {
@@ -1205,13 +1162,13 @@ export function UserProfilePage() {
           <DialogHeader>
             <DialogTitle>Reportar problema</DialogTitle>
           </DialogHeader>
-          
+
           <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="feedback-type">Tipo de reporte</Label>
               <Select
                 value={feedbackForm.type}
-                onValueChange={(value: 'bug' | 'feature_request' | 'complaint' | 'other') => 
+                onValueChange={(value: 'bug' | 'feature_request' | 'complaint' | 'other') =>
                   setFeedbackForm({ ...feedbackForm, type: value })
                 }
               >
@@ -1294,8 +1251,8 @@ export function UserProfilePage() {
       </Dialog>
 
       {/* Modal para subir/quitar foto de perfil */}
-      <Dialog 
-        open={isAvatarModalOpen} 
+      <Dialog
+        open={isAvatarModalOpen}
         onOpenChange={(open) => {
           setIsAvatarModalOpen(open)
           if (!open) {
@@ -1312,7 +1269,7 @@ export function UserProfilePage() {
           <DialogHeader>
             <DialogTitle>Cambiar foto de perfil</DialogTitle>
           </DialogHeader>
-          
+
           <div className="space-y-4">
             {/* Zona de arrastrar y soltar */}
             <div
@@ -1322,8 +1279,8 @@ export function UserProfilePage() {
               onDrop={handleDrop}
               className={`
                 relative border-2 border-dashed rounded-lg p-8 text-center transition-colors
-                ${isDragging 
-                  ? 'border-[#2563EB] bg-blue-50' 
+                ${isDragging
+                  ? 'border-[#2563EB] bg-blue-50'
                   : 'border-gray-300 hover:border-gray-400'
                 }
                 ${previewUrl ? 'border-solid border-[#2563EB]' : ''}
@@ -1390,7 +1347,7 @@ export function UserProfilePage() {
                   </>
                 )}
               </Button>
-              
+
               {userProfile?.avatar_url && (
                 <Button
                   onClick={handleDeleteAvatar}
@@ -1422,7 +1379,7 @@ export function UserProfilePage() {
           </div>
         </DialogContent>
       </Dialog>
-      </motion.div>
+    </motion.div>
   )
 }
 

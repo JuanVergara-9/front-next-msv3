@@ -20,8 +20,12 @@ import {
   Calendar,
   X,
   Download,
-  Filter
+  Filter,
+  ShieldAlert,
+  ChevronRight
 } from 'lucide-react'
+import { ProvidersService } from "@/lib/services/providers.service"
+import Link from "next/link"
 import {
   AreaChart,
   Area,
@@ -208,6 +212,7 @@ export default function AdminMetricsPage() {
   const [error, setError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState('30d')
   const [showReportModal, setShowReportModal] = useState(false)
+  const [pendingCount, setPendingCount] = useState(0)
 
   const { from, to } = useMemo(() => {
     const to = new Date()
@@ -248,6 +253,14 @@ export default function AdminMetricsPage() {
     }
     load()
   }, [user, isLoading, router, from, to])
+
+  // Cargar verificaciones pendientes
+  useEffect(() => {
+    if (!user || !isAdmin(user)) return
+    ProvidersService.getPendingVerifications()
+      .then(list => setPendingCount(list.length))
+      .catch(console.error)
+  }, [user])
 
   // Datos simulados para el gráfico (Trendline) - En producción, estos vendrían del backend
   const dataChart = useMemo(() => [
@@ -346,6 +359,29 @@ export default function AdminMetricsPage() {
             color="indigo"
           />
         </section>
+
+        {/* Widget de Verificaciones Pendientes */}
+        <Link href="/admin/verificaciones">
+          <div className="bg-white rounded-2xl p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border-l-4 border-l-orange-500 hover:shadow-lg transition-shadow cursor-pointer">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className={`p-3 rounded-xl ${pendingCount > 0 ? 'bg-orange-50 text-orange-600 animate-pulse' : 'bg-gray-50 text-gray-400'}`}>
+                  <ShieldAlert size={24} strokeWidth={2.5} />
+                </div>
+                <div>
+                  <h3 className="text-slate-500 text-sm font-medium mb-1">Verificaciones Pendientes</h3>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-3xl font-bold text-slate-900 tracking-tight">{pendingCount}</span>
+                    <span className="text-xs text-slate-400 font-medium">
+                      {pendingCount > 0 ? "Requieren tu atención" : "Todo verificado"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <ChevronRight className="h-5 w-5 text-slate-400" />
+            </div>
+          </div>
+        </Link>
 
         {/* Sección 2: Gráfico y Resumen de Actividad */}
         <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
