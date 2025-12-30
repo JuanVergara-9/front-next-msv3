@@ -43,16 +43,14 @@ export class OrdersService {
         images?: string[];
         budget_estimate?: string;
     }): Promise<Order> {
-        const response = await apiFetch<{ order: Order }>('/api/v1/orders', {
+        return apiFetch<Order>('/api/v1/orders', {
             method: 'POST',
             body: JSON.stringify(data),
         });
-        return response.order;
     }
 
     static async getMyOrders(): Promise<Order[]> {
-        const response = await apiFetch<{ orders: Order[] }>('/api/v1/orders/mine');
-        return response.orders;
+        return apiFetch<Order[]>('/api/v1/orders/mine');
     }
 
     static async getFeed(): Promise<Order[]> {
