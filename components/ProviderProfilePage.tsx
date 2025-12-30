@@ -31,6 +31,7 @@ import {
   Clock,
   Check,
   CheckCheck,
+  Loader2,
 } from "lucide-react"
 import { useAuth } from "@/contexts/AuthContext"
 import { ReviewsService, type ReviewItem } from "@/lib/services/reviews.service"
@@ -156,6 +157,7 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
   const [editingReviewId, setEditingReviewId] = useState<number | null>(null)
   const [editingReviewPhotos, setEditingReviewPhotos] = useState<string[]>([])
   const [activeTab, setActiveTab] = useState<string>('informacion')
+  const [isStartingChat, setIsStartingChat] = useState(false)
   const maxCommentLength = 2000
   const maxPhotos = 6
 
@@ -890,38 +892,49 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
                           <Button
                             variant="outline"
                             className="cursor-pointer relative overflow-visible"
+                            disabled={isStartingChat}
                             onClick={async () => {
                               if (!user) {
+                                toast({
+                                  title: "Iniciá sesión",
+                                  description: "Tenés que estar logueado para enviar mensajes.",
+                                });
                                 const next = window.location.pathname + window.location.search + window.location.hash
                                 router.push(`/auth/login?next=${encodeURIComponent(next)}`)
                                 return
                               }
 
+                              if (!providerIdNum) return;
+
                               try {
-                                // Import dynamically or use apiClient directly to avoid circular deps if any
-                                const { apiClient } = require('@/lib/apiClient');
-                                const res = await apiClient.post('/api/v1/chat/conversations', {
-                                  targetId: providerIdNum
-                                });
-                                const conversation = res.data;
-                                setChatConversationId(conversation.id);
-                                setChatOtherUser({
-                                  name: `${providerData.firstName} ${providerData.lastName}`,
-                                  avatar: providerData.avatar,
-                                  profession: providerData.category
-                                });
-                                setIsChatOpen(true);
+                                setIsStartingChat(true);
+                                const conversation = await ChatService.createOrGetConversation(providerIdNum);
+                                
+                                // Redirección explícita a la página de chat
+                                router.push(`/mensajes/${conversation.id}`);
                               } catch (error) {
                                 console.error('Error starting chat:', error);
                                 toast({
                                   title: "Error",
-                                  description: "No se pudo iniciar el chat. Intenta nuevamente."
+                                  description: "No se pudo iniciar el chat. Intenta nuevamente.",
+                                  variant: "destructive"
                                 });
+                              } finally {
+                                setIsStartingChat(false);
                               }
                             }}
                           >
-                            <MessageCircle className="h-4 w-4 mr-2" />
-                            Enviar mensaje
+                            {isStartingChat ? (
+                              <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Iniciando...
+                              </>
+                            ) : (
+                              <>
+                                <MessageCircle className="h-4 w-4 mr-2" />
+                                Enviar mensaje
+                              </>
+                            )}
                             <span className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 px-1.5 py-0.5 text-[10px] font-bold rounded bg-yellow-500 text-yellow-900 shadow-sm z-10 whitespace-nowrap">
                               BETA
                             </span>
