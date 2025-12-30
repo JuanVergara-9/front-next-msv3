@@ -15,6 +15,7 @@ export interface Postulation {
         avatar_url?: string;
         category?: { name: string };
     };
+    conversationId?: number | null;
 }
 
 export interface Order {

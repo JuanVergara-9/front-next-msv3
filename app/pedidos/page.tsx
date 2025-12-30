@@ -448,7 +448,7 @@ export default function PedidosPage() {
                                                                                 size="sm" 
                                                                                 variant="outline" 
                                                                                 className="rounded-xl border-primary text-primary font-bold flex items-center gap-1"
-                                                                                onClick={() => router.push('/mensajes')}
+                                                                                onClick={() => router.push(p.conversationId ? `/mensajes/${p.conversationId}` : '/mensajes')}
                                                                             >
                                                                                 <MessageCircle className="w-4 h-4" />
                                                                                 Chatear
