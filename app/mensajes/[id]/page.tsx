@@ -171,7 +171,7 @@ export default function ChatConversationPage() {
             </div>
 
             {/* Input */}
-            <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-border/40">
+            <div className="fixed bottom-0 left-0 right-0 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] bg-white border-t border-border/40">
                 <form onSubmit={handleSend} className="flex gap-2 max-w-4xl mx-auto">
                     <input
                         type="text"

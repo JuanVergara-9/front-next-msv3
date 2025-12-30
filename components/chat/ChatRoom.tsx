@@ -191,7 +191,7 @@ export const ChatRoom: React.FC<ChatRoomProps> = ({
                         </div>
 
                         {/* Input Area */}
-                        <div className="p-4 border-t bg-white dark:bg-gray-900">
+                        <div className="p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] border-t bg-white dark:bg-gray-900">
                             <form onSubmit={handleSend} className="flex gap-2">
                                 <input
                                     type="text"

@@ -26,6 +26,11 @@ export const BottomNavBar = React.memo(function BottomNavBar({
   const { user } = useAuth()
   const { unreadCount } = useUnreadCount()
   const admin = isAdmin(user)
+
+  // Ocultar la barra de navegación en la pantalla de chat específico en mobile
+  const isSpecificChat = pathname?.startsWith('/mensajes/') && pathname !== '/mensajes'
+  if (isSpecificChat) return null
+
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-[100] glass-effect border-t border-border/50 px-2 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] bg-white md:hidden w-full max-w-[100vw] overflow-x-hidden">
       <div className="max-w-7xl mx-auto">
