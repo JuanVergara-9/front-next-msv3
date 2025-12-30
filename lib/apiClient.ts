@@ -7,7 +7,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_GATEWAY_URL || process.env.NEXT_PUB
 export const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || (
   API_BASE_URL.includes('localhost') 
     ? 'http://localhost:4003' 
-    : API_BASE_URL.replace('api-gateway', 'provider-service') // Intento de derivación común en Railway
+    : API_BASE_URL // En producción usamos el Gateway para todo (Sockets incluidos por proxy)
 )
 
 // Caché simple en memoria para GET (TTL configurable)

@@ -143,27 +143,34 @@ export class ProvidersService {
 
   // Helper para obtener ubicación del usuario por IP (no requiere permiso)
   static async getCurrentLocation(): Promise<{ lat: number; lng: number }> {
-    try {
-      const response = await fetch('https://ipapi.co/json/', {
-        cache: 'no-store',
-        signal: AbortSignal.timeout(5000) // 5s timeout
-      });
+    // Intentar con un par de servicios por si uno falla por CORS/Quota
+    const services = [
+      'https://ipapi.co/json/',
+      'https://ip-api.com/json/'
+    ];
 
-      if (response.ok) {
-        const data = await response.json();
-        if (data.latitude && data.longitude) {
-          console.log('Location from IP:', data.city, data.region);
-          return {
-            lat: data.latitude,
-            lng: data.longitude,
-          };
+    for (const url of services) {
+      try {
+        const response = await fetch(url, {
+          cache: 'no-store',
+          signal: AbortSignal.timeout(3000)
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const lat = data.latitude || data.lat;
+          const lng = data.longitude || data.lon;
+          if (lat && lng) {
+            return { lat, lng };
+          }
         }
+      } catch (e) {
+        console.warn(`IP geolocation failed for ${url}:`, e);
       }
-      throw new Error('Invalid response from IP geolocation');
-    } catch (error) {
-      console.warn('IP geolocation failed:', error);
-      throw new Error('Could not determine location');
     }
+    
+    // Default fallback coordinates (San Rafael, Mendoza) if everything fails
+    return { lat: -34.6177, lng: -68.3301 };
   }
 
   // Helper para obtener ciudad desde coordenadas (usando geolocation service)

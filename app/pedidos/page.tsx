@@ -153,28 +153,32 @@ export default function PedidosPage() {
     useEffect(() => {
         const loadInitialData = async () => {
             setLoading(true)
+            
+            // 1. Cargar Pedidos (Prioridad Alta)
             try {
-                // Location
-                const location = await ProvidersService.getCurrentLocation()
-                const cityName = await ProvidersService.getCityFromCoords(location.lat, location.lng)
-                setCity(cityName || "San Rafael, Mendoza")
-
-                // Feed if provider
-                if (isProvider) {
-                    const feed = await OrdersService.getFeed()
-                    setFeedOrders(feed)
-
-                    // Count active postulations
-                    // Extract from my postulations if we had a dedicated endpoint, 
-                    // for now calculating from 3 - count of 'SENT' but we don't have all postulations here.
-                    // The backend will enforce it anyway.
-                }
-
-                // Customer orders
                 const mine = await OrdersService.getMyOrders()
                 setMyOrders(mine)
             } catch (err) {
-                console.error("Error loading data:", err)
+                console.error("Error loading my orders:", err)
+            }
+
+            // 2. Cargar Feed si es proveedor
+            if (isProvider) {
+                try {
+                    const feed = await OrdersService.getFeed()
+                    setFeedOrders(feed)
+                } catch (err) {
+                    console.error("Error loading feed:", err)
+                }
+            }
+
+            // 3. Cargar Ubicación (Opcional, no bloquea lo anterior)
+            try {
+                const location = await ProvidersService.getCurrentLocation()
+                const cityName = await ProvidersService.getCityFromCoords(location.lat, location.lng)
+                if (cityName) setCity(cityName)
+            } catch (err) {
+                console.warn("Could not determine location, using default:", err)
             } finally {
                 setLoading(false)
             }
