@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { AuthService } from '@/lib/services/auth.service';
+import { SOCKET_URL } from '@/lib/apiClient';
 
 export interface Message {
     id?: number;
@@ -76,7 +77,7 @@ export const useChat = ({ conversationId }: UseChatProps) => {
             return;
         }
 
-        const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:4003';
+        const socketUrl = SOCKET_URL;
 
         // Initialize Socket
         const socket = io(socketUrl, {

@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { apiClient } from '@/lib/apiClient';
+import { apiClient, SOCKET_URL } from '@/lib/apiClient';
 import { AuthService } from '@/lib/services/auth.service';
 
 interface UnreadCountContextType {
@@ -83,7 +83,7 @@ export function UnreadCountProvider({ children }: { children: React.ReactNode })
     const token = AuthService.getAccessToken();
     if (!token) return;
 
-    const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:4003';
+    const socketUrl = SOCKET_URL;
     
     try {
       const { io } = require('socket.io-client');

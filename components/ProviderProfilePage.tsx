@@ -45,6 +45,7 @@ import { ChatRoom } from "@/components/chat/ChatRoom"
 import { ChatService, Conversation } from "@/lib/services/chat.service"
 import { io } from 'socket.io-client'
 import { AuthService } from '@/lib/services/auth.service'
+import { SOCKET_URL } from '@/lib/apiClient'
 
 interface ProviderProfilePageProps {
   providerProfile?: any
@@ -383,7 +384,7 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
   useEffect(() => {
     if (!isOwner) return;
 
-    const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:4003';
+    const socketUrl = SOCKET_URL;
     const token = AuthService.getAccessToken();
     
     if (!token) return;
@@ -560,7 +561,7 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
     const token = AuthService.getAccessToken();
     if (!token) return;
 
-    const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:4003';
+    const socketUrl = SOCKET_URL;
     const socket = io(socketUrl, {
       auth: { token },
       transports: ['websocket', 'polling']
@@ -617,7 +618,7 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
     const token = AuthService.getAccessToken();
     if (!token) return;
 
-    const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:4003';
+    const socketUrl = SOCKET_URL;
     const { io } = require('socket.io-client');
     const socket = io(socketUrl, {
       auth: { token },

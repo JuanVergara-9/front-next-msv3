@@ -3,6 +3,13 @@ import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 // Base del API: priorizar Gateway; fallback a NEXT_PUBLIC_API_BASE_URL y luego localhost:4000
 const API_BASE_URL = process.env.NEXT_PUBLIC_GATEWAY_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000'
 
+// URL del Socket: priorizar NEXT_PUBLIC_SOCKET_URL; derivar de API_BASE_URL si no existe
+export const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || (
+  API_BASE_URL.includes('localhost') 
+    ? 'http://localhost:4003' 
+    : API_BASE_URL.replace('api-gateway', 'provider-service') // Intento de derivación común en Railway
+)
+
 // Caché simple en memoria para GET (TTL configurable)
 type CacheEntry<T> = { expiresAt: number; data: T }
 const requestCache = new Map<string, CacheEntry<any>>()
