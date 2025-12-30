@@ -8,7 +8,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
-import { ClipboardList, Plus, Search, MapPin, Clock, Camera } from "lucide-react"
+import { ClipboardList, Plus, Search, MapPin, Clock, Camera, MessageCircle } from "lucide-react"
+import { useRouter } from "next/navigation"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
@@ -139,6 +140,7 @@ const PostulationModal = ({
 
 export default function PedidosPage() {
     const { user, isProvider } = useAuth()
+    const router = useRouter()
     const [city, setCity] = useState<string>("San Rafael, Mendoza")
     const [activeTab, setActiveTab] = useState(isProvider ? "feed" : "mis-pedidos")
     const [feedOrders, setFeedOrders] = useState<Order[]>([])
@@ -201,8 +203,20 @@ export default function PedidosPage() {
 
     const handleAcceptPostulation = async (orderId: number, postulationId: number) => {
         try {
-            await OrdersService.acceptPostulation(orderId, postulationId)
+            const result = await OrdersService.acceptPostulation(orderId, postulationId)
             toast.success("¡Propuesta aceptada! El profesional ha sido notificado.")
+            
+            // Si el backend nos devuelve el ID de la conversación, podemos ofrecer ir al chat
+            if (result && (result as any).conversationId) {
+                toast("Conversación iniciada", {
+                    description: "Se ha creado un chat para coordinar los detalles.",
+                    action: {
+                        label: "Ir al Chat",
+                        onClick: () => router.push(`/mensajes?conv=${(result as any).conversationId}`)
+                    },
+                })
+            }
+
             // Refresh my orders
             const mine = await OrdersService.getMyOrders()
             setMyOrders(mine)
@@ -376,7 +390,7 @@ export default function PedidosPage() {
                                                 <div>
                                                     <CardTitle className="text-xl">{order.title}</CardTitle>
                                                     <CardDescription>
-                                                        Publicado el {new Date(order.created_at).toLocaleDateString()} • {order.category?.name}
+                                                        Publicado el {order.created_at ? new Date(order.created_at).toLocaleDateString() : 'Recientemente'} • {order.category?.name}
                                                     </CardDescription>
                                                 </div>
                                                 <Badge variant={order.status === 'IN_PROGRESS' ? 'success' : 'default' as any}>
@@ -428,7 +442,18 @@ export default function PedidosPage() {
                                                                             Aceptar
                                                                         </Button>
                                                                     ) : p.status === 'ACCEPTED' && (
-                                                                        <Badge className="bg-primary text-white">Elegido</Badge>
+                                                                        <div className="flex items-center gap-2">
+                                                                            <Badge className="bg-primary text-white">Elegido</Badge>
+                                                                            <Button 
+                                                                                size="sm" 
+                                                                                variant="outline" 
+                                                                                className="rounded-xl border-primary text-primary font-bold flex items-center gap-1"
+                                                                                onClick={() => router.push('/mensajes')}
+                                                                            >
+                                                                                <MessageCircle className="w-4 h-4" />
+                                                                                Chatear
+                                                                            </Button>
+                                                                        </div>
                                                                     )}
                                                                 </div>
                                                             </div>

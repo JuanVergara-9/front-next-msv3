@@ -4,6 +4,7 @@ import { createContext, useContext, useState, useEffect, useRef, useCallback } f
 import { useAuth } from '@/contexts/AuthContext';
 import { apiClient, SOCKET_URL } from '@/lib/apiClient';
 import { AuthService } from '@/lib/services/auth.service';
+import { toast } from 'sonner';
 
 interface UnreadCountContextType {
   unreadCount: number;
@@ -113,6 +114,14 @@ export function UnreadCountProvider({ children }: { children: React.ReactNode })
       });
 
       socket.on('message_status_update', () => {
+        fetchUnreadCount();
+      });
+
+      socket.on('postulation_accepted', (data: any) => {
+        toast.success("¡Fuiste elegido!", {
+          description: `Tu propuesta para "${data.orderTitle}" fue aceptada.`,
+          duration: 10000,
+        });
         fetchUnreadCount();
       });
 
