@@ -660,8 +660,6 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
 
   return (
     <div className="min-h-screen bg-[#F9FAFB] pb-20">
-      <Header city={`${providerData.city}, ${providerData.province}`} />
-
       <div className="glass-effect min-h-[calc(100vh-80px)]">
         <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
           {/* Header Principal */}

@@ -2,7 +2,6 @@
 
 import { CategoriesSection } from "@/components/CategoriesSection"
 import { useEffect, useState } from "react"
-import { Header } from "@/components/Header"
 import { ProvidersService } from "@/lib/services/providers.service"
 
 export default function CategoriesPage() {

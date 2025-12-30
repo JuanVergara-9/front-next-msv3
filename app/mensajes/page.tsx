@@ -8,7 +8,6 @@ import { ChatService, type Conversation } from "@/lib/services/chat.service"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { MessageCircle, ChevronRight, Search, Clock, CheckCheck, Check } from "lucide-react"
 import { motion } from "framer-motion"
-import { Header } from "@/components/Header"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 

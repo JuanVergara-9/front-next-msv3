@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Header } from "@/components/Header"
 import { BottomNavBar } from "@/components/BottomNavBar"
 import { ProvidersService } from "@/lib/services/providers.service"
 import { motion, AnimatePresence } from "framer-motion"

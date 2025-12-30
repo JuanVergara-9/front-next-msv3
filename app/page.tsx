@@ -6,7 +6,6 @@ import { UserProfileService } from '@/lib/services/user-profile.service'
 import { useAuth } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Header } from '../components/Header'
 import { ProviderCard } from '../components/ProviderCard'
 import type { ProviderWithDetails } from '../types/api'
 import { motion, AnimatePresence } from "framer-motion"
