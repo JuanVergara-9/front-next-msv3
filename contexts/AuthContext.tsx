@@ -49,10 +49,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             setUser(currentUser)
             setIsProvider(!!currentUser.isProvider)
 
-            // Si es proveedor, cargar perfil detallado en background
-            if (currentUser.isProvider) {
-              void fetchProviderProfile()
-            }
+            // Intentar cargar el perfil de proveedor siempre para asegurar el estado actualizado
+            void fetchProviderProfile()
           }
         }
       } catch (error: any) {
@@ -72,9 +70,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(authData.user)
       setIsProvider(!!authData.user.isProvider)
 
-      if (authData.user.isProvider) {
-        await fetchProviderProfile()
-      }
+      // Cargar perfil de proveedor para asegurar estado actualizado
+      await fetchProviderProfile()
     } finally {
       setIsLoading(false)
     }
