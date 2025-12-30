@@ -1375,6 +1375,7 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
                                     type="file"
                                     accept="image/*"
                                     multiple
+                                    aria-label="Subir fotos"
                                     onChange={(e) => {
                                       const files = Array.from(e.target.files || [])
                                       if (files.length + photoFiles.length + photoUrls.length > maxPhotos) {
@@ -1957,10 +1958,10 @@ function AvailabilityEditor({ initial, onSave, saving }: { initial: { businessHo
         {Object.keys(labels).map((k) => (
           <div key={k} className="flex items-center gap-3">
             <div className="w-24 text-sm text-[#111827]">{labels[k]}</div>
-            <input type="checkbox" checked={days[k].enabled} onChange={(e) => setDays(prev => ({ ...prev, [k]: { ...prev[k], enabled: e.target.checked } }))} />
-            <input type="time" value={days[k].start} onChange={(e) => setDays(prev => ({ ...prev, [k]: { ...prev[k], start: e.target.value } }))} className="border rounded px-2 py-1" />
+            <input type="checkbox" aria-label={`Habilitar ${labels[k]}`} checked={days[k].enabled} onChange={(e) => setDays(prev => ({ ...prev, [k]: { ...prev[k], enabled: e.target.checked } }))} />
+            <input type="time" aria-label={`Hora inicio ${labels[k]}`} value={days[k].start} onChange={(e) => setDays(prev => ({ ...prev, [k]: { ...prev[k], start: e.target.value } }))} className="border rounded px-2 py-1" />
             <span className="text-[#6B7280]">a</span>
-            <input type="time" value={days[k].end} onChange={(e) => setDays(prev => ({ ...prev, [k]: { ...prev[k], end: e.target.value } }))} className="border rounded px-2 py-1" />
+            <input type="time" aria-label={`Hora fin ${labels[k]}`} value={days[k].end} onChange={(e) => setDays(prev => ({ ...prev, [k]: { ...prev[k], end: e.target.value } }))} className="border rounded px-2 py-1" />
           </div>
         ))}
       </div>
