@@ -34,14 +34,14 @@ export default function TerminosPage() {
               <section>
                 <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-3">
                   <span className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">1</span>
-                  Descripción del Servicio y Fase de Validación
+                  Descripción del Servicio y Funcionalidad de Pedidos
                 </h2>
                 <div className="pl-11 space-y-3">
                   <p className="text-muted-foreground">
                     <strong>miservicio</strong> es una plataforma tecnológica que facilita el contacto entre personas que requieren un servicio ("Clientes") y prestadores independientes que los ofrecen ("Proveedores").
                   </p>
                   <p className="text-muted-foreground">
-                    Actualmente, la plataforma opera en una <strong>fase de validación y prueba (Beta)</strong>. El usuario reconoce que el servicio se ofrece "tal cual está", pudiendo presentar interrupciones o modificaciones sin previo aviso.
+                    La plataforma permite a los Clientes publicar solicitudes de trabajo ("Pedidos") detallando su necesidad, para que los Proveedores registrados puedan visualizar dichas solicitudes y postularse. Actualmente, la plataforma opera en una fase de validación y prueba (Beta). El usuario reconoce que el servicio se ofrece "tal cual está", pudiendo presentar interrupciones o modificaciones sin previo aviso.
                   </p>
                 </div>
               </section>
@@ -84,6 +84,19 @@ export default function TerminosPage() {
                       <li><strong>No es garantía de conducta:</strong> No acredita idoneidad profesional, honestidad ni ausencia de antecedentes penales.</li>
                       <li><strong>Rechazo:</strong> Podemos rechazar o retirar la insignia si hay inconsistencias, documentos ilegibles o sospecha de fraude.</li>
                     </ul>
+                  </div>
+                  <div className="bg-muted/50 rounded-lg p-4 space-y-2">
+                    <p className="text-muted-foreground">
+                      <strong>3.2 Reglas para la Publicación de Pedidos:</strong> Al utilizar la funcionalidad de "Publicar Pedido", el Cliente se compromete a:
+                    </p>
+                    <ul className="list-disc list-inside space-y-1 text-muted-foreground ml-2">
+                      <li><strong>Veracidad:</strong> Describir una necesidad real de servicio.</li>
+                      <li><strong>Contenido Apropiado:</strong> No publicar solicitudes con contenido ilícito, sexual, violento, discriminatorio o que viole leyes vigentes.</li>
+                      <li><strong>Privacidad en la Descripción:</strong> No incluir datos de contacto directo (teléfono, email) ni direcciones exactas (calle y número) en la descripción pública del problema, para proteger su propia seguridad hasta el momento del contacto con el profesional.</li>
+                    </ul>
+                    <p className="text-muted-foreground text-sm italic mt-2">
+                      miservicio se reserva el derecho de rechazar, editar o eliminar cualquier pedido que considere sospecho, ofensivo o que infrinja estas normas, sin previo aviso y sin derecho a reclamo.
+                    </p>
                   </div>
                 </div>
               </section>

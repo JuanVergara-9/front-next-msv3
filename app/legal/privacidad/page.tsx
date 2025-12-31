@@ -44,6 +44,7 @@ export default function PrivacidadPage() {
                   <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-4">
                     <li><strong>Datos de Registro:</strong> Nombre, apellido, correo electrónico, contraseña y foto de perfil.</li>
                     <li><strong>Datos de Contacto:</strong> Número de teléfono celular y dirección (provincia, ciudad, domicilio aproximado).</li>
+                    <li><strong>Datos de las Solicitudes (Pedidos):</strong> La información que incluís al describir tu problema (ej: "Se rompió el tanque de agua", fotos del desperfecto, zona aproximada). Tené en cuenta que esta descripción será visible para los Proveedores registrados.</li>
                     <li><strong>Datos del Perfil (Proveedores):</strong> Profesión, descripción de habilidades, fotos de trabajos previos y matrícula (si aplica).</li>
                     <li><strong>Datos de Ubicación:</strong> Recopilamos tu ubicación precisa o aproximada (a través del GPS o red) <strong>solo si nos das permiso</strong>, para mostrarte servicios o clientes cercanos.</li>
                     <li><strong>Datos Técnicos:</strong> Información sobre tu dispositivo, dirección IP y sistema operativo para fines de seguridad y mejora de la app.</li>
@@ -82,7 +83,14 @@ export default function PrivacidadPage() {
                     <strong>miservicio</strong> no vende tus datos personales. Sin embargo, para que la aplicación cumpla su función, es necesario compartir cierta información:
                   </p>
                   <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-4">
-                    <li><strong>Entre Usuarios:</strong> Al iniciar una solicitud de servicio, compartiremos datos necesarios (como nombre, foto, calificación y teléfono) con la otra parte (Cliente o Proveedor) para facilitar la coordinación. <strong>Las imágenes de tu DNI y tu selfie de verificación son de uso exclusivo del equipo de administración de miservicio y nunca se comparten ni se publican en tu perfil.</strong></li>
+                    <li>
+                      <strong>Entre Usuarios:</strong>
+                      <div className="mt-2 ml-4 space-y-2">
+                        <p><strong>Visibilidad de Pedidos:</strong> Al publicar una solicitud, entendés que la descripción del problema, las fotos adjuntas y tu zona aproximada (Barrio/Ciudad) serán visibles para los Proveedores registrados en la plataforma a fin de que puedan evaluar el trabajo y postularse.</p>
+                        <p><strong>Datos de Contacto:</strong> Tu número de teléfono y dirección exacta solo se compartirán con el profesional una vez que se haya establecido una conexión o aceptación de presupuesto, según el flujo de la plataforma.</p>
+                        <p className="text-xs italic mt-1">Las imágenes de tu DNI y tu selfie de verificación son de uso exclusivo del equipo de administración de miservicio y nunca se comparten ni se publican en tu perfil.</p>
+                      </div>
+                    </li>
                     <li><strong>Proveedores de Servicios Externos:</strong> Podemos usar servicios de terceros para alojamiento web, mapas (ej. Google Maps) o análisis de datos, quienes solo accederán a la información necesaria para prestar su servicio y bajo obligación de confidencialidad.</li>
                     <li><strong>Requerimiento Legal:</strong> Compartiremos información si una autoridad judicial competente lo solicita formalmente.</li>
                   </ul>

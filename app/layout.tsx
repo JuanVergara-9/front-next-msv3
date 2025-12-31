@@ -25,8 +25,14 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
   alternates: { canonical: '/' },
   icons: {
-    icon: [{ url: '/logo-transparente-wuachin.png' }],
-    apple: [{ url: '/apple-touch-icon.png', sizes: '180x180' }]
+    icon: [
+      { url: '/logo-transparente-wuachin.png', type: 'image/png' },
+      { url: '/logo-transparente-wuachin.png', sizes: '32x32', type: 'image/png' },
+      { url: '/logo-transparente-wuachin.png', sizes: '16x16', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/logo-transparente-wuachin.png', sizes: '180x180', type: 'image/png' },
+    ],
   },
   manifest: '/manifest.json',
   openGraph: {
@@ -66,7 +72,7 @@ export default function RootLayout({
             "@type": "Organization",
             name: "miservicio.ar",
             url: "https://miservicio.ar",
-            logo: "https://miservicio.ar/logo.png",
+            logo: "https://miservicio.ar/logo-transparente-wuachin.png",
             description: "Plataforma para conectar personas con profesionales de oficios verificados en Argentina.",
             areaServed: {
               "@type": "Country",
