@@ -151,5 +151,4 @@ export default function EmailSentPage() {
     </motion.div>
   )
 }
-}
 
