@@ -4,9 +4,9 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { ShieldCheck, FileText, Check } from "lucide-react"
+import { ShieldCheck, FileText, Check, MessageSquare, PlusCircle, Sparkles } from "lucide-react"
 
-const TERMS_VERSION = "2025-12-10"
+const TERMS_VERSION = "2026-01-06"
 const STORAGE_KEY = "miservicio_terms_accepted"
 
 export function TermsUpdateHandler() {
@@ -28,66 +28,75 @@ export function TermsUpdateHandler() {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="sm:max-w-[500px] [&>button]:hidden">
+      <DialogContent className="sm:max-w-[500px] [&>button]:hidden rounded-3xl">
         <DialogHeader>
-          <div className="mx-auto bg-blue-100 p-3 rounded-full mb-4">
-            <ShieldCheck className="h-8 w-8 text-blue-600" />
+          <div className="mx-auto bg-amber-100 p-3 rounded-full mb-4">
+            <Sparkles className="h-8 w-8 text-amber-600" />
           </div>
-          <DialogTitle className="text-center text-xl font-bold text-gray-900">
-            ¡Hacemos miservicio más seguro!
+          <DialogTitle className="text-center text-2xl font-black text-[#0e315d]">
+            ¡Nuevo diseño y más funciones!
           </DialogTitle>
-          <DialogDescription className="text-center pt-2">
-            Hemos lanzado la nueva <strong>Verificación de Identidad</strong>.
+          <DialogDescription className="text-center pt-2 font-medium text-slate-500">
+            Renovamos miservicio para que encontrar soluciones sea más rápido y seguro.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4 text-sm text-gray-600">
-          <div className="bg-gray-50 p-4 rounded-lg border border-gray-100 space-y-3">
+          <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-4">
             <div className="flex gap-3">
-              <div className="h-6 w-6 rounded-full bg-green-100 flex items-center justify-center shrink-0">
-                <span className="text-green-600 font-bold text-xs">1</span>
+              <div className="h-8 w-8 rounded-xl bg-blue-100 flex items-center justify-center shrink-0">
+                <PlusCircle className="h-5 w-5 text-blue-600" />
               </div>
               <div>
-                <p className="font-semibold text-gray-900">Para Proveedores</p>
-                <p>
-                  Ahora podés validar tu identidad y obtener la insignia{" "}
-                  <span className="inline-flex items-center text-xs font-medium text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-200">
-                    <ShieldCheck className="w-3 h-3 mr-1" /> Identidad Verificada
-                  </span>{" "}
-                  para generar más confianza.
-                </p>
+                <p className="font-bold text-[#0e315d]">Publicá tus Pedidos</p>
+                <p className="text-slate-500">Ahora podés describir lo que necesitás y dejar que los profesionales se postulen. ¡Vos elegís al mejor!</p>
               </div>
             </div>
 
             <div className="flex gap-3">
-              <div className="h-6 w-6 rounded-full bg-green-100 flex items-center justify-center shrink-0">
-                <span className="text-green-600 font-bold text-xs">2</span>
+              <div className="h-8 w-8 rounded-xl bg-emerald-100 flex items-center justify-center shrink-0">
+                <MessageSquare className="h-5 w-5 text-emerald-600" />
               </div>
               <div>
-                <p className="font-semibold text-gray-900">Para Clientes</p>
-                <p>Buscá la insignia de verificación al contratar. Significa que hemos revisado el documento de identidad del profesional.</p>
+                <p className="font-bold text-[#0e315d]">Chat Propio</p>
+                <p className="text-slate-500">Comunicate de forma directa y segura con los trabajadores a través de nuestro nuevo chat integrado.</p>
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <div className="h-8 w-8 rounded-xl bg-purple-100 flex items-center justify-center shrink-0">
+                <ShieldCheck className="h-5 w-5 text-purple-600" />
+              </div>
+              <div>
+                <p className="font-bold text-[#0e315d]">¿Sos trabajador?</p>
+                <p className="text-slate-500">
+                  Verificá tu identidad para obtener tu insignia y generar más confianza con tus futuros clientes.
+                </p>
               </div>
             </div>
           </div>
 
-          <p className="text-center text-xs text-gray-500 px-4">
-            Debido a estas mejoras, hemos actualizado nuestros documentos legales. Al continuar, aceptás los nuevos:
+          <p className="text-center text-xs text-slate-400 px-4">
+            Hemos actualizado nuestros documentos legales para reflejar estos cambios y proteger a nuestra comunidad:
           </p>
 
-          <div className="flex justify-center gap-4 text-xs font-medium">
-            <Link href="/legal/terminos" className="text-blue-600 hover:underline flex items-center gap-1" target="_blank">
+          <div className="flex justify-center gap-4 text-xs font-bold">
+            <Link href="/legal/terminos" className="text-primary hover:underline flex items-center gap-1" target="_blank">
               <FileText className="h-3 w-3" /> Términos y Condiciones
             </Link>
-            <Link href="/legal/privacidad" className="text-blue-600 hover:underline flex items-center gap-1" target="_blank">
+            <Link href="/legal/privacidad" className="text-primary hover:underline flex items-center gap-1" target="_blank">
               <FileText className="h-3 w-3" /> Política de Privacidad
             </Link>
           </div>
         </div>
 
         <DialogFooter className="sm:justify-center">
-          <Button onClick={handleAccept} className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white min-w-[200px]">
-            <Check className="h-4 w-4 mr-2" />
-            Entendido y Acepto
+          <Button 
+            onClick={handleAccept} 
+            className="w-full sm:w-auto bg-[#0e315d] hover:bg-[#0e315d]/90 text-white font-bold rounded-xl h-12 min-w-[200px] shadow-lg"
+          >
+            <Check className="h-5 w-5 mr-2" />
+            ¡Entendido, vamos!
           </Button>
         </DialogFooter>
       </DialogContent>
