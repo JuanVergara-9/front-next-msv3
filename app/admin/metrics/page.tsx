@@ -22,9 +22,12 @@ import {
   Download,
   Filter,
   ShieldAlert,
-  ChevronRight
+  ChevronRight,
+  ShoppingBag,
+  Eye
 } from 'lucide-react'
 import { ProvidersService } from "@/lib/services/providers.service"
+import { OrdersService, type Order } from "@/lib/services/orders.service"
 import Link from "next/link"
 import {
   AreaChart,
@@ -207,6 +210,7 @@ export default function AdminMetricsPage() {
   const [contacts, setContacts] = useState<ContactsBreakdown | null>(null)
   const [reviews, setReviews] = useState<ReviewsSummary | null>(null)
   const [recentReviews, setRecentReviews] = useState<RecentReviews | null>(null)
+  const [adminOrders, setAdminOrders] = useState<{ total: number; orders: Order[] } | null>(null)
   const [weeklyChange, setWeeklyChange] = useState<{ totalUsers: number; clientsRegistered: number; workersRegistered: number } | null>(null)
   const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
@@ -232,12 +236,13 @@ export default function AdminMetricsPage() {
       try {
         setLoading(true)
         setError(null)
-        const [userHistory, s, c, r, rr] = await Promise.all([
+        const [userHistory, s, c, r, rr, ordersRes] = await Promise.all([
           MetricsService.getUsersSummaryWithHistory(),
           MetricsService.getSummary({ from, to }),
           MetricsService.getContactsBreakdown({ from, to }),
           MetricsService.getGlobalReviewsSummary(),
           MetricsService.getRecentReviews(3),
+          OrdersService.adminGetAllOrders({ limit: 10 })
         ])
         setUsers(userHistory.current)
         setWeeklyChange(userHistory.weeklyChange)
@@ -245,6 +250,7 @@ export default function AdminMetricsPage() {
         setContacts(c)
         setReviews(r)
         setRecentReviews(rr)
+        setAdminOrders(ordersRes)
       } catch (e: any) {
         setError(e?.message || "No se pudieron cargar las métricas")
       } finally {
@@ -517,6 +523,81 @@ export default function AdminMetricsPage() {
               <DataRow label="Búsquedas realizadas" value={(summary?.searches ?? 0).toLocaleString('es-AR')} icon={Search} highlight />
               <DataRow label="Vistas de perfil" value={(summary?.providerViews ?? 0).toLocaleString('es-AR')} icon={User} />
             </div>
+          </div>
+        </section>
+
+        {/* Sección 4: Pedidos Recientes (Admin Only) */}
+        <section className="bg-white rounded-2xl p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-slate-100">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="bg-blue-100 p-2 rounded-full text-blue-600">
+                <ShoppingBag size={20} />
+              </div>
+              <div>
+                <h3 className="font-bold text-slate-900">Pedidos Publicados</h3>
+                <p className="text-xs text-slate-500">Últimos pedidos en la plataforma</p>
+              </div>
+            </div>
+            <div className="text-sm font-bold text-slate-400">
+              Total: {adminOrders?.total ?? 0}
+            </div>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-slate-100 text-xs font-bold text-slate-400 uppercase tracking-wider">
+                  <th className="px-4 py-3">Fecha</th>
+                  <th className="px-4 py-3">Título</th>
+                  <th className="px-4 py-3">Categoría</th>
+                  <th className="px-4 py-3">Estado</th>
+                  <th className="px-4 py-3">ID Cliente</th>
+                  <th className="px-4 py-3 text-right">Acción</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-50">
+                {adminOrders?.orders.map((order) => (
+                  <tr key={order.id} className="hover:bg-slate-50/50 transition-colors group">
+                    <td className="px-4 py-4 text-xs font-medium text-slate-500">
+                      {getTimeAgo(order.created_at)}
+                    </td>
+                    <td className="px-4 py-4">
+                      <div className="flex flex-col">
+                        <span className="text-sm font-bold text-slate-800 line-clamp-1">{order.title}</span>
+                        <span className="text-xs text-slate-400 line-clamp-1">{order.description}</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-4 text-sm text-slate-600">
+                      {order.category?.name || 'N/A'}
+                    </td>
+                    <td className="px-4 py-4">
+                      <span className={`text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-tighter ${order.status === 'PENDING' ? 'bg-amber-100 text-amber-700' :
+                          order.status === 'MATCHED' ? 'bg-blue-100 text-blue-700' :
+                            order.status === 'IN_PROGRESS' ? 'bg-indigo-100 text-indigo-700' :
+                              order.status === 'COMPLETED' ? 'bg-emerald-100 text-emerald-700' :
+                                'bg-slate-100 text-slate-700'
+                        }`}>
+                        {order.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-4 text-xs font-mono text-slate-400">
+                      #{order.user_id}
+                    </td>
+                    <td className="px-4 py-4 text-right">
+                      <button className="p-2 text-slate-400 hover:text-blue-600 transition-colors">
+                        <Eye size={16} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="mt-6 pt-6 border-t border-slate-100 text-center">
+            <button className="text-sm font-bold text-blue-600 hover:underline">
+              Ver todos los pedidos
+            </button>
           </div>
         </section>
       </main>

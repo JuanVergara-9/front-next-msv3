@@ -85,4 +85,12 @@ export class OrdersService {
             body: JSON.stringify({ postulation_id: postulationId }),
         });
     }
+
+    static async adminGetAllOrders(params: { limit?: number; offset?: number; status?: string } = {}): Promise<{ total: number; orders: Order[] }> {
+        const usp = new URLSearchParams();
+        if (params.limit) usp.set('limit', params.limit.toString());
+        if (params.offset) usp.set('offset', params.offset.toString());
+        if (params.status) usp.set('status', params.status);
+        return apiFetch<{ total: number; orders: Order[] }>(`/api/v1/orders/admin/all?${usp.toString()}`);
+    }
 }
