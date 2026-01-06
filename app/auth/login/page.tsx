@@ -85,50 +85,44 @@ export default function LoginPage() {
   }
 
   return (
-    <motion.div 
-      className="min-h-screen flex items-center justify-center p-4" 
-      style={{ backgroundColor: "#2F66F5" }}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, type: "spring", stiffness: 100 }}
+      className="w-full max-w-[480px]"
     >
-      <motion.div
-        initial={{ opacity: 0, y: 30, scale: 0.95 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.5, type: "spring", stiffness: 100 }}
-      >
-        <Card className="w-full max-w-[500px] md:max-w-[640px] lg:max-w-[720px] shadow-2xl border-0">
-          <CardHeader className="text-center pb-6 pt-8 px-8 md:px-12">
-            <motion.div 
-              className="mx-auto mb-4 w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center"
-              initial={{ scale: 0, rotate: -180 }}
-              animate={{ scale: 1, rotate: 0 }}
-              transition={{ duration: 0.6, type: "spring", stiffness: 200, delay: 0.2 }}
-            >
-              <Building2 className="w-8 h-8 text-blue-600" />
-            </motion.div>
-            <motion.h1 
-              className="text-2xl font-bold text-gray-900 mb-2"
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-            >
-              Bienvenido a miservicio
-            </motion.h1>
-            <motion.p 
-              className="text-gray-600 text-sm leading-relaxed"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-            >
-              La plataforma que conecta clientes con los mejores profesionales
-            </motion.p>
-          </CardHeader>
+      <Card className="shadow-[0_8px_40px_-12px_rgba(0,0,0,0.1)] border-slate-100 rounded-[32px] overflow-hidden">
+        <CardHeader className="text-center pb-2 pt-10 px-8">
+          <motion.div 
+            className="mx-auto mb-6 w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center"
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            <Building2 className="w-8 h-8 text-primary" />
+          </motion.div>
+          <motion.h1 
+            className="text-3xl font-black text-[#0e315d] mb-3 tracking-tight"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+          >
+            ¡Hola de nuevo!
+          </motion.h1>
+          <motion.p 
+            className="text-slate-500 font-medium leading-relaxed"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+          >
+            Ingresá tus datos para continuar
+          </motion.p>
+        </CardHeader>
 
-        <CardContent className="px-8 md:px-32 pb-10">
+        <CardContent className="px-8 md:px-10 pb-10 pt-6">
           <motion.form 
             onSubmit={handleSubmit} 
-            className="space-y-4"
+            className="space-y-5"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.5 }}
@@ -136,169 +130,120 @@ export default function LoginPage() {
             <AnimatePresence>
               {errors.general && (
                 <motion.div 
-                  className="bg-red-50 border border-red-200 rounded-lg p-3"
-                  initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  className="bg-red-50 border border-red-100 rounded-2xl p-4 flex items-center gap-3"
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ duration: 0.3 }}
                 >
-                  <p className="text-red-600 text-sm">{errors.general}</p>
+                  <div className="w-2 h-2 rounded-full bg-red-500" />
+                  <p className="text-red-600 text-sm font-bold">{errors.general}</p>
                 </motion.div>
               )}
             </AnimatePresence>
 
-            <motion.div 
-              className="space-y-2"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.4, delay: 0.6 }}
-            >
-              <Label htmlFor="email" className="text-sm font-medium text-gray-700">
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-sm font-bold text-[#0e315d] ml-1">
                 Correo Electrónico
               </Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <div className="relative group">
+                <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5 group-focus-within:text-primary transition-colors" />
                 <Input
                   id="email"
                   type="email"
-                  placeholder="tu@email.com"
+                  placeholder="ej: juan@gmail.com"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className={`pl-10 h-12 border-gray-300 focus:border-blue-600 focus:ring-blue-600 ${errors.email ? "border-red-500" : ""}`}
-                  aria-invalid={!!errors.email}
-                  aria-describedby={errors.email ? "email-error" : undefined}
+                  className={`pl-12 h-14 bg-slate-50/50 border-slate-200 rounded-2xl focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all font-medium ${errors.email ? "border-red-300 bg-red-50/30" : ""}`}
                 />
               </div>
-              <AnimatePresence>
-                {errors.email && (
-                  <motion.p 
-                    id="email-error" 
-                    className="text-red-500 text-sm mt-1"
-                    initial={{ opacity: 0, y: -5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -5 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    {errors.email}
-                  </motion.p>
-                )}
-              </AnimatePresence>
-            </motion.div>
+              {errors.email && (
+                <p className="text-red-500 text-xs font-bold ml-1 mt-1">{errors.email}</p>
+              )}
+            </div>
 
-            <motion.div 
-              className="space-y-2"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.4, delay: 0.7 }}
-            >
-              <Label htmlFor="password" className="text-sm font-medium text-gray-700">
+            <div className="space-y-2">
+              <Label htmlFor="password" className="text-sm font-bold text-[#0e315d] ml-1">
                 Contraseña
               </Label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <div className="relative group">
+                <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5 group-focus-within:text-primary transition-colors" />
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
+                  placeholder="••••••••"
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className={`pl-10 pr-10 h-12 border-gray-300 focus:border-blue-600 focus:ring-blue-600 ${errors.password ? "border-red-500" : ""}`}
-                  aria-invalid={!!errors.password}
-                  aria-describedby={errors.password ? "password-error" : undefined}
+                  className={`pl-12 pr-12 h-14 bg-slate-50/50 border-slate-200 rounded-2xl focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all font-medium ${errors.password ? "border-red-300 bg-red-50/30" : ""}`}
                 />
-                <motion.button
+                <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                </motion.button>
+                </button>
               </div>
-              <AnimatePresence>
-                {errors.password && (
-                  <motion.p 
-                    id="password-error" 
-                    className="text-red-500 text-sm mt-1"
-                    initial={{ opacity: 0, y: -5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -5 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    {errors.password}
-                  </motion.p>
-                )}
-              </AnimatePresence>
-            </motion.div>
+              {errors.password && (
+                <p className="text-red-500 text-xs font-bold ml-1 mt-1">{errors.password}</p>
+              )}
+            </div>
 
-            <div className="flex items-center justify-between pt-2">
-              <div className="flex items-center space-x-2">
+            <div className="flex items-center justify-between pt-1 px-1">
+              <div className="flex items-center space-x-2 group cursor-pointer">
                 <Checkbox
                   id="remember"
                   checked={formData.rememberMe}
                   onCheckedChange={(checked) => setFormData({ ...formData, rememberMe: !!checked })}
+                  className="rounded-md border-slate-300 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                 />
-                <Label htmlFor="remember" className="text-sm text-gray-600 cursor-pointer">
+                <Label htmlFor="remember" className="text-xs font-bold text-slate-500 cursor-pointer group-hover:text-slate-700 transition-colors">
                   Recordarme
                 </Label>
               </div>
-              <Link href="/auth/forgot-password" data-testid="forgot-password-link" className="text-sm text-blue-600 hover:text-blue-800">
+              <Link href="/auth/forgot-password" px-1 className="text-xs font-bold text-primary hover:underline">
                 ¿Olvidaste tu contraseña?
               </Link>
             </div>
 
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+            <Button
+              type="submit"
+              className="w-full h-14 bg-primary hover:bg-primary/90 text-white font-black text-lg rounded-2xl shadow-lg shadow-primary/20 transition-all active:scale-95 disabled:opacity-70 mt-4"
+              disabled={isLoading}
             >
-              <Button
-                type="submit"
-                className="w-full h-12 text-white font-medium mt-6"
-                style={{ backgroundColor: "#2563EB" }}
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <motion.span
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ repeat: Infinity, duration: 0.8, repeatType: "reverse" }}
-                  >
-                    Iniciando sesión...
-                  </motion.span>
-                ) : (
-                  "Iniciar Sesión"
-                )}
-              </Button>
-            </motion.div>
+              {isLoading ? "Iniciando sesión..." : "Ingresar"}
+            </Button>
 
-            <div className="relative my-6">
+            <div className="relative my-8">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300" />
+                <div className="w-full border-t border-slate-100" />
               </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">o continuar con</span>
+              <div className="relative flex justify-center text-[10px] uppercase tracking-widest font-black text-slate-400">
+                <span className="px-4 bg-white text-slate-400">o continuar con</span>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <Button type="button" variant="outline" className="h-12 border-gray-300 hover:bg-gray-50 hover:text-gray-900 bg-transparent text-gray-700">
+            <div className="grid grid-cols-2 gap-4">
+              <Button type="button" variant="outline" className="h-14 border-slate-200 rounded-2xl hover:bg-slate-50 font-bold text-slate-600 transition-all active:scale-95 bg-white shadow-sm">
+                <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-5 h-5 mr-2" alt="Google" />
                 Google
               </Button>
-              <Button type="button" variant="outline" className="h-12 border-gray-300 hover:bg-gray-50 hover:text-gray-900 bg-transparent text-gray-700">
+              <Button type="button" variant="outline" className="h-14 border-slate-200 rounded-2xl hover:bg-slate-50 font-bold text-slate-600 transition-all active:scale-95 bg-white shadow-sm">
+                <img src="https://www.svgrepo.com/show/475647/facebook-color.svg" className="w-5 h-5 mr-2" alt="Facebook" />
                 Facebook
               </Button>
             </div>
 
-            <p className="text-center text-sm text-gray-600 mt-6">
-              ¿No tienes una cuenta?{" "}
-              <Link href={`/auth/register${searchParams.get('next') ? `?next=${encodeURIComponent(searchParams.get('next') as string)}` : ''}`} className="text-blue-600 hover:text-blue-800 font-medium">
-                Regístrate
+            <p className="text-center text-sm font-medium text-slate-500 mt-8">
+              ¿No tenés una cuenta?{" "}
+              <Link href={`/auth/register${searchParams.get('next') ? `?next=${encodeURIComponent(searchParams.get('next') as string)}` : ''}`} className="text-primary font-black hover:underline">
+                Regístrate ahora
               </Link>
             </p>
           </motion.form>
         </CardContent>
       </Card>
-      </motion.div>
     </motion.div>
+  )
+}
   )
 }

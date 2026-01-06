@@ -41,105 +41,121 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <motion.div 
-      className="min-h-screen flex items-center justify-center p-4" 
-      style={{ backgroundColor: "#2F66F5" }}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, type: "spring", stiffness: 100 }}
+      className="w-full max-w-[480px]"
     >
-      <motion.div
-        initial={{ opacity: 0, y: 30, scale: 0.95 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.5, type: "spring" }}
-      >
-        <Card className="w-full max-w-[480px] shadow-2xl border-0">
-          <CardHeader className="text-center pb-6 pt-8 px-8">
-            <motion.div 
-              className="mx-auto mb-4 w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center"
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.2 }}
-            >
-              <Building2 className="w-8 h-8 text-blue-600" />
-            </motion.div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Recuperar contraseña</h1>
-            <p className="text-gray-600 text-sm leading-relaxed">
-              Ingresa tu email y te enviaremos las instrucciones para restablecer tu contraseña en miservicio.
-            </p>
-          </CardHeader>
+      <Card className="shadow-[0_8px_40px_-12px_rgba(0,0,0,0.1)] border-slate-100 rounded-[32px] overflow-hidden">
+        <CardHeader className="text-center pb-2 pt-10 px-8">
+          <motion.div 
+            className="mx-auto mb-6 w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center"
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            <Building2 className="w-8 h-8 text-primary" />
+          </motion.div>
+          <motion.h1 
+            className="text-3xl font-black text-[#0e315d] mb-3 tracking-tight"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+          >
+            Recuperar cuenta
+          </motion.h1>
+          <motion.p 
+            className="text-slate-500 font-medium leading-relaxed"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+          >
+            Te enviaremos las instrucciones para restablecer tu contraseña
+          </motion.p>
+        </CardHeader>
 
-          <CardContent className="px-8 pb-10">
-            <AnimatePresence mode="wait">
-              {isSuccess ? (
-                <motion.div
-                  key="success"
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  className="text-center py-4"
-                >
-                  <div className="mx-auto mb-4 w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-                    <CheckCircle2 className="w-10 h-10 text-green-600" />
-                  </div>
-                  <h2 className="text-xl font-semibold text-gray-900 mb-2">¡Solicitud enviada!</h2>
-                  <p className="text-gray-600 mb-8 leading-relaxed">
-                    Si tus datos son correctos, recibirás un correo de miservicio con las instrucciones para recuperar tu cuenta.
-                  </p>
-                  <Link href="/auth/login">
-                    <Button className="w-full h-12 text-white font-medium" style={{ backgroundColor: "#2563EB" }}>
-                      Volver al Login
-                    </Button>
-                  </Link>
-                </motion.div>
-              ) : (
-                <motion.form 
-                  key="form"
-                  onSubmit={handleSubmit} 
-                  className="space-y-4"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                >
-                  <div className="space-y-2">
-                    <Label htmlFor="email" className="text-sm font-medium text-gray-700">
-                      Correo Electrónico
-                    </Label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                      <Input
-                        id="email"
-                        type="email"
-                        placeholder="tu@email.com"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="pl-10 h-12 border-gray-300 focus:border-blue-600 focus:ring-blue-600"
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  {error && <p className="text-red-500 text-sm">{error}</p>}
-
-                  <Button
-                    type="submit"
-                    className="w-full h-12 text-white font-medium mt-4"
-                    style={{ backgroundColor: "#2563EB" }}
-                    disabled={isLoading}
-                  >
-                    {isLoading ? "Procesando..." : "Enviar instrucciones"}
+        <CardContent className="px-8 md:px-10 pb-10 pt-6">
+          <AnimatePresence mode="wait">
+            {isSuccess ? (
+              <motion.div
+                key="success"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="text-center py-4"
+              >
+                <div className="mx-auto mb-6 w-20 h-20 bg-emerald-50 rounded-3xl flex items-center justify-center">
+                  <CheckCircle2 className="w-10 h-10 text-emerald-600" />
+                </div>
+                <h2 className="text-2xl font-black text-[#0e315d] mb-4">¡Solicitud enviada!</h2>
+                <p className="text-slate-500 mb-8 leading-relaxed font-medium">
+                  Si tus datos son correctos, recibirás un correo con los pasos para recuperar tu acceso.
+                </p>
+                <Link href="/auth/login" className="w-full">
+                  <Button className="w-full h-14 bg-primary hover:bg-primary/90 text-white font-black text-lg rounded-2xl">
+                    Volver al Login
                   </Button>
-
-                  <div className="text-center mt-6">
-                    <Link href="/auth/login" className="text-sm text-gray-600 hover:text-gray-900 flex items-center justify-center">
-                      <ArrowLeft className="w-4 h-4 mr-2" />
-                      Volver al inicio de sesión
-                    </Link>
+                </Link>
+              </motion.div>
+            ) : (
+              <motion.form 
+                key="form"
+                onSubmit={handleSubmit} 
+                className="space-y-6"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+              >
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-sm font-bold text-[#0e315d] ml-1">
+                    Correo Electrónico
+                  </Label>
+                  <div className="relative group">
+                    <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5 group-focus-within:text-primary transition-colors" />
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="ej: juan@gmail.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="pl-12 h-14 bg-slate-50/50 border-slate-200 rounded-2xl focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all font-medium"
+                      required
+                    />
                   </div>
-                </motion.form>
-              )}
-            </AnimatePresence>
-          </CardContent>
-        </Card>
-      </motion.div>
+                </div>
+
+                {error && (
+                  <motion.div 
+                    className="bg-red-50 border border-red-100 rounded-2xl p-4 flex items-center gap-3"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                  >
+                    <div className="w-2 h-2 rounded-full bg-red-500" />
+                    <p className="text-red-600 text-sm font-bold">{error}</p>
+                  </motion.div>
+                )}
+
+                <Button
+                  type="submit"
+                  className="w-full h-14 bg-primary hover:bg-primary/90 text-white font-black text-lg rounded-2xl shadow-lg shadow-primary/20 transition-all active:scale-95 disabled:opacity-70"
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Enviando..." : "Enviar instrucciones"}
+                </Button>
+
+                <div className="text-center pt-2">
+                  <Link href="/auth/login" className="text-sm font-bold text-slate-500 hover:text-primary transition-colors flex items-center justify-center gap-2">
+                    <ArrowLeft className="w-4 h-4" />
+                    Volver al inicio de sesión
+                  </Link>
+                </div>
+              </motion.form>
+            )}
+          </AnimatePresence>
+        </CardContent>
+      </Card>
     </motion.div>
+  )
+}
   )
 }
 

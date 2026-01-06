@@ -287,47 +287,41 @@ export default function RegisterPage() {
   }
 
   return (
-    <motion.div 
-      className="min-h-screen flex items-center justify-center p-4" 
-      style={{ backgroundColor: "#2F66F5" }}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, type: "spring", stiffness: 100 }}
+      className="w-full max-w-[540px] py-4"
     >
-      <motion.div
-        initial={{ opacity: 0, y: 30, scale: 0.95 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.5, type: "spring", stiffness: 100 }}
-      >
-        <Card className="w-full max-w-[520px] shadow-2xl border-0">
-          <CardHeader className="text-center pb-6 pt-8">
-            <motion.div 
-              className="mx-auto mb-4 w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center"
-              initial={{ scale: 0, rotate: -180 }}
-              animate={{ scale: 1, rotate: 0 }}
-              transition={{ duration: 0.6, type: "spring", stiffness: 200, delay: 0.2 }}
-            >
-              <Building2 className="w-8 h-8 text-blue-600" />
-            </motion.div>
-            <motion.h1 
-              className="text-2xl font-bold text-gray-900 mb-2"
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-            >
-              Únete a miservicio
-            </motion.h1>
-            <motion.p 
-              className="text-gray-600 text-sm leading-relaxed"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-            >
-              Crea tu cuenta y conecta con los mejores servicios profesionales
-            </motion.p>
-          </CardHeader>
+      <Card className="shadow-[0_8px_40px_-12px_rgba(0,0,0,0.1)] border-slate-100 rounded-[32px] overflow-hidden">
+        <CardHeader className="text-center pb-2 pt-10 px-8">
+          <motion.div 
+            className="mx-auto mb-6 w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center"
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            <Building2 className="w-8 h-8 text-primary" />
+          </motion.div>
+          <motion.h1 
+            className="text-3xl font-black text-[#0e315d] mb-3 tracking-tight"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+          >
+            Unite a miservicio
+          </motion.h1>
+          <motion.p 
+            className="text-slate-500 font-medium leading-relaxed"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+          >
+            Conectá con las mejores soluciones para tu hogar
+          </motion.p>
+        </CardHeader>
 
-        <CardContent className="px-8 pb-8">
+        <CardContent className="px-8 md:px-10 pb-10 pt-6">
           <AnimatePresence mode="wait">
             {isSuccess ? (
               <motion.div
@@ -336,16 +330,16 @@ export default function RegisterPage() {
                 animate={{ opacity: 1, scale: 1 }}
                 className="text-center py-8"
               >
-                <div className="mx-auto mb-6 w-20 h-20 bg-green-100 rounded-full flex items-center justify-center">
-                  <Mail className="w-10 h-10 text-green-600" />
+                <div className="mx-auto mb-6 w-20 h-20 bg-emerald-50 rounded-3xl flex items-center justify-center">
+                  <Mail className="w-10 h-10 text-emerald-600" />
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">¡Casi listo!</h2>
-                <p className="text-gray-600 mb-8 leading-relaxed">
-                  Hemos enviado un correo a tu casilla. Por favor, revisa tu bandeja de entrada y haz clic en el enlace para activar tu cuenta.
+                <h2 className="text-2xl font-black text-[#0e315d] mb-4">¡Casi listo!</h2>
+                <p className="text-slate-500 mb-8 leading-relaxed font-medium">
+                  Enviamos un correo de activación a tu casilla. Revisá tu bandeja de entrada para continuar.
                 </p>
                 <Link href="/">
-                  <Button variant="outline" className="text-sm">
-                    Volver al inicio
+                  <Button className="bg-primary hover:bg-primary/90 text-white font-black px-8 h-12 rounded-xl">
+                    Ir al Inicio
                   </Button>
                 </Link>
               </motion.div>
@@ -357,633 +351,437 @@ export default function RegisterPage() {
                 transition={{ duration: 0.5, delay: 0.5 }}
               >
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <motion.div 
-                className="mb-6"
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: 0.6 }}
-              >
-                <AnimatedTabSelector
-                  value={activeTab}
-                  onValueChange={setActiveTab}
-                  options={[
-                    { value: "cliente", label: "Cliente" },
-                    { value: "proveedor", label: "Proveedor de servicios" }
-                  ]}
-                />
-              </motion.div>
-
-            <AnimatePresence mode="wait">
-              <TabsContent value="cliente" key="cliente">
-                <motion.div
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 20 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <div className="mb-4">
-                    <h2 className="text-lg font-semibold text-gray-900">Crear Cuenta</h2>
-                  </div>
-
-                  <form onSubmit={handleClientSubmit} className="space-y-4">
-                    <AnimatePresence>
-                      {errors.general && (
-                        <motion.div 
-                          className="bg-red-50 border border-red-200 rounded-lg p-3"
-                          initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                          animate={{ opacity: 1, y: 0, scale: 1 }}
-                          exit={{ opacity: 0, scale: 0.95 }}
-                          transition={{ duration: 0.3 }}
-                        >
-                          <p className="text-red-600 text-sm">{errors.general}</p>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="firstName" className="text-sm font-medium text-gray-700">
-                      Nombre
-                    </Label>
-                    <div className="relative">
-                      <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                      <Input
-                        id="firstName"
-                        type="text"
-                        value={clientForm.firstName}
-                        onChange={(e) => setClientForm({ ...clientForm, firstName: e.target.value })}
-                        className={`pl-10 h-12 border-gray-300 focus:border-blue-600 focus:ring-blue-600 ${errors.firstName ? "border-red-500" : ""}`}
-                      />
-                    </div>
-                    {errors.firstName && <p className="text-red-500 text-sm">{errors.firstName}</p>}
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="lastName" className="text-sm font-medium text-gray-700">
-                      Apellido
-                    </Label>
-                    <div className="relative">
-                      <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                      <Input
-                        id="lastName"
-                        type="text"
-                        value={clientForm.lastName}
-                        onChange={(e) => setClientForm({ ...clientForm, lastName: e.target.value })}
-                        className={`pl-10 h-12 border-gray-300 focus:border-blue-600 focus:ring-blue-600 ${errors.lastName ? "border-red-500" : ""}`}
-                      />
-                    </div>
-                    {errors.lastName && <p className="text-red-500 text-sm">{errors.lastName}</p>}
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="clientEmail" className="text-sm font-medium text-gray-700">
-                    Email
-                  </Label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                    <Input
-                      id="clientEmail"
-                      type="email"
-                      placeholder="tu@email.com"
-                      value={clientForm.email}
-                      onChange={(e) => setClientForm({ ...clientForm, email: e.target.value })}
-                      className={`pl-10 h-12 border-gray-300 focus:border-blue-600 focus:ring-blue-600 ${errors.email ? "border-red-500" : ""}`}
+                  <motion.div 
+                    className="mb-8"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: 0.6 }}
+                  >
+                    <AnimatedTabSelector
+                      value={activeTab}
+                      onValueChange={setActiveTab}
+                      options={[
+                        { value: "cliente", label: "Soy Cliente" },
+                        { value: "proveedor", label: "Soy Profesional" }
+                      ]}
                     />
-                  </div>
-                  {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
-                </div>
+                  </motion.div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="clientPhone" className="text-sm font-medium text-gray-700">
-                    Teléfono (opcional)
-                  </Label>
-                  <div className="relative">
-                    <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                    <Input
-                      id="clientPhone"
-                      type="tel"
-                      placeholder="+54 11 1234-5678"
-                      value={clientForm.phone}
-                      onChange={(e) => setClientForm({ ...clientForm, phone: e.target.value })}
-                      className="pl-10 h-12 border-gray-300 focus:border-blue-600 focus:ring-blue-600"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="clientPassword" className="text-sm font-medium text-gray-700">
-                    Contraseña
-                  </Label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                    <Input
-                      id="clientPassword"
-                      type={showPassword ? "text" : "password"}
-                      value={clientForm.password}
-                      onChange={(e) => setClientForm({ ...clientForm, password: e.target.value })}
-                      className={`pl-10 pr-10 h-12 border-gray-300 focus:border-blue-600 focus:ring-blue-600 ${errors.password ? "border-red-500" : ""}`}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
-                    >
-                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                    </button>
-                  </div>
-                  {errors.password && <p className="text-red-500 text-sm">{errors.password}</p>}
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="clientConfirmPassword" className="text-sm font-medium text-gray-700">
-                    Confirmar Contraseña
-                  </Label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                    <Input
-                      id="clientConfirmPassword"
-                      type={showConfirmPassword ? "text" : "password"}
-                      value={clientForm.confirmPassword}
-                      onChange={(e) => setClientForm({ ...clientForm, confirmPassword: e.target.value })}
-                      className={`pl-10 pr-10 h-12 border-gray-300 focus:border-blue-600 focus:ring-blue-600 ${errors.confirmPassword ? "border-red-500" : ""}`}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
-                    >
-                      {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                    </button>
-                  </div>
-                  {errors.confirmPassword && <p className="text-red-500 text-sm">{errors.confirmPassword}</p>}
-                </div>
-
-                <div className="flex items-start space-x-2 pt-2">
-                  <Checkbox
-                    id="clientTerms"
-                    checked={clientForm.acceptTerms}
-                    onCheckedChange={(checked) => setClientForm({ ...clientForm, acceptTerms: !!checked })}
-                    className="mt-1"
-                  />
-                  <Label htmlFor="clientTerms" className="text-sm text-gray-600 leading-relaxed cursor-pointer">
-                    Acepto los{" "}
-                    <Link href="/legal/terminos" className="text-blue-600 hover:text-blue-800">
-                      términos y condiciones
-                    </Link>{" "}
-                    y la{" "}
-                    <Link href="/legal/privacidad" className="text-blue-600 hover:text-blue-800">
-                      política de privacidad
-                    </Link>
-                  </Label>
-                </div>
-                {errors.acceptTerms && <p className="text-red-500 text-sm">{errors.acceptTerms}</p>}
-
-                    <motion.div
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      <Button
-                        type="submit"
-                        className="w-full h-12 text-white font-medium mt-6"
-                        style={{ backgroundColor: "#2563EB" }}
-                        disabled={isLoading}
+                  <AnimatePresence mode="wait">
+                    <TabsContent value="cliente" key="cliente" className="mt-0 outline-none">
+                      <motion.div
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: 20 }}
+                        className="space-y-5"
                       >
-                        {isLoading ? (
-                          <motion.span
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ repeat: Infinity, duration: 0.8, repeatType: "reverse" }}
-                          >
-                            Creando cuenta...
-                          </motion.span>
-                        ) : (
-                          "Crear cuenta"
-                        )}
-                      </Button>
-                    </motion.div>
-
-                    <p className="text-center text-sm text-gray-600 mt-4">
-                      ¿Ya tienes una cuenta?{" "}
-                      <Link href="/auth/login" className="text-blue-600 hover:text-blue-800 font-medium">
-                        Inicia sesión
-                      </Link>
-                    </p>
-                  </form>
-                </motion.div>
-              </TabsContent>
-
-              <TabsContent value="proveedor" key="proveedor">
-                <motion.div
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <div className="mb-6">
-                    <div className="flex justify-between items-center mb-2">
-                      <h2 className="text-lg font-semibold text-gray-900">Crear Cuenta (Proveedor)</h2>
-                      <span className="text-sm text-gray-500">Paso {currentStep} de 2</span>
-                    </div>
-                    <motion.div
-                      initial={{ scaleX: 0 }}
-                      animate={{ scaleX: 1 }}
-                      transition={{ duration: 0.5 }}
-                    >
-                      <Progress value={currentStep === 1 ? 50 : 100} className="h-2" />
-                    </motion.div>
-                  </div>
-
-                  <form onSubmit={handleProviderSubmit} className="space-y-4">
-                    <AnimatePresence>
-                      {errors.general && (
-                        <motion.div 
-                          className="bg-red-50 border border-red-200 rounded-lg p-3"
-                          initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                          animate={{ opacity: 1, y: 0, scale: 1 }}
-                          exit={{ opacity: 0, scale: 0.95 }}
-                          transition={{ duration: 0.3 }}
-                        >
-                          <p className="text-red-600 text-sm">{errors.general}</p>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-
-                    <AnimatePresence mode="wait">
-                      {currentStep === 1 && (
-                        <motion.div
-                          key="step1"
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          exit={{ opacity: 0, x: 20 }}
-                          transition={{ duration: 0.3 }}
-                        >
-                  <div className="space-y-4">
-                    <h3 className="font-medium text-gray-900 mb-4">Información de la cuenta</h3>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="providerEmail" className="text-sm font-medium text-gray-700">
-                        Email
-                      </Label>
-                      <div className="relative">
-                        <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                        <Input
-                          id="providerEmail"
-                          type="email"
-                          placeholder="tu@email.com"
-                          value={providerForm.email}
-                          onChange={(e) => setProviderForm({ ...providerForm, email: e.target.value })}
-                          className={`pl-10 h-12 border-gray-300 focus:border-blue-600 focus:ring-blue-600 ${errors.email ? "border-red-500" : ""}`}
-                        />
-                      </div>
-                      {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="providerPassword" className="text-sm font-medium text-gray-700">
-                        Contraseña
-                      </Label>
-                      <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                        <Input
-                          id="providerPassword"
-                          type={showPassword ? "text" : "password"}
-                          value={providerForm.password}
-                          onChange={(e) => setProviderForm({ ...providerForm, password: e.target.value })}
-                          className={`pl-10 pr-10 h-12 border-gray-300 focus:border-blue-600 focus:ring-blue-600 ${errors.password ? "border-red-500" : ""}`}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
-                        >
-                          {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                        </button>
-                      </div>
-                      {errors.password && <p className="text-red-500 text-sm">{errors.password}</p>}
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="providerConfirmPassword" className="text-sm font-medium text-gray-700">
-                        Confirmar Contraseña
-                      </Label>
-                      <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                        <Input
-                          id="providerConfirmPassword"
-                          type={showConfirmPassword ? "text" : "password"}
-                          value={providerForm.confirmPassword}
-                          onChange={(e) => setProviderForm({ ...providerForm, confirmPassword: e.target.value })}
-                          className={`pl-10 pr-10 h-12 border-gray-300 focus:border-blue-600 focus:ring-blue-600 ${errors.confirmPassword ? "border-red-500" : ""}`}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
-                        >
-                          {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                        </button>
-                      </div>
-                      {errors.confirmPassword && <p className="text-red-500 text-sm">{errors.confirmPassword}</p>}
-                    </div>
-
-                          <div className="flex justify-end pt-6">
-                            <motion.div
-                              whileHover={{ scale: 1.05 }}
-                              whileTap={{ scale: 0.95 }}
-                            >
-                              <Button
-                                type="button"
-                                onClick={handleNextStep}
-                                className="h-12 px-8 text-white font-medium"
-                                style={{ backgroundColor: "#2563EB" }}
+                        <form onSubmit={handleClientSubmit} className="space-y-5">
+                          <AnimatePresence>
+                            {errors.general && (
+                              <motion.div 
+                                className="bg-red-50 border border-red-100 rounded-2xl p-4 flex items-center gap-3"
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.95 }}
                               >
-                                Siguiente
-                                <ArrowRight className="w-4 h-4 ml-2" />
-                              </Button>
-                            </motion.div>
+                                <div className="w-2 h-2 rounded-full bg-red-500" />
+                                <p className="text-red-600 text-sm font-bold">{errors.general}</p>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                              <Label htmlFor="firstName" className="text-sm font-bold text-[#0e315d] ml-1">Nombre</Label>
+                              <div className="relative group">
+                                <User className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5 group-focus-within:text-primary" />
+                                <Input
+                                  id="firstName"
+                                  placeholder="ej: Juan"
+                                  value={clientForm.firstName}
+                                  onChange={(e) => setClientForm({ ...clientForm, firstName: e.target.value })}
+                                  className={`pl-12 h-14 bg-slate-50/50 border-slate-200 rounded-2xl focus:bg-white focus:border-primary transition-all font-medium ${errors.firstName ? "border-red-300 bg-red-50/30" : ""}`}
+                                />
+                              </div>
+                              {errors.firstName && <p className="text-red-500 text-xs font-bold ml-1">{errors.firstName}</p>}
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label htmlFor="lastName" className="text-sm font-bold text-[#0e315d] ml-1">Apellido</Label>
+                              <div className="relative group">
+                                <User className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5 group-focus-within:text-primary" />
+                                <Input
+                                  id="lastName"
+                                  placeholder="ej: Pérez"
+                                  value={clientForm.lastName}
+                                  onChange={(e) => setClientForm({ ...clientForm, lastName: e.target.value })}
+                                  className={`pl-12 h-14 bg-slate-50/50 border-slate-200 rounded-2xl focus:bg-white focus:border-primary transition-all font-medium ${errors.lastName ? "border-red-300 bg-red-50/30" : ""}`}
+                                />
+                              </div>
+                              {errors.lastName && <p className="text-red-500 text-xs font-bold ml-1">{errors.lastName}</p>}
+                            </div>
                           </div>
+
+                          <div className="space-y-2">
+                            <Label htmlFor="clientEmail" className="text-sm font-bold text-[#0e315d] ml-1">Email</Label>
+                            <div className="relative group">
+                              <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5 group-focus-within:text-primary" />
+                              <Input
+                                id="clientEmail"
+                                type="email"
+                                placeholder="ej: juan@gmail.com"
+                                value={clientForm.email}
+                                onChange={(e) => setClientForm({ ...clientForm, email: e.target.value })}
+                                className={`pl-12 h-14 bg-slate-50/50 border-slate-200 rounded-2xl focus:bg-white focus:border-primary transition-all font-medium ${errors.email ? "border-red-300 bg-red-50/30" : ""}`}
+                              />
+                            </div>
+                            {errors.email && <p className="text-red-500 text-xs font-bold ml-1">{errors.email}</p>}
                           </div>
-                        </motion.div>
-                      )}
 
-                      {currentStep === 2 && (
-                        <motion.div
-                          key="step2"
-                          initial={{ opacity: 0, x: 20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          exit={{ opacity: 0, x: -20 }}
-                          transition={{ duration: 0.3 }}
-                        >
-                          <div className="space-y-4">
-                            <h3 className="font-medium text-gray-900 mb-4">Perfil profesional</h3>
-                    <div className="space-y-2">
-                      <Label htmlFor="avatar" className="text-sm font-medium text-gray-700">
-                        Foto de perfil <span className="text-red-500">*</span>
-                      </Label>
-                      <Input 
-                        id="avatar" 
-                        type="file" 
-                        accept="image/*" 
-                        onChange={(e) => {
-                          const file = e.target.files?.[0] || null
-                          setAvatarFile(file)
-                          if (file && errors.avatar) {
-                            setErrors({ ...errors, avatar: "" })
-                          }
-                        }}
-                        className={`file:bg-white file:cursor-pointer file:border file:rounded-md file:px-4 file:py-2 file:mr-4 file:hover:bg-gray-50 file:text-sm file:font-medium file:text-gray-700 cursor-pointer ${errors.avatar ? "file:border-red-500 border-red-500" : "file:border-gray-300"}`}
-                      />
-                      <p className="text-xs text-gray-500">JPG/PNG/WEBP hasta 5MB</p>
-                      {errors.avatar && <p className="text-red-500 text-sm">{errors.avatar}</p>}
-                    </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="clientPhone" className="text-sm font-bold text-[#0e315d] ml-1">Teléfono (opcional)</Label>
+                            <div className="relative group">
+                              <Phone className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5 group-focus-within:text-primary" />
+                              <Input
+                                id="clientPhone"
+                                type="tel"
+                                placeholder="ej: 2604123456"
+                                value={clientForm.phone}
+                                onChange={(e) => setClientForm({ ...clientForm, phone: e.target.value })}
+                                className="pl-12 h-14 bg-slate-50/50 border-slate-200 rounded-2xl focus:bg-white focus:border-primary transition-all font-medium"
+                              />
+                            </div>
+                          </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="providerFirstName" className="text-sm font-medium text-gray-700">
-                          Nombre
-                        </Label>
-                        <div className="relative">
-                          <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                          <Input
-                            id="providerFirstName"
-                            type="text"
-                            value={providerForm.firstName}
-                            onChange={(e) => setProviderForm({ ...providerForm, firstName: e.target.value })}
-                            className={`pl-10 h-12 border-gray-300 focus:border-blue-600 focus:ring-blue-600 ${errors.firstName ? "border-red-500" : ""}`}
-                          />
-                        </div>
-                        {errors.firstName && <p className="text-red-500 text-sm">{errors.firstName}</p>}
-                      </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="clientPassword" className="text-sm font-bold text-[#0e315d] ml-1">Contraseña</Label>
+                            <div className="relative group">
+                              <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5 group-focus-within:text-primary" />
+                              <Input
+                                id="clientPassword"
+                                type={showPassword ? "text" : "password"}
+                                placeholder="Mínimo 8 caracteres"
+                                value={clientForm.password}
+                                onChange={(e) => setClientForm({ ...clientForm, password: e.target.value })}
+                                className={`pl-12 pr-12 h-14 bg-slate-50/50 border-slate-200 rounded-2xl focus:bg-white focus:border-primary transition-all font-medium ${errors.password ? "border-red-300 bg-red-50/30" : ""}`}
+                              />
+                              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                              </button>
+                            </div>
+                            {errors.password && <p className="text-red-500 text-xs font-bold ml-1">{errors.password}</p>}
+                          </div>
 
-                      <div className="space-y-2">
-                        <Label htmlFor="providerLastName" className="text-sm font-medium text-gray-700">
-                          Apellido
-                        </Label>
-                        <div className="relative">
-                          <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                          <Input
-                            id="providerLastName"
-                            type="text"
-                            value={providerForm.lastName}
-                            onChange={(e) => setProviderForm({ ...providerForm, lastName: e.target.value })}
-                            className={`pl-10 h-12 border-gray-300 focus:border-blue-600 focus:ring-blue-600 ${errors.lastName ? "border-red-500" : ""}`}
-                          />
-                        </div>
-                        {errors.lastName && <p className="text-red-500 text-sm">{errors.lastName}</p>}
-                      </div>
-                    </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="clientConfirmPassword" className="text-sm font-bold text-[#0e315d] ml-1">Confirmar Contraseña</Label>
+                            <div className="relative group">
+                              <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5 group-focus-within:text-primary" />
+                              <Input
+                                id="clientConfirmPassword"
+                                type={showConfirmPassword ? "text" : "password"}
+                                placeholder="Repetir contraseña"
+                                value={clientForm.confirmPassword}
+                                onChange={(e) => setClientForm({ ...clientForm, confirmPassword: e.target.value })}
+                                className={`pl-12 pr-12 h-14 bg-slate-50/50 border-slate-200 rounded-2xl focus:bg-white focus:border-primary transition-all font-medium ${errors.confirmPassword ? "border-red-300 bg-red-50/30" : ""}`}
+                              />
+                              <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                                {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                              </button>
+                            </div>
+                            {errors.confirmPassword && <p className="text-red-500 text-xs font-bold ml-1">{errors.confirmPassword}</p>}
+                          </div>
 
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium text-gray-700">
-                        Rubros (puedes seleccionar varios)
-                      </Label>
-                      <div className="grid grid-cols-1 gap-3">
-                        {RUBROS.map((rubro) => (
-                          <div key={rubro} className="flex items-center space-x-3">
+                          <div className="flex items-start space-x-3 pt-2 bg-slate-50/50 p-4 rounded-2xl border border-slate-100">
                             <Checkbox
-                              id={`rubro-${rubro}`}
-                              checked={providerForm.rubros.includes(rubro)}
-                              onCheckedChange={(checked) => {
-                                if (checked) {
-                                  setProviderForm({
-                                    ...providerForm,
-                                    rubros: [...providerForm.rubros, rubro]
-                                  })
-                                } else {
-                                  setProviderForm({
-                                    ...providerForm,
-                                    rubros: providerForm.rubros.filter(r => r !== rubro)
-                                  })
-                                }
-                              }}
+                              id="clientTerms"
+                              checked={clientForm.acceptTerms}
+                              onCheckedChange={(checked) => setClientForm({ ...clientForm, acceptTerms: !!checked })}
+                              className="mt-1 border-slate-300 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                             />
-                            <Label htmlFor={`rubro-${rubro}`} className="text-sm text-gray-700 cursor-pointer">
-                              {rubro}
+                            <Label htmlFor="clientTerms" className="text-xs text-slate-500 leading-relaxed cursor-pointer font-medium">
+                              Acepto los{" "}
+                              <Link href="/legal/terminos" target="_blank" className="text-primary font-bold hover:underline">términos y condiciones</Link>
+                              {" "}y la{" "}
+                              <Link href="/legal/privacidad" target="_blank" className="text-primary font-bold hover:underline">política de privacidad</Link>
                             </Label>
                           </div>
-                        ))}
-                      </div>
-                      {errors.rubros && <p className="text-red-500 text-sm">{errors.rubros}</p>}
-                    </div>
+                          {errors.acceptTerms && <p className="text-red-500 text-xs font-bold ml-1">{errors.acceptTerms}</p>}
 
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="provincia" className="text-sm font-medium text-gray-700">
-                          Provincia
-                        </Label>
-                        <Input
-                          id="provincia"
-                          type="text"
-                          value={providerForm.provincia}
-                          onChange={(e) => setProviderForm({ ...providerForm, provincia: e.target.value })}
-                          className={`h-12 border-gray-300 focus:border-blue-600 focus:ring-blue-600 ${errors.provincia ? "border-red-500" : ""}`}
-                        />
-                        {errors.provincia && <p className="text-red-500 text-sm">{errors.provincia}</p>}
-                      </div>
+                          <Button
+                            type="submit"
+                            className="w-full h-14 bg-primary hover:bg-primary/90 text-white font-black text-lg rounded-2xl shadow-lg shadow-primary/20 transition-all active:scale-95 disabled:opacity-70"
+                            disabled={isLoading}
+                          >
+                            {isLoading ? "Creando cuenta..." : "Crear cuenta"}
+                          </Button>
+                        </form>
+                      </motion.div>
+                    </TabsContent>
 
-                      <div className="space-y-2">
-                        <Label htmlFor="ciudad" className="text-sm font-medium text-gray-700">
-                          Ciudad
-                        </Label>
-                        <Input
-                          id="ciudad"
-                          type="text"
-                          value={providerForm.ciudad}
-                          onChange={(e) => setProviderForm({ ...providerForm, ciudad: e.target.value })}
-                          className={`h-12 border-gray-300 focus:border-blue-600 focus:ring-blue-600 ${errors.ciudad ? "border-red-500" : ""}`}
-                        />
-                        {errors.ciudad && <p className="text-red-500 text-sm">{errors.ciudad}</p>}
-                      </div>
-                    </div>
+                    <TabsContent value="proveedor" key="proveedor" className="mt-0 outline-none">
+                      <motion.div
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        className="space-y-6"
+                      >
+                        <div className="flex justify-between items-center bg-slate-50/80 p-4 rounded-2xl border border-slate-100">
+                          <div className="space-y-1">
+                            <h3 className="text-sm font-black text-[#0e315d]">Paso {currentStep} de 2</h3>
+                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+                              {currentStep === 1 ? "Información básica" : "Perfil Profesional"}
+                            </p>
+                          </div>
+                          <div className="w-32">
+                            <Progress value={currentStep === 1 ? 50 : 100} className="h-2 bg-slate-200" />
+                          </div>
+                        </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="providerPhone" className="text-sm font-medium text-gray-700">
-                        Teléfono/WhatsApp
-                      </Label>
-                      <div className="relative">
-                        <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                        <Input
-                          id="providerPhone"
-                          type="tel"
-                          placeholder="+54 9 ..."
-                          value={providerForm.phone}
-                          onChange={(e) => setProviderForm({ ...providerForm, phone: e.target.value })}
-                          className="pl-10 h-12 border-gray-300 focus:border-blue-600 focus:ring-blue-600"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between py-2">
-                      <Label htmlFor="emergency" className="text-sm font-medium text-gray-700">
-                        ¿Atiende urgencias?
-                      </Label>
-                      <Switch
-                        id="emergency"
-                        checked={providerForm.emergencyAvailable}
-                        onCheckedChange={(checked) => setProviderForm({ ...providerForm, emergencyAvailable: checked })}
-                        className="cursor-pointer data-[state=unchecked]:bg-gray-200 data-[state=unchecked]:border data-[state=unchecked]:border-gray-300"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="experience" className="text-sm font-medium text-gray-700">
-                        Años de experiencia
-                      </Label>
-                      <Input
-                        id="experience"
-                        type="number"
-                        min="0"
-                        max="80"
-                        value={providerForm.yearsExperience}
-                        onChange={(e) => setProviderForm({ ...providerForm, yearsExperience: e.target.value })}
-                        className={`h-12 border-gray-300 focus:border-blue-600 focus:ring-blue-600 ${errors.yearsExperience ? "border-red-500" : ""}`}
-                      />
-                      {errors.yearsExperience && <p className="text-red-500 text-sm">{errors.yearsExperience}</p>}
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="description" className="text-sm font-medium text-gray-700">
-                        Descripción <span className="text-red-500">*</span>
-                      </Label>
-                      <Textarea
-                        id="description"
-                        placeholder="Describe tu experiencia y servicios (máx. 2000 caracteres)"
-                        value={providerForm.description}
-                        onChange={(e) => {
-                          setProviderForm({ ...providerForm, description: e.target.value })
-                          if (e.target.value.trim().length > 0 && errors.description) {
-                            setErrors({ ...errors, description: "" })
-                          }
-                        }}
-                        maxLength={2000}
-                        className={`min-h-[100px] border-gray-300 focus:border-blue-600 focus:ring-blue-600 ${errors.description ? "border-red-500" : ""}`}
-                      />
-                      <p className="text-xs text-gray-500 text-right">{providerForm.description.length}/2000</p>
-                      {errors.description && <p className="text-red-500 text-sm">{errors.description}</p>}
-                    </div>
-
-                    <div className="flex items-start space-x-2 pt-2">
-                      <Checkbox
-                        id="providerTerms"
-                        checked={providerForm.acceptTerms}
-                        onCheckedChange={(checked) => setProviderForm({ ...providerForm, acceptTerms: !!checked })}
-                        className="mt-1"
-                      />
-                      <Label htmlFor="providerTerms" className="text-sm text-gray-600 leading-relaxed cursor-pointer">
-                        Acepto los{" "}
-                        <Link href="/legal/terminos" className="text-blue-600 hover:text-blue-800">
-                          términos y condiciones
-                        </Link>{" "}
-                        y la{" "}
-                        <Link href="/legal/privacidad" className="text-blue-600 hover:text-blue-800">
-                          política de privacidad
-                        </Link>
-                      </Label>
-                    </div>
-                    {errors.acceptTerms && <p className="text-red-500 text-sm">{errors.acceptTerms}</p>}
-
-                          <div className="flex justify-between pt-6">
-                            <motion.div
-                              whileHover={{ scale: 1.05 }}
-                              whileTap={{ scale: 0.95 }}
-                            >
-                              <Button
-                                type="button"
-                                onClick={handlePrevStep}
-                                variant="outline"
-                                className="h-12 px-8 font-medium bg-transparent"
+                        <form onSubmit={handleProviderSubmit} className="space-y-5">
+                          <AnimatePresence mode="wait">
+                            {currentStep === 1 ? (
+                              <motion.div
+                                key="step1"
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: 20 }}
+                                className="space-y-5"
                               >
-                                <ArrowLeft className="w-4 h-4 mr-2" />
-                                Volver
-                              </Button>
-                            </motion.div>
-                            <motion.div
-                              whileHover={{ scale: 1.05 }}
-                              whileTap={{ scale: 0.95 }}
-                            >
-                              <Button
-                                type="submit"
-                                className="h-12 px-8 text-white font-medium"
-                                style={{ backgroundColor: "#2563EB" }}
-                                disabled={isLoading}
-                              >
-                                {isLoading ? (
-                                  <motion.span
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    transition={{ repeat: Infinity, duration: 0.8, repeatType: "reverse" }}
+                                <div className="space-y-2">
+                                  <Label htmlFor="providerEmail" className="text-sm font-bold text-[#0e315d] ml-1">Email</Label>
+                                  <div className="relative group">
+                                    <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5 group-focus-within:text-primary" />
+                                    <Input
+                                      id="providerEmail"
+                                      type="email"
+                                      placeholder="ej: profesional@gmail.com"
+                                      value={providerForm.email}
+                                      onChange={(e) => setProviderForm({ ...providerForm, email: e.target.value })}
+                                      className={`pl-12 h-14 bg-slate-50/50 border-slate-200 rounded-2xl focus:bg-white focus:border-primary transition-all font-medium ${errors.email ? "border-red-300 bg-red-50/30" : ""}`}
+                                    />
+                                  </div>
+                                  {errors.email && <p className="text-red-500 text-xs font-bold ml-1">{errors.email}</p>}
+                                </div>
+
+                                <div className="space-y-2">
+                                  <Label htmlFor="providerPassword" className="text-sm font-bold text-[#0e315d] ml-1">Contraseña</Label>
+                                  <div className="relative group">
+                                    <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5 group-focus-within:text-primary" />
+                                    <Input
+                                      id="providerPassword"
+                                      type={showPassword ? "text" : "password"}
+                                      placeholder="Mínimo 8 caracteres"
+                                      value={providerForm.password}
+                                      onChange={(e) => setProviderForm({ ...providerForm, password: e.target.value })}
+                                      className={`pl-12 pr-12 h-14 bg-slate-50/50 border-slate-200 rounded-2xl focus:bg-white focus:border-primary transition-all font-medium ${errors.password ? "border-red-300 bg-red-50/30" : ""}`}
+                                    />
+                                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                    </button>
+                                  </div>
+                                  {errors.password && <p className="text-red-500 text-xs font-bold ml-1">{errors.password}</p>}
+                                </div>
+
+                                <div className="space-y-2">
+                                  <Label htmlFor="providerConfirmPassword" className="text-sm font-bold text-[#0e315d] ml-1">Confirmar Contraseña</Label>
+                                  <div className="relative group">
+                                    <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5 group-focus-within:text-primary" />
+                                    <Input
+                                      id="providerConfirmPassword"
+                                      type={showConfirmPassword ? "text" : "password"}
+                                      placeholder="Repetir contraseña"
+                                      value={providerForm.confirmPassword}
+                                      onChange={(e) => setProviderForm({ ...providerForm, confirmPassword: e.target.value })}
+                                      className={`pl-12 pr-12 h-14 bg-slate-50/50 border-slate-200 rounded-2xl focus:bg-white focus:border-primary transition-all font-medium ${errors.confirmPassword ? "border-red-300 bg-red-50/30" : ""}`}
+                                    />
+                                    <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                                      {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                    </button>
+                                  </div>
+                                  {errors.confirmPassword && <p className="text-red-500 text-xs font-bold ml-1">{errors.confirmPassword}</p>}
+                                </div>
+
+                                <div className="flex justify-end pt-4">
+                                  <Button
+                                    type="button"
+                                    onClick={handleNextStep}
+                                    className="h-14 px-10 bg-[#0e315d] hover:bg-[#0e315d]/90 text-white font-black text-lg rounded-2xl shadow-lg transition-all active:scale-95 group"
                                   >
-                                    Creando cuenta...
-                                  </motion.span>
-                                ) : (
-                                  "Crear cuenta de proveedor"
-                                )}
-                              </Button>
-                            </motion.div>
-                          </div>
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+                                    Siguiente
+                                    <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                                  </Button>
+                                </div>
+                              </motion.div>
+                            ) : (
+                              <motion.div
+                                key="step2"
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: -20 }}
+                                className="space-y-5"
+                              >
+                                <div className="space-y-2">
+                                  <Label htmlFor="avatar" className="text-sm font-bold text-[#0e315d] ml-1">
+                                    Foto de perfil <span className="text-red-500">*</span>
+                                  </Label>
+                                  <div className="flex items-center gap-4 bg-slate-50/50 p-4 rounded-2xl border border-dashed border-slate-200">
+                                    <div className="w-16 h-16 rounded-2xl bg-white border border-slate-100 flex items-center justify-center overflow-hidden shrink-0 shadow-sm text-slate-300">
+                                      {avatarFile ? (
+                                        <img src={URL.createObjectURL(avatarFile)} className="w-full h-full object-cover" alt="Preview" />
+                                      ) : (
+                                        <User size={32} />
+                                      )}
+                                    </div>
+                                    <div className="flex-1">
+                                      <Input 
+                                        id="avatar" 
+                                        type="file" 
+                                        accept="image/*" 
+                                        onChange={(e) => {
+                                          const file = e.target.files?.[0] || null
+                                          setAvatarFile(file)
+                                          if (file && errors.avatar) setErrors({ ...errors, avatar: "" })
+                                        }}
+                                        className="h-auto py-1.5 px-3 bg-white text-xs border-slate-200 rounded-xl cursor-pointer"
+                                      />
+                                      <p className="text-[10px] text-slate-400 mt-1 font-bold uppercase tracking-wider">JPG/PNG/WEBP hasta 5MB</p>
+                                    </div>
+                                  </div>
+                                  {errors.avatar && <p className="text-red-500 text-xs font-bold ml-1">{errors.avatar}</p>}
+                                </div>
 
-                    <p className="text-center text-sm text-gray-600 mt-4">
-                      ¿Ya tienes una cuenta?{" "}
-                      <Link href="/auth/login" className="text-blue-600 hover:text-blue-800 font-medium">
-                        Inicia sesión
-                      </Link>
-                    </p>
-                  </form>
-                </motion.div>
-              </TabsContent>
-            </AnimatePresence>
-          </Tabs>
+                                <div className="grid grid-cols-2 gap-4">
+                                  <div className="space-y-2">
+                                    <Label htmlFor="providerFirstName" className="text-sm font-bold text-[#0e315d] ml-1">Nombre</Label>
+                                    <Input
+                                      id="providerFirstName"
+                                      placeholder="ej: Roberto"
+                                      value={providerForm.firstName}
+                                      onChange={(e) => setProviderForm({ ...providerForm, firstName: e.target.value })}
+                                      className={`h-14 bg-slate-50/50 border-slate-200 rounded-2xl focus:bg-white transition-all font-medium ${errors.firstName ? "border-red-300" : ""}`}
+                                    />
+                                    {errors.firstName && <p className="text-red-500 text-xs font-bold ml-1">{errors.firstName}</p>}
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label htmlFor="providerLastName" className="text-sm font-bold text-[#0e315d] ml-1">Apellido</Label>
+                                    <Input
+                                      id="providerLastName"
+                                      placeholder="ej: Gómez"
+                                      value={providerForm.lastName}
+                                      onChange={(e) => setProviderForm({ ...providerForm, lastName: e.target.value })}
+                                      className={`h-14 bg-slate-50/50 border-slate-200 rounded-2xl focus:bg-white transition-all font-medium ${errors.lastName ? "border-red-300" : ""}`}
+                                    />
+                                    {errors.lastName && <p className="text-red-500 text-xs font-bold ml-1">{errors.lastName}</p>}
+                                  </div>
+                                </div>
+
+                                <div className="space-y-3">
+                                  <Label className="text-sm font-black text-[#0e315d] ml-1 block mb-2 uppercase tracking-widest">
+                                    ¿Cuál es tu rubro?
+                                  </Label>
+                                  <div className="flex flex-wrap gap-2">
+                                    {RUBROS.map((rubro) => (
+                                      <button
+                                        key={rubro}
+                                        type="button"
+                                        onClick={() => {
+                                          if (providerForm.rubros.includes(rubro)) {
+                                            setProviderForm({ ...providerForm, rubros: providerForm.rubros.filter(r => r !== rubro) })
+                                          } else {
+                                            setProviderForm({ ...providerForm, rubros: [...providerForm.rubros, rubro] })
+                                          }
+                                        }}
+                                        className={`px-4 py-2.5 rounded-full text-xs font-bold transition-all border shadow-sm active:scale-95 ${
+                                          providerForm.rubros.includes(rubro)
+                                            ? "bg-primary text-white border-primary shadow-primary/20"
+                                            : "bg-white text-slate-500 border-slate-200 hover:border-primary/30 hover:bg-slate-50"
+                                        }`}
+                                      >
+                                        {rubro}
+                                      </button>
+                                    ))}
+                                  </div>
+                                  {errors.rubros && <p className="text-red-500 text-xs font-bold ml-1">{errors.rubros}</p>}
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                  <div className="space-y-2">
+                                    <Label htmlFor="provincia" className="text-sm font-bold text-[#0e315d] ml-1">Provincia</Label>
+                                    <Input id="provincia" value={providerForm.provincia} onChange={(e) => setProviderForm({ ...providerForm, provincia: e.target.value })} className="h-14 bg-slate-50/50 border-slate-200 rounded-2xl focus:bg-white font-medium" />
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label htmlFor="ciudad" className="text-sm font-bold text-[#0e315d] ml-1">Ciudad</Label>
+                                    <Input id="ciudad" value={providerForm.ciudad} onChange={(e) => setProviderForm({ ...providerForm, ciudad: e.target.value })} className="h-14 bg-slate-50/50 border-slate-200 rounded-2xl focus:bg-white font-medium" />
+                                  </div>
+                                </div>
+
+                                <div className="space-y-2">
+                                  <Label htmlFor="providerPhone" className="text-sm font-bold text-[#0e315d] ml-1">WhatsApp</Label>
+                                  <Input id="providerPhone" type="tel" placeholder="ej: 2604..." value={providerForm.phone} onChange={(e) => setProviderForm({ ...providerForm, phone: e.target.value })} className="h-14 bg-slate-50/50 border-slate-200 rounded-2xl focus:bg-white font-medium" />
+                                </div>
+
+                                <div className="flex items-center justify-between p-4 bg-slate-50/50 border border-slate-100 rounded-2xl">
+                                  <div className="space-y-0.5">
+                                    <Label htmlFor="emergency" className="text-sm font-bold text-[#0e315d]">¿Atendés urgencias?</Label>
+                                    <p className="text-[10px] text-slate-400 font-medium">Figurarás disponible para trabajos inmediatos</p>
+                                  </div>
+                                  <Switch id="emergency" checked={providerForm.emergencyAvailable} onCheckedChange={(checked) => setProviderForm({ ...providerForm, emergencyAvailable: checked })} className="data-[state=checked]:bg-primary" />
+                                </div>
+
+                                <div className="space-y-2">
+                                  <Label htmlFor="description" className="text-sm font-bold text-[#0e315d] ml-1">Descripción de servicios <span className="text-red-500">*</span></Label>
+                                  <Textarea
+                                    id="description"
+                                    placeholder="Contanos un poco sobre tu experiencia y cómo trabajás..."
+                                    value={providerForm.description}
+                                    onChange={(e) => setProviderForm({ ...providerForm, description: e.target.value })}
+                                    className={`min-h-[120px] bg-slate-50/50 border-slate-200 rounded-2xl focus:bg-white font-medium resize-none ${errors.description ? "border-red-300" : ""}`}
+                                  />
+                                  <p className="text-[10px] text-slate-400 text-right font-bold tracking-widest uppercase">{providerForm.description.length}/2000</p>
+                                </div>
+
+                                <div className="flex items-start space-x-3 pt-2 bg-slate-50/50 p-4 rounded-2xl border border-slate-100">
+                                  <Checkbox
+                                    id="providerTerms"
+                                    checked={providerForm.acceptTerms}
+                                    onCheckedChange={(checked) => setProviderForm({ ...providerForm, acceptTerms: !!checked })}
+                                    className="mt-1 border-slate-300 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                                  />
+                                  <Label htmlFor="providerTerms" className="text-xs text-slate-500 leading-relaxed cursor-pointer font-medium">
+                                    Acepto los <Link href="/legal/terminos" target="_blank" className="text-primary font-bold hover:underline">términos y condiciones</Link> y la <Link href="/legal/privacidad" target="_blank" className="text-primary font-bold hover:underline">política de privacidad</Link>
+                                  </Label>
+                                </div>
+
+                                <div className="flex gap-4 pt-4">
+                                  <Button type="button" onClick={handlePrevStep} variant="outline" className="h-14 flex-1 border-slate-200 rounded-2xl font-bold text-slate-500 hover:bg-slate-50">
+                                    <ArrowLeft className="w-4 h-4 mr-2" /> Volver
+                                  </Button>
+                                  <Button type="submit" disabled={isLoading} className="h-14 flex-[2] bg-primary hover:bg-primary/90 text-white font-black text-lg rounded-2xl shadow-lg shadow-primary/20">
+                                    {isLoading ? "Creando..." : "Crear Perfil"}
+                                  </Button>
+                                </div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </form>
+                      </motion.div>
+                    </TabsContent>
+                  </AnimatePresence>
+                </Tabs>
+
+                <p className="text-center text-sm font-medium text-slate-500 mt-10 border-t border-slate-100 pt-8">
+                  ¿Ya tenés una cuenta?{" "}
+                  <Link href="/auth/login" className="text-primary font-black hover:underline">
+                    Iniciá sesión
+                  </Link>
+                </p>
               </motion.div>
             )}
           </AnimatePresence>
         </CardContent>
       </Card>
-      </motion.div>
     </motion.div>
+  )
+}
   )
 }
