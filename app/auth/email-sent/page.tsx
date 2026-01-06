@@ -7,6 +7,7 @@ import Link from "next/link"
 import { useAuth } from "@/contexts/AuthContext"
 import { useState } from "react"
 import { AuthService } from "@/lib/services/auth.service"
+import { motion, AnimatePresence } from "framer-motion"
 
 export default function EmailSentPage() {
   const { user } = useAuth()

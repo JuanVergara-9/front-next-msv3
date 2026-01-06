@@ -7,6 +7,7 @@ import { Building2, CheckCircle2, XCircle, Loader2, Mail } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { AuthService } from "@/lib/services/auth.service"
+import { motion } from "framer-motion"
 
 export default function VerifyEmailPage() {
   const router = useRouter()
