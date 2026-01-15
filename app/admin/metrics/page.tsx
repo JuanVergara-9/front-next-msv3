@@ -551,7 +551,8 @@ export default function AdminMetricsPage() {
                   <th className="px-4 py-3">Título</th>
                   <th className="px-4 py-3">Categoría</th>
                   <th className="px-4 py-3">Estado</th>
-                  <th className="px-4 py-3">ID Cliente</th>
+                  <th className="px-4 py-3">Cliente</th>
+                  <th className="px-4 py-3">Trabajador</th>
                   <th className="px-4 py-3 text-right">Acción</th>
                 </tr>
               </thead>
@@ -580,8 +581,41 @@ export default function AdminMetricsPage() {
                         {order.status}
                       </span>
                     </td>
-                    <td className="px-4 py-4 text-xs font-mono text-slate-400">
-                      #{order.user_id}
+                    <td className="px-4 py-4">
+                      <div className="flex items-center gap-2">
+                        {order.user_avatar ? (
+                          <img src={order.user_avatar} alt="" className="w-6 h-6 rounded-full object-cover" />
+                        ) : (
+                          <div className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-[10px] font-bold text-slate-400">
+                            {order.user_name?.charAt(0).toUpperCase() || 'U'}
+                          </div>
+                        )}
+                        <div className="flex flex-col">
+                          <span className="text-xs font-bold text-slate-700">{order.user_name || 'Usuario'}</span>
+                          <span className="text-[10px] font-mono text-slate-400">#{order.user_id}</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-4">
+                      {order.winner_provider ? (
+                        <div className="flex items-center gap-2">
+                          {order.winner_provider.avatar_url ? (
+                            <img src={order.winner_provider.avatar_url} alt="" className="w-6 h-6 rounded-full object-cover" />
+                          ) : (
+                            <div className="w-6 h-6 rounded-full bg-blue-50 flex items-center justify-center text-[10px] font-bold text-blue-400">
+                              {order.winner_provider.first_name?.charAt(0).toUpperCase()}
+                            </div>
+                          )}
+                          <div className="flex flex-col">
+                            <span className="text-xs font-bold text-slate-700">
+                              {order.winner_provider.first_name} {order.winner_provider.last_name}
+                            </span>
+                            <span className="text-[10px] text-blue-500 font-medium">Aceptado</span>
+                          </div>
+                        </div>
+                      ) : (
+                        <span className="text-[10px] font-medium text-slate-300 italic">Sin asignar</span>
+                      )}
                     </td>
                     <td className="px-4 py-4 text-right">
                       <button className="p-2 text-slate-400 hover:text-blue-600 transition-colors">

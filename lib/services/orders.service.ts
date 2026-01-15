@@ -32,6 +32,14 @@ export interface Order {
     created_at: string;
     category?: { name: string };
     postulations?: Postulation[];
+    user_name?: string;
+    user_avatar?: string;
+    winner_provider?: {
+        id: number;
+        first_name: string;
+        last_name: string;
+        avatar_url?: string;
+    };
 }
 
 export class OrdersService {
