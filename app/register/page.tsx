@@ -15,11 +15,27 @@ import { Progress } from "@/components/ui/progress"
 import { Eye, EyeOff, Mail, Lock, Building2, User, Phone, ArrowLeft, ArrowRight } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { useAuth } from "@/contexts/AuthContext"
+import { UserProfileService } from "@/lib/services/user-profile.service"
+import { ProvidersService } from "@/lib/services/providers.service"
+import toast from "react-hot-toast"
 
 const RUBROS = ["Plomería", "Gasistas", "Electricidad", "Carpintería", "Pintura", "Reparación de electrodomésticos"]
 
+// Mapeo de rubros a category_id (basado en el seeder del backend)
+const RUBRO_TO_CATEGORY_ID: { [key: string]: number } = {
+  "Plomería": 1,
+  "Gasistas": 2,
+  "Electricidad": 3,
+  "Jardinería": 4,
+  "Mantenimiento y limpieza de piletas": 5,
+  "Reparación de electrodomésticos": 6,
+  "Pintura": 8
+}
+
 export default function RegisterPage() {
   const router = useRouter()
+  const { register } = useAuth()
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [activeTab, setActiveTab] = useState("cliente")
@@ -145,17 +161,26 @@ export default function RegisterPage() {
     setIsLoading(true)
     
     try {
-      // TODO: Integrate with your AuthService
-      // const response = await AuthService.registerClient(clientForm)
+      await register(clientForm.email, clientForm.password)
       
-      // Simulate API call for now
-      await new Promise(resolve => setTimeout(resolve, 2000))
+      // Actualizar el perfil de usuario con nombre y apellido
+      try {
+        await UserProfileService.updateProfile({
+          first_name: clientForm.firstName,
+          last_name: clientForm.lastName,
+          phone_e164: clientForm.phone || undefined,
+          public_profile: true,
+        })
+      } catch (profileError) {
+        console.warn('Error updating user profile:', profileError)
+      }
       
-      // Redirect to home page after successful registration
+      toast.success('¡Cuenta creada exitosamente!')
       router.push('/')
-    } catch (error) {
+    } catch (error: any) {
       console.error('Registration error:', error)
-      setErrors({ general: 'Error al crear la cuenta. Intenta nuevamente.' })
+      setErrors({ general: error.message || 'Error al crear la cuenta. Intenta nuevamente.' })
+      toast.error(error.message || 'Error al crear la cuenta')
     } finally {
       setIsLoading(false)
     }
@@ -168,17 +193,43 @@ export default function RegisterPage() {
     setIsLoading(true)
     
     try {
-      // TODO: Integrate with your AuthService
-      // const response = await AuthService.registerProvider(providerForm)
+      await register(providerForm.email, providerForm.password)
+
+      // Actualizar perfil básico en user-service
+      try {
+        await UserProfileService.updateProfile({
+          first_name: providerForm.firstName,
+          last_name: providerForm.lastName,
+          public_profile: true,
+        })
+      } catch (profileError) {
+        console.warn('Error updating basic profile:', profileError)
+      }
       
-      // Simulate API call for now
-      await new Promise(resolve => setTimeout(resolve, 2000))
+      // Crear el perfil de proveedor
+      const categoryId = RUBRO_TO_CATEGORY_ID[providerForm.rubro]
+      if (!categoryId) throw new Error('Rubro inválido')
+
+      await ProvidersService.createProviderProfile({
+        category_id: categoryId,
+        first_name: providerForm.firstName,
+        last_name: providerForm.lastName,
+        contact_email: providerForm.email,
+        phone_e164: providerForm.phone,
+        whatsapp_e164: providerForm.phone,
+        description: providerForm.description,
+        province: providerForm.provincia,
+        city: providerForm.ciudad,
+        years_experience: parseInt(providerForm.yearsExperience),
+        emergency_available: providerForm.emergencyAvailable,
+      })
       
-      // Redirect to home page after successful registration
+      toast.success('¡Perfil de proveedor creado exitosamente!')
       router.push('/')
-    } catch (error) {
+    } catch (error: any) {
       console.error('Registration error:', error)
-      setErrors({ general: 'Error al crear la cuenta. Intenta nuevamente.' })
+      setErrors({ general: error.message || 'Error al crear la cuenta. Intenta nuevamente.' })
+      toast.error(error.message || 'Error al crear la cuenta')
     } finally {
       setIsLoading(false)
     }
