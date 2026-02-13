@@ -22,6 +22,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 
 // Postulation Modal Component
+const BUDGET_ERROR_MSG = "Debes ingresar un presupuesto estimado para postularte."
+const BUDGET_HINT = "Este es un valor estimado para iniciar el contacto. Podrás ajustarlo con el cliente después si el trabajo cambia."
+
 const PostulationModal = ({
     job,
     isOpen,
@@ -32,11 +35,12 @@ const PostulationModal = ({
     job: any,
     isOpen: boolean,
     onClose: () => void,
-    onSubmit: (data: { message: string, budget?: number }) => void,
+    onSubmit: (data: { message: string, budget: number }) => void,
     remainingSlots: number
 }) => {
     const [message, setMessage] = useState("")
     const [budget, setBudget] = useState("")
+    const [budgetError, setBudgetError] = useState<string | null>(null)
     const QUICK_REPLIES = [
         "Puedo pasar a verlo hoy mismo sin compromiso.",
         "Tengo los materiales disponibles para arrancar ya.",
@@ -47,7 +51,7 @@ const PostulationModal = ({
     const isBlocked = remainingSlots <= 0
 
     return (
-        <Dialog open={isOpen} onOpenChange={onClose}>
+        <Dialog open={isOpen} onOpenChange={(open) => { if (!open) { setBudgetError(null); onClose(); } }}>
             <DialogContent className="sm:max-w-md rounded-3xl">
                 <DialogHeader>
                     <DialogTitle className="text-2xl font-bold flex items-center gap-2">
@@ -81,18 +85,27 @@ const PostulationModal = ({
                         <>
                             <div className="space-y-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="budget">Tu presupuesto (Opcional)</Label>
+                                    <Label htmlFor="budget">Tu presupuesto <span className="text-destructive">*</span></Label>
                                     <div className="relative">
                                         <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-muted-foreground">$</span>
                                         <Input
                                             id="budget"
                                             placeholder="Ej: 15000"
-                                            className="pl-8 h-12 rounded-xl"
+                                            className={`pl-8 h-12 rounded-xl ${budgetError ? 'border-destructive focus-visible:ring-destructive' : ''}`}
                                             type="number"
+                                            min={0.01}
+                                            step={0.01}
                                             value={budget}
-                                            onChange={(e) => setBudget(e.target.value)}
+                                            onChange={(e) => {
+                                                setBudget(e.target.value)
+                                                if (budgetError) setBudgetError(null)
+                                            }}
                                         />
                                     </div>
+                                    {budgetError && (
+                                        <p className="text-sm text-destructive font-medium">{budgetError}</p>
+                                    )}
+                                    <p className="text-xs text-muted-foreground">{BUDGET_HINT}</p>
                                 </div>
 
                                 <div className="space-y-2">
@@ -124,7 +137,16 @@ const PostulationModal = ({
                                 <Button variant="ghost" className="flex-1 h-12 rounded-xl" onClick={onClose}>Cancelar</Button>
                                 <Button
                                     className="flex-1 h-12 rounded-xl bg-primary text-white font-bold"
-                                    onClick={() => onSubmit({ message, budget: budget ? Number(budget) : undefined })}
+                                    onClick={() => {
+                                        const num = Number(budget)
+                                        const valid = budget.trim() !== '' && !Number.isNaN(num) && num > 0
+                                        if (!valid) {
+                                            setBudgetError(BUDGET_ERROR_MSG)
+                                            return
+                                        }
+                                        setBudgetError(null)
+                                        onSubmit({ message, budget: num })
+                                    }}
                                     disabled={!message.trim()}
                                 >
                                     Confirmar Postulación
@@ -191,7 +213,7 @@ export default function PedidosPage() {
         setIsPostulating(true)
     }
 
-    const handleSubmitPostulation = async (data: { message: string, budget?: number }) => {
+    const handleSubmitPostulation = async (data: { message: string, budget: number }) => {
         try {
             await OrdersService.postulate(selectedJob.id, data)
             toast.success("¡Postulación enviada correctamente!")
