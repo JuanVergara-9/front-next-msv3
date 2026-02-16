@@ -845,7 +845,7 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile, gues
                                   if (result.whatsappLink) {
                                     window.open(result.whatsappLink, "_blank")
                                   }
-                                  toast.success("Listo. Se abrió WhatsApp para que coordines con el profesional.")
+                                  toast({ title: "Listo", description: "Se abrió WhatsApp para que coordines con el profesional." })
                                 } catch (e: any) {
                                   toast({
                                     title: "Error",
@@ -1716,7 +1716,7 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile, gues
                   try {
                     const result = await OrdersService.matchOrder(guestRequestId, providerIdNum)
                     if (result.whatsappLink) window.open(result.whatsappLink, "_blank")
-                    toast.success("Listo. Se abrió WhatsApp para que coordines con el profesional.")
+                    toast({ title: "Listo", description: "Se abrió WhatsApp para que coordines con el profesional." })
                   } catch (e: any) {
                     toast({
                       title: "Error",
