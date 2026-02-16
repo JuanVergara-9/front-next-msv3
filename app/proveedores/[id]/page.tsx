@@ -1,18 +1,21 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useParams, useRouter } from "next/navigation"
+import { useParams, useRouter, useSearchParams } from "next/navigation"
 import { ProviderProfilePage } from "@/components/ProviderProfilePage"
 import { ProvidersService } from "@/lib/services/providers.service"
+import { validateGuestToken } from "@/lib/services/guest.service"
 import { motion, AnimatePresence } from "framer-motion"
 import { Loader2 } from "lucide-react"
 
 export default function ProviderPublicPage() {
   const params = useParams<{ id: string }>()
+  const searchParams = useSearchParams()
   const router = useRouter()
   const [profile, setProfile] = useState<any | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [guestContext, setGuestContext] = useState<{ requestId: number; workerId: number } | null>(null)
 
   useEffect(() => {
     const load = async () => {
@@ -35,6 +38,20 @@ export default function ProviderPublicPage() {
 
     load()
   }, [params?.id])
+
+  useEffect(() => {
+    const token = searchParams?.get("token")
+    if (!token) {
+      setGuestContext(null)
+      return
+    }
+    let cancelled = false
+    validateGuestToken(token).then((ctx) => {
+      if (!cancelled && ctx) setGuestContext(ctx)
+      else if (!cancelled) setGuestContext(null)
+    })
+    return () => { cancelled = true }
+  }, [searchParams])
 
   if (loading) {
     return (
@@ -100,7 +117,11 @@ export default function ProviderPublicPage() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <ProviderProfilePage providerProfile={profile} />
+      <ProviderProfilePage
+        providerProfile={profile}
+        guestRequestId={guestContext?.requestId ?? undefined}
+        guestWorkerId={guestContext?.workerId ?? undefined}
+      />
     </motion.div>
   )
 }

@@ -101,4 +101,15 @@ export class OrdersService {
         if (params.status) usp.set('status', params.status);
         return apiFetch<{ total: number; orders: Order[] }>(`/api/v1/orders/admin/all?${usp.toString()}`);
     }
+
+    /**
+     * Shadow Ledger: cierra match entre request (guest) y trabajador.
+     * El backend captura el precio de la postulación y devuelve el link de WhatsApp.
+     */
+    static async matchOrder(requestId: number, workerId: number): Promise<{ success: true; whatsappLink: string }> {
+        return apiFetch<{ success: true; whatsappLink: string }>('/api/v1/orders/match', {
+            method: 'POST',
+            body: JSON.stringify({ requestId, workerId }),
+        });
+    }
 }

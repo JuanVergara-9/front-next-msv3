@@ -47,9 +47,13 @@ import { ChatService, Conversation } from "@/lib/services/chat.service"
 import { io } from 'socket.io-client'
 import { AuthService } from '@/lib/services/auth.service'
 import { SOCKET_URL } from '@/lib/apiClient'
+import { OrdersService } from '@/lib/services/orders.service'
 
 interface ProviderProfilePageProps {
   providerProfile?: any
+  /** Shadow Ledger: cuando el usuario entró por Magic Link (pedido guest) */
+  guestRequestId?: number
+  guestWorkerId?: number
 }
 
 // Componente para mostrar imágenes de Google Photos
@@ -134,12 +138,14 @@ function GooglePhotosImage({ photoUrl, index }: { photoUrl: string; index: numbe
   )
 }
 
-export function ProviderProfilePage({ providerProfile: propProviderProfile }: ProviderProfilePageProps) {
+export function ProviderProfilePage({ providerProfile: propProviderProfile, guestRequestId, guestWorkerId }: ProviderProfilePageProps) {
   const { user, logout } = useAuth()
   const router = useRouter()
   const isOwner = !!user && !!propProviderProfile && Number(user.id) === Number(propProviderProfile.user_id)
   const { toast } = useToast()
   const [reviews, setReviews] = useState<ReviewItem[]>([])
+  const [matchLoading, setMatchLoading] = useState(false)
+  const isGuestFlow = guestRequestId != null && guestRequestId > 0
   const [allReviews, setAllReviews] = useState<ReviewItem[]>([]) // Todas las reseñas sin filtrar
   const [reviewsCount, setReviewsCount] = useState<number>(0)
   const [avgRating, setAvgRating] = useState<number>(0)
@@ -823,6 +829,49 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
                   >
                     {!isOwner && (
                       <>
+                        {isGuestFlow && providerIdNum && (
+                          <motion.div
+                            whileHover={{ scale: matchLoading ? 1 : 1.05, y: matchLoading ? 0 : -2 }}
+                            whileTap={{ scale: 0.95 }}
+                          >
+                            <Button
+                              className="bg-green-600 hover:bg-green-700 text-white shadow-lg cursor-pointer w-full"
+                              disabled={matchLoading}
+                              onClick={async () => {
+                                if (!guestRequestId || !providerIdNum) return
+                                setMatchLoading(true)
+                                try {
+                                  const result = await OrdersService.matchOrder(guestRequestId, providerIdNum)
+                                  if (result.whatsappLink) {
+                                    window.open(result.whatsappLink, "_blank")
+                                  }
+                                  toast.success("Listo. Se abrió WhatsApp para que coordines con el profesional.")
+                                } catch (e: any) {
+                                  toast({
+                                    title: "Error",
+                                    description: e?.message || "No se pudo completar. Intentá de nuevo.",
+                                    variant: "destructive",
+                                  })
+                                } finally {
+                                  setMatchLoading(false)
+                                }
+                              }}
+                            >
+                              {matchLoading ? (
+                                <>
+                                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                  Conectando...
+                                </>
+                              ) : (
+                                <>
+                                  <Check className="h-4 w-4 mr-2" />
+                                  ELEGIR PROFESIONAL
+                                </>
+                              )}
+                            </Button>
+                          </motion.div>
+                        )}
+                        {!isGuestFlow && (
                         <motion.div
                           whileHover={{ scale: 1.05, y: -2 }}
                           whileTap={{ scale: 0.95 }}
@@ -854,6 +903,7 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
                             Contactar por WhatsApp
                           </Button>
                         </motion.div>
+                        )}
                         <motion.div
                           whileHover={{ scale: 1.05, y: -2 }}
                           whileTap={{ scale: 0.95 }}
@@ -1656,32 +1706,68 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile }: Pr
       {
         !isOwner && (
           <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-200 md:hidden">
-            <Button
-              className="w-full bg-green-600 hover:bg-green-700 text-white shadow-lg cursor-pointer"
-              onClick={() => {
-                if (!user) {
-                  const next = window.location.pathname + window.location.search + window.location.hash
-                  router.push(`/auth/login?next=${encodeURIComponent(next)}`)
-                  return
-                }
-                if (providerData.whatsapp) {
-                  if (providerIdNum) {
-                    void InsightsService.trackContactClick({
-                      providerId: providerIdNum,
-                      channel: 'whatsapp',
-                      city: providerData.city,
-                      category: typeof primaryCategoryValue === 'string' ? primaryCategoryValue : undefined,
-                      userId: user?.id ?? undefined,
+            {isGuestFlow && providerIdNum ? (
+              <Button
+                className="w-full bg-green-600 hover:bg-green-700 text-white shadow-lg cursor-pointer"
+                disabled={matchLoading}
+                onClick={async () => {
+                  if (!guestRequestId || !providerIdNum) return
+                  setMatchLoading(true)
+                  try {
+                    const result = await OrdersService.matchOrder(guestRequestId, providerIdNum)
+                    if (result.whatsappLink) window.open(result.whatsappLink, "_blank")
+                    toast.success("Listo. Se abrió WhatsApp para que coordines con el profesional.")
+                  } catch (e: any) {
+                    toast({
+                      title: "Error",
+                      description: e?.message || "No se pudo completar. Intentá de nuevo.",
+                      variant: "destructive",
                     })
+                  } finally {
+                    setMatchLoading(false)
                   }
-                  const message = encodeURIComponent("Hola 👋, te contacto desde miservicio. Vi tu perfil y me interesa tu servicio, quería hacerte una consulta rápida.")
-                  window.open(`https://wa.me/${providerData.whatsapp}?text=${message}`, "_blank")
-                }
-              }}
-            >
-              <MessageCircle className="h-4 w-4 mr-2" />
-              Contactar por WhatsApp
-            </Button>
+                }}
+              >
+                {matchLoading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Conectando...
+                  </>
+                ) : (
+                  <>
+                    <Check className="h-4 w-4 mr-2" />
+                    ELEGIR PROFESIONAL
+                  </>
+                )}
+              </Button>
+            ) : (
+              <Button
+                className="w-full bg-green-600 hover:bg-green-700 text-white shadow-lg cursor-pointer"
+                onClick={() => {
+                  if (!user) {
+                    const next = window.location.pathname + window.location.search + window.location.hash
+                    router.push(`/auth/login?next=${encodeURIComponent(next)}`)
+                    return
+                  }
+                  if (providerData.whatsapp) {
+                    if (providerIdNum) {
+                      void InsightsService.trackContactClick({
+                        providerId: providerIdNum,
+                        channel: 'whatsapp',
+                        city: providerData.city,
+                        category: typeof primaryCategoryValue === 'string' ? primaryCategoryValue : undefined,
+                        userId: user?.id ?? undefined,
+                      })
+                    }
+                    const message = encodeURIComponent("Hola 👋, te contacto desde miservicio. Vi tu perfil y me interesa tu servicio, quería hacerte una consulta rápida.")
+                    window.open(`https://wa.me/${providerData.whatsapp}?text=${message}`, "_blank")
+                  }
+                }}
+              >
+                <MessageCircle className="h-4 w-4 mr-2" />
+                Contactar por WhatsApp
+              </Button>
+            )}
           </div>
         )
       }
