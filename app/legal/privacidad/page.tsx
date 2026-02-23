@@ -19,7 +19,7 @@ export default function PrivacidadPage() {
             <strong>Aplicación:</strong> miservicio
           </p>
           <p className="text-sm text-muted-foreground">
-            Última actualización: Diciembre 2025
+            Última actualización: Febrero 2026
           </p>
         </div>
 
@@ -49,6 +49,8 @@ export default function PrivacidadPage() {
                     <li><strong>Datos de Ubicación:</strong> Recopilamos tu ubicación precisa o aproximada (a través del GPS o red) <strong>solo si nos das permiso</strong>, para mostrarte servicios o clientes cercanos.</li>
                     <li><strong>Datos Técnicos:</strong> Información sobre tu dispositivo, dirección IP y sistema operativo para fines de seguridad y mejora de la app.</li>
                     <li><strong>Datos de Verificación de Identidad (Opcional):</strong> Si decidís verificar tu perfil, recopilaremos imágenes de tu DNI (frente y dorso) y una selfie para cotejar la identidad. Estos datos son sensibles y tienen protección reforzada.</li>
+                    <li><strong>Datos de Interacción vía WhatsApp:</strong> Si utilizás nuestro Chatbot, recopilamos tu número de teléfono, el contenido de los mensajes estrictamente relacionados con el servicio, la fecha y hora de la comunicación, y los registros de aceptación de nuestros términos (Audit Trail).</li>
+                    <li><strong>Datos Transaccionales y de Desempeño:</strong> Recopilamos información sobre los servicios concretados, presupuestos estimados acordados a través de la plataforma, frecuencia de uso, tasa de respuesta, cumplimiento de los trabajos y las calificaciones/reseñas emitidas por la contraparte.</li>
                   </ul>
                 </div>
               </section>
@@ -68,6 +70,7 @@ export default function PrivacidadPage() {
                     <li><strong>Gestión de Cuenta y Verificación:</strong> Crear tu perfil, brindarte soporte y, si lo solicitás, procesar tus documentos de identidad para otorgar la insignia de “Perfil Verificado”.</li>
                     <li><strong>Seguridad:</strong> Detectar y prevenir fraudes o usos indebidos de la plataforma.</li>
                     <li><strong>Comunicaciones:</strong> Enviarte notificaciones sobre tu cuenta o actualizaciones del servicio.</li>
+                    <li><strong>Análisis de Riesgo y Perfil Crediticio (Scoring):</strong> Analizamos tus datos transaccionales, de desempeño y calificaciones para construir un perfil de confiabilidad o "Reputación Digital". Este perfil nos permite evaluar el comportamiento de los Proveedores en la plataforma con el fin de, eventualmente, ofrecerles acceso a herramientas, beneficios o servicios financieros de inclusión (propios o de terceros aliados) basados en su capacidad de trabajo comprobada.</li>
                   </ol>
                 </div>
               </section>
@@ -92,6 +95,7 @@ export default function PrivacidadPage() {
                       </div>
                     </li>
                     <li><strong>Proveedores de Servicios Externos:</strong> Podemos usar servicios de terceros para alojamiento web, mapas (ej. Google Maps) o análisis de datos, quienes solo accederán a la información necesaria para prestar su servicio y bajo obligación de confidencialidad.</li>
+                    <li><strong>Aliados Estratégicos y Financieros:</strong> En el caso de que tu Perfil de Trabajo califique para beneficios o servicios financieros, y siempre con tu consentimiento previo ante esa oferta específica, podremos compartir tu "Scoring" o Reputación Digital con instituciones financieras o partners estratégicos para facilitar el acceso a dichos servicios.</li>
                     <li><strong>Requerimiento Legal:</strong> Compartiremos información si una autoridad judicial competente lo solicita formalmente.</li>
                   </ul>
                 </div>

@@ -18,7 +18,7 @@ export default function TerminosPage() {
             <strong>Nombre de la App:</strong> miservicio
           </p>
           <p className="text-sm text-muted-foreground">
-            Última actualización: Diciembre 2025
+            Última actualización: Febrero 2026
           </p>
         </div>
 
@@ -42,6 +42,9 @@ export default function TerminosPage() {
                   </p>
                   <p className="text-muted-foreground">
                     La plataforma permite a los Clientes publicar solicitudes de trabajo ("Pedidos") detallando su necesidad, para que los Proveedores registrados puedan visualizar dichas solicitudes y postularse. Actualmente, la plataforma opera en una fase de validación y prueba (Beta). El usuario reconoce que el servicio se ofrece "tal cual está", pudiendo presentar interrupciones o modificaciones sin previo aviso.
+                  </p>
+                  <p className="text-muted-foreground">
+                    El acceso y uso de la plataforma puede realizarse tanto a través de la aplicación web/móvil como a través de nuestro Chatbot oficial en WhatsApp. Todas las interacciones, solicitudes y confirmaciones realizadas mediante nuestro canal de WhatsApp tienen la misma validez legal y están sujetas a estos mismos Términos y Condiciones.
                   </p>
                 </div>
               </section>
@@ -187,6 +190,32 @@ export default function TerminosPage() {
                 <div className="pl-11 space-y-3">
                   <p className="text-muted-foreground">
                     Estos Términos se rigen por las leyes vigentes en la República Argentina. Para cualquier controversia legal, las partes se someten a la jurisdicción exclusiva de los <strong>Tribunales Ordinarios de la ciudad de San Rafael, provincia de Mendoza</strong>, renunciando a cualquier otro fuero que pudiera corresponderles.
+                  </p>
+                </div>
+              </section>
+
+              {/* Section 10 */}
+              <section>
+                <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-3">
+                  <span className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">10</span>
+                  Consentimiento Electrónico y Trazabilidad
+                </h2>
+                <div className="pl-11 space-y-3">
+                  <p className="text-muted-foreground">
+                    Al utilizar nuestro Chatbot de WhatsApp y seleccionar la opción "Acepto" (o equivalente) frente a nuestros Términos y Políticas, el usuario manifiesta su consentimiento expreso, libre e informado. miservicio registrará de forma encriptada y segura la traza de auditoría de dicha aceptación, incluyendo el número de teléfono, la fecha, la hora exacta y la versión de los términos aceptados, sirviendo este registro como prueba fehaciente del contrato entre las partes.
+                  </p>
+                </div>
+              </section>
+
+              {/* Section 11 */}
+              <section>
+                <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-3">
+                  <span className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">11</span>
+                  Generación de Reputación y Perfil de Trabajo
+                </h2>
+                <div className="pl-11 space-y-3">
+                  <p className="text-muted-foreground">
+                    miservicio tiene como objetivo potenciar el desarrollo profesional de los Proveedores. Por ello, la plataforma recopila, procesa y analiza datos derivados de la actividad en la app (cantidad de trabajos realizados, cumplimiento, calificaciones de los Clientes, y presupuestos estimados). Esta información se utiliza para construir un "Historial de Trabajo" o "Scoring" (Reputación Digital). El usuario acepta que este historial es propiedad de miservicio y podrá ser utilizado en el futuro para ofrecer, directa o indirectamente, beneficios, adelantos o servicios financieros basados en su desempeño.
                   </p>
                 </div>
               </section>
