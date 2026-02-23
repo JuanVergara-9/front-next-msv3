@@ -15,6 +15,9 @@ import { OrdersService } from "@/lib/services/orders.service"
 import { ProvidersService } from "@/lib/services/providers.service"
 import { UploadService, UploadResult } from "@/lib/services/upload.service"
 import { useRouter } from "next/navigation"
+import axios from "axios"
+
+const TICKETS_API_URL = process.env.NEXT_PUBLIC_TICKETS_API_URL || 'https://notification-service2-production.up.railway.app/api/v1'
 
 const PROVINCES = [
     "Buenos Aires", "CABA", "Catamarca", "Chaco", "Chubut", "Córdoba", "Corrientes",
@@ -187,6 +190,7 @@ export default function NuevoPedidoPage() {
                 lng = -68.3297
             }
 
+            // 1. Crear el pedido en el sistema principal (existente)
             await OrdersService.createOrder({
                 title: formData.title,
                 description: formData.description,
@@ -195,6 +199,25 @@ export default function NuevoPedidoPage() {
                 lng: lng!,
                 images: uploadedImages.map(img => img.url),
             })
+
+            // 2. Persistencia Omnicanal: Enviar a la nueva API de tickets
+            // Obtenemos el nombre de la categoría para la API de tickets
+            const categoryName = categories.find(c => c.id === formData.category_id)?.name || "General"
+            const zoneName = locationMode === 'gps' ? "Ubicación GPS" : `${formData.department}, ${formData.province}`
+
+            try {
+                await axios.post(`${TICKETS_API_URL}/tickets`, {
+                    phone_number: "5492604800958", // Número por defecto para pruebas o del perfil del usuario
+                    category: categoryName,
+                    description: `${formData.title}: ${formData.description}`,
+                    zone: zoneName,
+                    urgency: "Media" // Valor por defecto para la web
+                })
+                console.log("[Tickets API] Ticket omnicanal creado con éxito")
+            } catch (ticketErr) {
+                // Logueamos pero no bloqueamos el flujo principal si falla la persistencia extra
+                console.error("[Tickets API] Error al crear ticket omnicanal:", ticketErr)
+            }
 
             toast.success("¡Pedido publicado! Estamos buscando profesionales cerca tuyo.")
             router.push("/pedidos")
