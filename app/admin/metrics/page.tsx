@@ -26,7 +26,8 @@ import {
   ShoppingBag,
   Eye
 } from 'lucide-react'
-import { ProvidersService } from "@/lib/utils/admin"
+import { ProvidersService } from "@/lib/services/providers.service"
+import { OrdersService, type Order } from "@/lib/services/orders.service"
 import { TicketsTable } from "@/components/TicketsTable"
 import Link from "next/link"
 import {
