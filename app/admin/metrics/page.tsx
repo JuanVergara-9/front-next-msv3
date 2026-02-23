@@ -26,8 +26,8 @@ import {
   ShoppingBag,
   Eye
 } from 'lucide-react'
-import { ProvidersService } from "@/lib/services/providers.service"
-import { OrdersService, type Order } from "@/lib/services/orders.service"
+import { ProvidersService } from "@/lib/utils/admin"
+import { TicketsTable } from "@/components/TicketsTable"
 import Link from "next/link"
 import {
   AreaChart,
@@ -150,6 +150,8 @@ const ReportModal = ({ isOpen, onClose, period, summary, contacts, users }: {
           <button
             onClick={onClose}
             className="text-slate-400 hover:text-slate-600 transition-colors"
+            title="Cerrar modal"
+            aria-label="Cerrar modal"
           >
             <X size={20} />
           </button>
@@ -526,6 +528,20 @@ export default function AdminMetricsPage() {
           </div>
         </section>
 
+        {/* Sección de Tickets Omnicanal (WhatsApp + Web) */}
+        <section className="space-y-6">
+          <div className="flex items-center gap-3">
+            <div className="bg-emerald-100 p-2 rounded-full text-emerald-600">
+              <MessageSquare size={20} />
+            </div>
+            <div>
+              <h3 className="font-bold text-slate-900">Gestión Omnicanal</h3>
+              <p className="text-xs text-slate-500">Tickets en tiempo real de WhatsApp y Web</p>
+            </div>
+          </div>
+          <TicketsTable />
+        </section>
+
         {/* Sección 4: Pedidos Recientes (Admin Only) */}
         <section className="bg-white rounded-2xl p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-slate-100">
           <div className="flex items-center justify-between mb-6">
@@ -618,9 +634,13 @@ export default function AdminMetricsPage() {
                       )}
                     </td>
                     <td className="px-4 py-4 text-right">
-                      <button className="p-2 text-slate-400 hover:text-blue-600 transition-colors">
-                        <Eye size={16} />
-                      </button>
+                    <button 
+                      className="p-2 text-slate-400 hover:text-blue-600 transition-colors"
+                      title="Ver detalles del pedido"
+                      aria-label="Ver detalles del pedido"
+                    >
+                      <Eye size={16} />
+                    </button>
                     </td>
                   </tr>
                 ))}
