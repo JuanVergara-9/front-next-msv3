@@ -13,7 +13,13 @@ import {
   Tag, 
   AlertCircle,
   Loader2,
-  RefreshCcw
+  RefreshCcw,
+  ExternalLink,
+  ChevronDown,
+  CheckCircle2,
+  XCircle,
+  Clock3,
+  UserPlus
 } from 'lucide-react';
 
 interface Ticket {
@@ -30,10 +36,18 @@ interface Ticket {
 
 const TICKETS_API_URL = process.env.NEXT_PUBLIC_TICKETS_API_URL || 'https://notification-service2-production.up.railway.app/api/v1';
 
+const STATUS_OPTIONS = [
+  { id: 'ABIERTO', label: 'Abierto', color: 'emerald' },
+  { id: 'ASIGNADO', label: 'Asignado', color: 'blue' },
+  { id: 'COMPLETADO', label: 'Completado', color: 'indigo' },
+  { id: 'CANCELADO', label: 'Cancelado', color: 'slate' }
+];
+
 export const TicketsTable = () => {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [updatingId, setUpdatingId] = useState<number | null>(null);
 
   const fetchTickets = async () => {
     try {
@@ -55,15 +69,56 @@ export const TicketsTable = () => {
     fetchTickets();
   }, []);
 
+  const handleStatusChange = async (ticketId: number, newStatus: string) => {
+    try {
+      setUpdatingId(ticketId);
+      
+      // Optimistic update
+      const originalTickets = [...tickets];
+      setTickets(tickets.map(t => t.id === ticketId ? { ...t, status: newStatus } : t));
+
+      const response = await axios.patch(`${TICKETS_API_URL}/tickets/${ticketId}/status`, {
+        status: newStatus
+      });
+
+      if (!response.data.success) {
+        // Rollback if failed
+        setTickets(originalTickets);
+        alert('Error al actualizar el estado');
+      }
+    } catch (err) {
+      console.error('Error updating status:', err);
+      alert('Error al conectar con el servidor');
+      fetchTickets(); // Refresh to be sure
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
+  const getUrgencyBadge = (urgency: string) => {
+    const baseClasses = "px-2 py-0.5 rounded text-[10px] font-bold uppercase";
+    switch (urgency?.toLowerCase()) {
+      case 'alta':
+      case 'urgente':
+        return <span className={`${baseClasses} bg-red-100 text-red-600`}>Alta</span>;
+      case 'media':
+        return <span className={`${baseClasses} bg-amber-100 text-amber-600`}>Media</span>;
+      default:
+        return <span className={`${baseClasses} bg-blue-100 text-blue-600`}>Baja</span>;
+    }
+  };
+
   const getStatusBadge = (status: string) => {
-    const baseClasses = "px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider";
+    const baseClasses = "px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1";
     switch (status.toUpperCase()) {
       case 'ABIERTO':
-        return <span className={`${baseClasses} bg-emerald-100 text-emerald-700`}>Abierto</span>;
+        return <span className={`${baseClasses} bg-emerald-100 text-emerald-700`}><Clock3 className="w-3 h-3" /> Abierto</span>;
+      case 'ASIGNADO':
+        return <span className={`${baseClasses} bg-blue-100 text-blue-700`}><UserPlus className="w-3 h-3" /> Asignado</span>;
       case 'CANCELADO':
-        return <span className={`${baseClasses} bg-slate-100 text-slate-500`}>Cancelado</span>;
+        return <span className={`${baseClasses} bg-slate-100 text-slate-500`}><XCircle className="w-3 h-3" /> Cancelado</span>;
       case 'COMPLETADO':
-        return <span className={`${baseClasses} bg-blue-100 text-blue-700`}>Completado</span>;
+        return <span className={`${baseClasses} bg-indigo-100 text-indigo-700`}><CheckCircle2 className="w-3 h-3" /> Completado</span>;
       default:
         return <span className={`${baseClasses} bg-gray-100 text-gray-600`}>{status}</span>;
     }
@@ -136,15 +191,17 @@ export const TicketsTable = () => {
               <th className="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-50">Fecha</th>
               <th className="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-50">Origen</th>
               <th className="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-50">Categoría</th>
+              <th className="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-50">Detalle</th>
               <th className="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-50">Cliente</th>
               <th className="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-50">Zona</th>
               <th className="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-50">Estado</th>
+              <th className="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-50">Acciones</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-50">
             {tickets.length === 0 ? (
               <tr>
-                <td colSpan={7} className="p-10 text-center text-slate-400 font-medium">
+                <td colSpan={9} className="p-10 text-center text-slate-400 font-medium">
                   No hay tickets registrados aún.
                 </td>
               </tr>
@@ -172,10 +229,26 @@ export const TicketsTable = () => {
                     </div>
                   </td>
                   <td className="p-4">
-                    <div className="flex items-center gap-2 text-slate-600">
-                      <User className="w-4 h-4 text-slate-400" />
-                      <span className="text-sm font-medium">{ticket.phone_number}</span>
+                    <div className="flex flex-col gap-1 max-w-[200px]">
+                      <span className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
+                        {ticket.description}
+                      </span>
+                      <div className="flex">
+                        {getUrgencyBadge(ticket.urgency)}
+                      </div>
                     </div>
+                  </td>
+                  <td className="p-4">
+                    <a 
+                      href={`https://wa.me/${ticket.phone_number}`} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 text-slate-600 hover:text-emerald-600 transition-colors group/link"
+                    >
+                      <User className="w-4 h-4 text-slate-400 group-hover/link:text-emerald-500" />
+                      <span className="text-sm font-medium">{ticket.phone_number}</span>
+                      <MessageSquare className="w-3 h-3 opacity-0 group-hover/link:opacity-100 transition-opacity text-emerald-500" />
+                    </a>
                   </td>
                   <td className="p-4">
                     <div className="flex items-center gap-2 text-slate-600">
@@ -183,7 +256,35 @@ export const TicketsTable = () => {
                       <span className="text-sm font-medium">{ticket.zone}</span>
                     </div>
                   </td>
-                  <td className="p-4">{getStatusBadge(ticket.status)}</td>
+                  <td className="p-4">
+                    {updatingId === ticket.id ? (
+                      <div className="flex items-center gap-2 text-slate-400 text-xs font-bold uppercase">
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                        Actualizando...
+                      </div>
+                    ) : (
+                      getStatusBadge(ticket.status)
+                    )}
+                  </td>
+                  <td className="p-4">
+                    <div className="relative inline-block text-left">
+                      <select
+                        value={ticket.status.toUpperCase()}
+                        onChange={(e) => handleStatusChange(ticket.id, e.target.value)}
+                        disabled={updatingId === ticket.id}
+                        title="Cambiar estado del ticket"
+                        aria-label="Cambiar estado del ticket"
+                        className="appearance-none bg-slate-50 border border-slate-200 text-slate-600 text-[10px] font-black uppercase tracking-wider rounded-lg px-3 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {STATUS_OPTIONS.map(opt => (
+                          <option key={opt.id} value={opt.id}>{opt.label}</option>
+                        ))}
+                      </select>
+                      <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none text-slate-400">
+                        <ChevronDown className="w-3 h-3" />
+                      </div>
+                    </div>
+                  </td>
                 </tr>
               ))
             )}
