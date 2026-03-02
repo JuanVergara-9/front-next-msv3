@@ -63,12 +63,23 @@ export default function MatchPage() {
         if (!ticketData || cancelled) return;
         setTicket(ticketData);
 
-        const { providers: list } = await ProvidersService.searchProviders({
-          category_slug: ticketData.category,
+        // Parámetros alineados con el bot: city=zone, category=slug en minúsculas
+        const categorySlug = ticketData.category
+          ? String(ticketData.category)
+              .toLowerCase()
+              .trim()
+              .normalize('NFD')
+              .replace(/\p{M}/gu, '')
+              .replace(/\s+/g, '-')
+          : undefined;
+        const searchResult = await ProvidersService.searchProviders({
+          category_slug: categorySlug,
           city: ticketData.zone,
           limit: 20,
         });
-        if (!cancelled) setProviders((list || []) as ProviderMatch[]);
+        console.log('Datos del provider-service:', searchResult);
+        const list = Array.isArray(searchResult?.providers) ? searchResult.providers : [];
+        if (!cancelled) setProviders(list as ProviderMatch[]);
       } catch (e) {
         if (!cancelled) {
           setError("No pudimos cargar los datos. Revisa el enlace o intenta más tarde.");

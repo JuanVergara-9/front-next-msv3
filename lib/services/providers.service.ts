@@ -25,9 +25,13 @@ export class ProvidersService {
     if (params.licensed) usp.set('licensed', 'true');
 
     const url = `/api/v1/providers?${usp.toString()}`;
-    // El backend responde { count, items }
-    const res = await apiFetch<{ count: number; items: any[] }>(url);
-    return { providers: res.items as any, total: res.count, page: 1, limit: params.limit || res.items?.length || 0 };
+    // El backend (provider-service) responde paginado: { count, items } o a veces envuelto en { data: { count, items } }
+    const res = await apiFetch<{ count?: number; items?: any[]; data?: { count?: number; items?: any[] } }>(url);
+    if (typeof window !== 'undefined') console.log('Datos del provider-service:', res);
+    const data = res as any;
+    const items = Array.isArray(data?.items) ? data.items : Array.isArray(data?.data?.items) ? data.data.items : [];
+    const total = data?.count ?? data?.data?.count ?? items.length;
+    return { providers: items as any, total, page: 1, limit: params.limit ?? items.length };
   }
 
   static async enrichWithReviewSummaries<T extends { id?: number | null; rating?: number; review_count?: number }>(providers: T[]): Promise<T[]> {
