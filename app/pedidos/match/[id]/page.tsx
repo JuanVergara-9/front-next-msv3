@@ -69,7 +69,7 @@ export default function MatchPage() {
               .toLowerCase()
               .trim()
               .normalize('NFD')
-              .replace(/\p{M}/gu, '')
+              .replace(/[\u0300-\u036f]/g, '')
               .replace(/\s+/g, '-')
           : undefined;
         const searchResult = await ProvidersService.searchProviders({
