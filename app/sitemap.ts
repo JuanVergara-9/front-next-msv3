@@ -4,6 +4,9 @@ import { getAllLocalizedUrls } from '@/lib/seo-config'
 
 const SITE = 'https://miservicio.ar'
 
+// Generar sitemap bajo demanda (evita "no-store fetch" en build estático)
+export const dynamic = 'force-dynamic'
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const urls: MetadataRoute.Sitemap = [
     { url: `${SITE}/`, changeFrequency: 'daily', priority: 1.0 },
