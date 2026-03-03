@@ -7,7 +7,14 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Loader2, MapPin, AlertCircle, User } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Loader2, MapPin, AlertCircle, User, Shield, Zap, CheckCircle } from "lucide-react";
 import type { ProviderWithDetails } from "@/types/api";
 
 const TICKETS_API_URL =
@@ -34,6 +41,10 @@ export default function MatchPage() {
   const [providers, setProviders] = useState<ProviderMatch[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [profileModalProvider, setProfileModalProvider] = useState<ProviderMatch | null>(null);
+  const [isAssigning, setIsAssigning] = useState(false);
+  const [assignedProviderName, setAssignedProviderName] = useState<string | null>(null);
+  const [assignError, setAssignError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -95,8 +106,34 @@ export default function MatchPage() {
     };
   }, [params?.id]);
 
-  const handleChoose = (provider: ProviderMatch) => {
-    console.log("Profesional elegido:", provider.id);
+  const ticketId = params?.id;
+
+  const handleAssign = async (provider: ProviderMatch) => {
+    if (!ticketId || typeof ticketId !== "string") return;
+    const providerName = [provider.first_name, provider.last_name].filter(Boolean).join(" ") || "el profesional";
+    setIsAssigning(true);
+    setAssignError(null);
+    try {
+      const res = await fetch(`${TICKETS_API_URL}/tickets/${ticketId}/assign`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          providerId: provider.id,
+          providerName,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data?.error || "Error al asignar");
+      }
+      setAssignedProviderName(providerName);
+      setProviders([]);
+      setProfileModalProvider(null);
+    } catch (e) {
+      setAssignError(e instanceof Error ? e.message : "No se pudo completar la asignación. Intentá de nuevo.");
+    } finally {
+      setIsAssigning(false);
+    }
   };
 
   if (loading) {
@@ -132,9 +169,38 @@ export default function MatchPage() {
   const categoryLabel = ticket.category || "servicio";
   const zoneLabel = ticket.zone || "tu zona";
 
+  // Pantalla de éxito tras asignar
+  if (assignedProviderName) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4">
+        <Card className="max-w-md w-full border-emerald-200 bg-emerald-50/50 shadow-lg">
+          <CardContent className="pt-8 pb-8 text-center">
+            <div className="mx-auto w-14 h-14 rounded-full bg-emerald-100 flex items-center justify-center mb-4">
+              <CheckCircle className="h-8 w-8 text-emerald-600" />
+            </div>
+            <h2 className="text-xl font-bold text-slate-800 mb-2">
+              ¡Trato hecho! 🎉
+            </h2>
+            <p className="text-slate-700">
+              Le avisamos a <span className="font-semibold text-emerald-700">{assignedProviderName}</span>. Revisá tu WhatsApp.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       <div className="max-w-3xl mx-auto px-4 py-8">
+        {assignError && (
+          <Card className="mb-6 border-amber-200 bg-amber-50/50">
+            <CardContent className="pt-4 pb-4 flex items-center gap-3 text-amber-800">
+              <AlertCircle className="h-5 w-5 shrink-0" />
+              <p className="text-sm">{assignError}</p>
+            </CardContent>
+          </Card>
+        )}
         <header className="text-center mb-8">
           <h1 className="text-2xl sm:text-3xl font-bold text-slate-800">
             Encontramos estos profesionales para tu pedido de{" "}
@@ -191,12 +257,27 @@ export default function MatchPage() {
                         )}
                       </div>
                     </CardContent>
-                    <CardFooter className="mt-auto pt-2 pb-6 px-6">
+                    <CardFooter className="mt-auto pt-2 pb-6 px-6 flex flex-col sm:flex-row gap-2">
                       <Button
-                        className="w-full"
-                        onClick={() => handleChoose(provider)}
+                        variant="outline"
+                        className="flex-1"
+                        onClick={() => setProfileModalProvider(provider)}
                       >
-                        Elegir a {provider.first_name || name}
+                        Ver Perfil
+                      </Button>
+                      <Button
+                        className="flex-1 bg-primary hover:bg-primary/90"
+                        onClick={() => handleAssign(provider)}
+                        disabled={isAssigning}
+                      >
+                        {isAssigning ? (
+                          <>
+                            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                            Asignando...
+                          </>
+                        ) : (
+                          "Elegir"
+                        )}
                       </Button>
                     </CardFooter>
                   </Card>
@@ -206,6 +287,77 @@ export default function MatchPage() {
           </ul>
         )}
       </div>
+
+      {/* Modal de perfil del profesional */}
+      <Dialog open={!!profileModalProvider} onOpenChange={(open) => !open && setProfileModalProvider(null)}>
+        <DialogContent className="sm:max-w-md">
+          {profileModalProvider && (
+            <>
+              <DialogHeader>
+                <div className="flex items-center gap-3">
+                  <Avatar className="h-12 w-12 border-2 border-primary/20">
+                    <AvatarImage src={profileModalProvider.avatar_url} alt="" />
+                    <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                      {[profileModalProvider.first_name, profileModalProvider.last_name]
+                        .filter(Boolean)
+                        .join(" ")
+                        .slice(0, 2)
+                        .toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <DialogTitle className="text-left">
+                    {[profileModalProvider.first_name, profileModalProvider.last_name].filter(Boolean).join(" ") || "Profesional"}
+                  </DialogTitle>
+                </div>
+              </DialogHeader>
+              <div className="space-y-3 text-sm text-slate-600">
+                {profileModalProvider.description && (
+                  <p className="whitespace-pre-wrap">{profileModalProvider.description}</p>
+                )}
+                {typeof profileModalProvider.years_experience === "number" && (
+                  <p>{profileModalProvider.years_experience} años de experiencia</p>
+                )}
+                <div className="flex flex-wrap gap-2 pt-2">
+                  {profileModalProvider.is_licensed && (
+                    <Badge variant="secondary" className="gap-1">
+                      <Shield className="h-3 w-3" />
+                      Matrícula / Habilitado
+                    </Badge>
+                  )}
+                  {profileModalProvider.emergency_available && (
+                    <Badge variant="secondary" className="gap-1">
+                      <Zap className="h-3 w-3" />
+                      Urgencias
+                    </Badge>
+                  )}
+                </div>
+              </div>
+              <DialogFooter>
+                <Button
+                  variant="outline"
+                  onClick={() => setProfileModalProvider(null)}
+                >
+                  Cerrar
+                </Button>
+                <Button
+                  className="bg-primary hover:bg-primary/90"
+                  onClick={() => handleAssign(profileModalProvider)}
+                  disabled={isAssigning}
+                >
+                  {isAssigning ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                      Asignando...
+                    </>
+                  ) : (
+                    "Elegir"
+                  )}
+                </Button>
+              </DialogFooter>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
