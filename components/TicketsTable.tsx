@@ -32,6 +32,8 @@ interface Ticket {
   status: string;
   source: 'whatsapp' | 'web';
   created_at: string;
+  provider_id?: number | null;
+  provider_name?: string | null;
 }
 
 const TICKETS_API_URL = process.env.NEXT_PUBLIC_TICKETS_API_URL || 'https://notification-service2-production.up.railway.app/api/v1';
@@ -263,7 +265,14 @@ export const TicketsTable = () => {
                         Actualizando...
                       </div>
                     ) : (
-                      getStatusBadge(ticket.status)
+                      <div className="flex flex-col gap-1">
+                        {getStatusBadge(ticket.status)}
+                        {ticket.status.toUpperCase() === 'ASIGNADO' && ticket.provider_name && (
+                          <span className="text-xs text-slate-600 font-medium mt-0.5">
+                            Asignado a: {ticket.provider_name}
+                          </span>
+                        )}
+                      </div>
                     )}
                   </td>
                   <td className="p-4">
