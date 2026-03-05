@@ -19,7 +19,8 @@ import {
   CheckCircle2,
   XCircle,
   Clock3,
-  UserPlus
+  UserPlus,
+  CheckCircle
 } from 'lucide-react';
 
 interface Ticket {
@@ -50,6 +51,7 @@ export const TicketsTable = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [updatingId, setUpdatingId] = useState<number | null>(null);
+  const [completingId, setCompletingId] = useState<number | null>(null);
 
   const fetchTickets = async () => {
     try {
@@ -70,6 +72,24 @@ export const TicketsTable = () => {
   useEffect(() => {
     fetchTickets();
   }, []);
+
+  const handleMarkComplete = async (ticketId: number) => {
+    try {
+      setCompletingId(ticketId);
+      const response = await axios.post(`${TICKETS_API_URL}/tickets/${ticketId}/complete`);
+      if (response.data.success && response.data.data) {
+        setTickets(tickets.map(t => t.id === ticketId ? { ...t, status: 'COMPLETADO' } : t));
+      } else {
+        alert(response.data?.error || 'Error al marcar como completado');
+      }
+    } catch (err: any) {
+      console.error('Error marking ticket complete:', err);
+      const msg = err.response?.data?.error || 'No se pudo conectar con el servidor';
+      alert(msg);
+    } finally {
+      setCompletingId(null);
+    }
+  };
 
   const handleStatusChange = async (ticketId: number, newStatus: string) => {
     try {
@@ -276,21 +296,44 @@ export const TicketsTable = () => {
                     )}
                   </td>
                   <td className="p-4">
-                    <div className="relative inline-block text-left">
-                      <select
-                        value={ticket.status.toUpperCase()}
-                        onChange={(e) => handleStatusChange(ticket.id, e.target.value)}
-                        disabled={updatingId === ticket.id}
-                        title="Cambiar estado del ticket"
-                        aria-label="Cambiar estado del ticket"
-                        className="appearance-none bg-slate-50 border border-slate-200 text-slate-600 text-[10px] font-black uppercase tracking-wider rounded-lg px-3 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        {STATUS_OPTIONS.map(opt => (
-                          <option key={opt.id} value={opt.id}>{opt.label}</option>
-                        ))}
-                      </select>
-                      <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none text-slate-400">
-                        <ChevronDown className="w-3 h-3" />
+                    <div className="flex flex-col sm:flex-row gap-2 items-start">
+                      {ticket.status.toUpperCase() === 'ASIGNADO' && (
+                        <button
+                          type="button"
+                          onClick={() => handleMarkComplete(ticket.id)}
+                          disabled={completingId === ticket.id}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                          title="Marcar trabajo como completado y pedir monto al profesional"
+                        >
+                          {completingId === ticket.id ? (
+                            <>
+                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              Enviando...
+                            </>
+                          ) : (
+                            <>
+                              <CheckCircle className="w-3.5 h-3.5" />
+                              Marcar Completado
+                            </>
+                          )}
+                        </button>
+                      )}
+                      <div className="relative inline-block text-left">
+                        <select
+                          value={ticket.status.toUpperCase()}
+                          onChange={(e) => handleStatusChange(ticket.id, e.target.value)}
+                          disabled={updatingId === ticket.id}
+                          title="Cambiar estado del ticket"
+                          aria-label="Cambiar estado del ticket"
+                          className="appearance-none bg-slate-50 border border-slate-200 text-slate-600 text-[10px] font-black uppercase tracking-wider rounded-lg px-3 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {STATUS_OPTIONS.map(opt => (
+                            <option key={opt.id} value={opt.id}>{opt.label}</option>
+                          ))}
+                        </select>
+                        <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none text-slate-400">
+                          <ChevronDown className="w-3 h-3" />
+                        </div>
                       </div>
                     </div>
                   </td>
