@@ -43,7 +43,8 @@ export default function MatchPage() {
   const [error, setError] = useState<string | null>(null);
   const [profileModalProvider, setProfileModalProvider] = useState<ProviderMatch | null>(null);
   const [isAssigning, setIsAssigning] = useState(false);
-  const [assignedProviderName, setAssignedProviderName] = useState<string | null>(null);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [assignedProvider, setAssignedProvider] = useState<ProviderMatch | null>(null);
   const [assignError, setAssignError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -126,7 +127,10 @@ export default function MatchPage() {
       if (!res.ok) {
         throw new Error(data?.error || "Error al asignar");
       }
-      setAssignedProviderName(providerName);
+      if (res.status === 200 || res.status === 201) {
+        setAssignedProvider(provider);
+        setIsSuccess(true);
+      }
       setProviders([]);
       setProfileModalProvider(null);
     } catch (e) {
@@ -169,21 +173,35 @@ export default function MatchPage() {
   const categoryLabel = ticket.category || "servicio";
   const zoneLabel = ticket.zone || "tu zona";
 
-  // Pantalla de éxito tras asignar
-  if (assignedProviderName) {
+  const assignedName = assignedProvider
+    ? [assignedProvider.first_name, assignedProvider.last_name].filter(Boolean).join(" ") || "el profesional"
+    : "";
+
+  const whatsappBotNumber = (process.env.NEXT_PUBLIC_WHATSAPP_BOT_NUMBER || "5492604800958").replace(/\D/g, "");
+  const whatsappBotUrl = `https://wa.me/${whatsappBotNumber}`;
+
+  function PantallaDeExito() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4">
         <Card className="max-w-md w-full border-emerald-200 bg-emerald-50/50 shadow-lg">
           <CardContent className="pt-8 pb-8 text-center">
-            <div className="mx-auto w-14 h-14 rounded-full bg-emerald-100 flex items-center justify-center mb-4">
-              <CheckCircle className="h-8 w-8 text-emerald-600" />
+            <div className="mx-auto w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center mb-5">
+              <CheckCircle className="h-10 w-10 text-emerald-600" aria-hidden />
             </div>
             <h2 className="text-xl font-bold text-slate-800 mb-2">
-              ¡Trato hecho! 🎉
+              ¡Perfecto! Elegiste a {assignedName}
             </h2>
-            <p className="text-slate-700">
-              Le avisamos a <span className="font-semibold text-emerald-700">{assignedProviderName}</span>. Revisá tu WhatsApp.
+            <p className="text-slate-700 text-sm leading-relaxed mb-6">
+              Ya le enviamos tu pedido y tu número. En los próximos minutos se pondrá en contacto con vos por WhatsApp para coordinar los detalles y el presupuesto.
             </p>
+            <a
+              href={whatsappBotUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center rounded-md text-sm font-medium border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 px-4 py-2 transition-colors"
+            >
+              Volver a mi WhatsApp
+            </a>
           </CardContent>
         </Card>
       </div>
@@ -192,8 +210,9 @@ export default function MatchPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      <div className="max-w-3xl mx-auto px-4 py-8">
-        {assignError && (
+      {!isSuccess ? (
+        <div className="max-w-3xl mx-auto px-4 py-8">
+          {assignError && (
           <Card className="mb-6 border-amber-200 bg-amber-50/50">
             <CardContent className="pt-4 pb-4 flex items-center gap-3 text-amber-800">
               <AlertCircle className="h-5 w-5 shrink-0" />
@@ -286,9 +305,13 @@ export default function MatchPage() {
             })}
           </ul>
         )}
-      </div>
+        </div>
+      ) : (
+        <PantallaDeExito />
+      )}
 
-      {/* Modal de perfil del profesional */}
+      {/* Modal de perfil del profesional (solo cuando no hay éxito) */}
+      {!isSuccess && (
       <Dialog open={!!profileModalProvider} onOpenChange={(open) => !open && setProfileModalProvider(null)}>
         <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
           {profileModalProvider && (
@@ -422,6 +445,7 @@ export default function MatchPage() {
           )}
         </DialogContent>
       </Dialog>
+      )}
     </div>
   );
 }
