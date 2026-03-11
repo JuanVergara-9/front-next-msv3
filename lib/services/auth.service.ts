@@ -84,10 +84,27 @@ export class AuthService {
     } catch (error: any) {
       console.error('Login error:', error)
 
-      // Extract user-friendly error message
+      // Errores de red (ECONNRESET, timeout, sin respuesta): mensaje amigable
+      const isNetworkError =
+        error.code === 'ECONNRESET' ||
+        error.code === 'ETIMEDOUT' ||
+        error.code === 'ERR_NETWORK' ||
+        !error.response
+      const hasConnectionMessage =
+        typeof error.message === 'string' && /ECONNRESET|ETIMEDOUT|Network Error/i.test(error.message)
+
       let errorMessage = 'Error al iniciar sesión. Verifica tus credenciales.'
 
-      if (error.response?.data?.error?.message) {
+      const responseMessage =
+        typeof error.response?.data === 'string'
+          ? error.response.data
+          : error.response?.data?.error?.message || error.response?.data?.message || ''
+      const responseIsConnectionError = /ECONNRESET|ETIMEDOUT|Network Error/i.test(String(responseMessage))
+
+      if (isNetworkError || hasConnectionMessage || responseIsConnectionError) {
+        errorMessage =
+          'Error de conexión. Revisá tu red o intentá de nuevo en unos minutos. Si sigue fallando, puede ser un problema temporal del servidor.'
+      } else if (error.response?.data?.error?.message) {
         errorMessage = error.response.data.error.message
       } else if (error.response?.data?.message) {
         errorMessage = error.response.data.message
