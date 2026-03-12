@@ -25,6 +25,7 @@ interface Ticket {
   id: number;
   phone_number: string;
   category: string;
+  category_slug?: string | null;
   description: string;
   zone: string;
   urgency: string;
@@ -75,15 +76,18 @@ export default function MatchPage() {
         if (!ticketData || cancelled) return;
         setTicket(ticketData);
 
-        // Parámetros alineados con el bot: city=zone, category=slug en minúsculas
-        const categorySlug = ticketData.category
-          ? String(ticketData.category)
-              .toLowerCase()
-              .trim()
-              .normalize('NFD')
-              .replace(/[\u0300-\u036f]/g, '')
-              .replace(/\s+/g, '-')
-          : undefined;
+        // Búsqueda usa el slug oficial del matchmaking (category_slug). Título sigue con category para que suene natural.
+        const categorySlug =
+          ticketData.category_slug != null && String(ticketData.category_slug).trim() !== ''
+            ? String(ticketData.category_slug).trim()
+            : ticketData.category
+              ? String(ticketData.category)
+                  .toLowerCase()
+                  .trim()
+                  .normalize('NFD')
+                  .replace(/[\u0300-\u036f]/g, '')
+                  .replace(/\s+/g, '-')
+              : undefined;
         const searchResult = await ProvidersService.searchProviders({
           category_slug: categorySlug,
           city: ticketData.zone,
@@ -112,6 +116,7 @@ export default function MatchPage() {
   const handleAssign = async (provider: ProviderMatch) => {
     if (!ticketId || typeof ticketId !== "string") return;
     const providerName = [provider.first_name, provider.last_name].filter(Boolean).join(" ") || "el profesional";
+    const providerPhone = provider.whatsapp_e164 ?? provider.phone_e164 ?? undefined;
     setIsAssigning(true);
     setAssignError(null);
     try {
@@ -121,6 +126,7 @@ export default function MatchPage() {
         body: JSON.stringify({
           providerId: provider.id,
           providerName,
+          providerPhone,
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -134,6 +140,7 @@ export default function MatchPage() {
       setProviders([]);
       setProfileModalProvider(null);
     } catch (e) {
+      console.error("Error al asignar:", e);
       setAssignError(e instanceof Error ? e.message : "No se pudo completar la asignación. Intentá de nuevo.");
     } finally {
       setIsAssigning(false);
