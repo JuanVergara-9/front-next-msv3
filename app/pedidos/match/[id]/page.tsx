@@ -14,8 +14,9 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Loader2, MapPin, AlertCircle, User, Zap, CheckCircle, Star } from "lucide-react";
+import { Loader2, MapPin, AlertCircle, User, Zap, CheckCircle, Star, BadgeCheck } from "lucide-react";
 import type { ProviderWithDetails } from "@/types/api";
+import { ReviewsService, type ReviewItem } from "@/lib/services/reviews.service";
 
 const TICKETS_API_URL =
   process.env.NEXT_PUBLIC_TICKETS_API_URL ||
@@ -43,6 +44,8 @@ export default function MatchPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [profileModalProvider, setProfileModalProvider] = useState<ProviderMatch | null>(null);
+  const [reviews, setReviews] = useState<ReviewItem[]>([]);
+  const [loadingReviews, setLoadingReviews] = useState(false);
   const [isAssigning, setIsAssigning] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [assignedProvider, setAssignedProvider] = useState<ProviderMatch | null>(null);
@@ -110,6 +113,30 @@ export default function MatchPage() {
       cancelled = true;
     };
   }, [params?.id]);
+
+  // Cargar reseñas cuando se abre el modal de perfil
+  useEffect(() => {
+    if (!profileModalProvider?.id) {
+      setReviews([]);
+      return;
+    }
+    let cancelled = false;
+    setLoadingReviews(true);
+    setReviews([]);
+    ReviewsService.listByProvider(profileModalProvider.id, { limit: 20 })
+      .then((res) => {
+        if (!cancelled && res?.items) setReviews(res.items);
+      })
+      .catch(() => {
+        if (!cancelled) setReviews([]);
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingReviews(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [profileModalProvider?.id]);
 
   const ticketId = params?.id;
 
@@ -336,21 +363,35 @@ export default function MatchPage() {
                     </AvatarFallback>
                   </Avatar>
                   <div className="min-w-0 flex-1">
-                    <DialogTitle className="text-left text-lg">
+                    <DialogTitle className="text-left text-lg flex items-center gap-2">
                       {[profileModalProvider.first_name, profileModalProvider.last_name].filter(Boolean).join(" ") || "Profesional"}
+                      {(profileModalProvider.identity_status === "verified" || (profileModalProvider as { isVerified?: boolean }).isVerified) && (
+                        <BadgeCheck className="w-5 h-5 text-blue-500 shrink-0" aria-hidden title="Trabajador Verificado" />
+                      )}
                     </DialogTitle>
-                    {/* Calificación: 5 estrellas + texto estático */}
+                    {/* Calificación real del backend */}
                     <div className="flex items-center gap-2 mt-2">
-                      <div className="flex gap-0.5" aria-label="Valoración 4.8 de 5">
-                        {[1, 2, 3, 4, 5].map((i) => (
-                          <Star
-                            key={i}
-                            className="h-4 w-4 fill-amber-400 text-amber-400"
-                            strokeWidth={1.5}
-                          />
-                        ))}
-                      </div>
-                      <span className="text-sm font-medium text-slate-600">4.8 (12 reseñas)</span>
+                      {(() => {
+                        const avg = Number(profileModalProvider.average_rating ?? profileModalProvider.rating ?? 0);
+                        const total = Number(profileModalProvider.total_reviews ?? profileModalProvider.review_count ?? 0);
+                        const displayAvg = avg > 0 ? avg.toFixed(1) : "0.0";
+                        return (
+                          <>
+                            <div className="flex gap-0.5" aria-label={`Valoración ${displayAvg} de 5`}>
+                              {[1, 2, 3, 4, 5].map((i) => (
+                                <Star
+                                  key={i}
+                                  className={`h-4 w-4 ${i <= Math.round(avg) ? "fill-amber-400 text-amber-400" : "text-slate-300"}`}
+                                  strokeWidth={1.5}
+                                />
+                              ))}
+                            </div>
+                            <span className="text-sm font-medium text-slate-600">
+                              {displayAvg} ({total} {total === 1 ? "reseña" : "reseñas"})
+                            </span>
+                          </>
+                        );
+                      })()}
                     </div>
                   </div>
                 </div>
@@ -392,38 +433,58 @@ export default function MatchPage() {
                 )}
               </div>
 
-              {/* Últimas reseñas (hardcodeadas temporalmente) */}
+              {/* Últimas reseñas (reales desde el backend) */}
               <div>
                 <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Últimas reseñas</h4>
-                <ul className="space-y-3">
-                  <li className="rounded-lg bg-slate-50 border border-slate-100 p-3">
-                    <div className="flex items-center gap-2 mb-1">
-                      <div className="flex gap-0.5">
-                        {[1, 2, 3, 4, 5].map((i) => (
-                          <Star key={i} className="h-3.5 w-3.5 fill-amber-400 text-amber-400" strokeWidth={1.5} />
-                        ))}
-                      </div>
-                      <span className="text-xs text-slate-500">Hace 2 semanas</span>
-                    </div>
-                    <p className="text-sm text-slate-600 leading-relaxed">
-                      &quot;Muy profesional, llegó a horario y resolvió el problema rápido. Lo recomiendo.&quot;
-                    </p>
-                  </li>
-                  <li className="rounded-lg bg-slate-50 border border-slate-100 p-3">
-                    <div className="flex items-center gap-2 mb-1">
-                      <div className="flex gap-0.5">
-                        {[1, 2, 3, 4].map((i) => (
-                          <Star key={i} className="h-3.5 w-3.5 fill-amber-400 text-amber-400" strokeWidth={1.5} />
-                        ))}
-                        <Star className="h-3.5 w-3.5 text-slate-300" strokeWidth={1.5} />
-                      </div>
-                      <span className="text-xs text-slate-500">Hace 1 mes</span>
-                    </div>
-                    <p className="text-sm text-slate-600 leading-relaxed">
-                      &quot;Buen trato y trabajo impecable. Volvería a contratar sin dudas.&quot;
-                    </p>
-                  </li>
-                </ul>
+                {loadingReviews ? (
+                  <div className="flex items-center gap-2 py-4 text-slate-500">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span className="text-sm">Cargando reseñas...</span>
+                  </div>
+                ) : reviews.length === 0 ? (
+                  <p className="text-sm text-slate-500 py-2">
+                    Este profesional aún no tiene reseñas, ¡sé el primero en calificarlo!
+                  </p>
+                ) : (
+                  <ul className="space-y-3">
+                    {reviews.map((review) => {
+                      const source = (review as ReviewItem & { source?: string }).source;
+                      const createdAt = review.created_at
+                        ? new Date(review.created_at).toLocaleDateString("es-AR", {
+                            day: "numeric",
+                            month: "short",
+                            year: "numeric",
+                          })
+                        : "";
+                      return (
+                        <li key={review.id} className="rounded-lg bg-slate-50 border border-slate-100 p-3">
+                          <div className="flex items-center gap-2 mb-1 flex-wrap">
+                            <div className="flex gap-0.5">
+                              {[1, 2, 3, 4, 5].map((i) => (
+                                <Star
+                                  key={i}
+                                  className={`h-3.5 w-3.5 ${i <= review.rating ? "fill-amber-400 text-amber-400" : "text-slate-300"}`}
+                                  strokeWidth={1.5}
+                                />
+                              ))}
+                            </div>
+                            <span className="text-xs text-slate-500">{createdAt}</span>
+                            {source === "whatsapp" && (
+                              <span className="text-xs text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded">
+                                ✅ Trabajo verificado por miservicio
+                              </span>
+                            )}
+                          </div>
+                          {review.comment && (
+                            <p className="text-sm text-slate-600 leading-relaxed">
+                              &quot;{review.comment}&quot;
+                            </p>
+                          )}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
               </div>
 
               <DialogFooter>
