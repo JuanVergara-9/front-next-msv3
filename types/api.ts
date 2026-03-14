@@ -88,6 +88,10 @@ export interface ProviderWithDetails extends Provider {
   full_name: string;
   rating: number;
   review_count: number;
+  /** Promedio de reseñas (algunos endpoints devuelven snake_case) */
+  average_rating?: number;
+  /** Total de reseñas (algunos endpoints devuelven snake_case) */
+  total_reviews?: number;
   distance_km?: number;
   categories: string[];
   avatar_url?: string;
