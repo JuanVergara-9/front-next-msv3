@@ -366,7 +366,9 @@ export default function MatchPage() {
                     <DialogTitle className="text-left text-lg flex items-center gap-2">
                       {[profileModalProvider.first_name, profileModalProvider.last_name].filter(Boolean).join(" ") || "Profesional"}
                       {(profileModalProvider.identity_status === "verified" || (profileModalProvider as { isVerified?: boolean }).isVerified) && (
-                        <BadgeCheck className="w-5 h-5 text-blue-500 shrink-0" aria-hidden title="Trabajador Verificado" />
+                        <span title="Trabajador Verificado" className="inline-flex" aria-label="Trabajador Verificado">
+                          <BadgeCheck className="w-5 h-5 text-blue-500 shrink-0" aria-hidden />
+                        </span>
                       )}
                     </DialogTitle>
                     {/* Calificación real del backend */}
