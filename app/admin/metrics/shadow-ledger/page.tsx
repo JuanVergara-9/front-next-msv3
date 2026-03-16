@@ -8,10 +8,27 @@ import { isAdmin } from "@/lib/utils/admin"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { ArrowLeft, Users, Receipt, DollarSign, TrendingUp } from "lucide-react"
 
+const SHADOW_LEDGER_API_URL =
+  process.env.NEXT_PUBLIC_TICKETS_API_URL || "https://notification-service2-production.up.railway.app/api/v1"
+
+type ShadowLedgerMetrics = {
+  activeWorkers: number
+  totalTransactions: number
+  gmv: number
+  retentionRate: number | null
+}
+
 export default function ShadowLedgerDashboardPage() {
   const { user, isLoading } = useAuth()
   const router = useRouter()
   const [mounted, setMounted] = useState(false)
+  const [metrics, setMetrics] = useState<ShadowLedgerMetrics>({
+    activeWorkers: 0,
+    totalTransactions: 0,
+    gmv: 0,
+    retentionRate: null,
+  })
+  const [isLoadingMetrics, setIsLoadingMetrics] = useState(true)
 
   useEffect(() => {
     setMounted(true)
@@ -25,6 +42,32 @@ export default function ShadowLedgerDashboardPage() {
     }
   }, [user, isLoading, router, mounted])
 
+  useEffect(() => {
+    if (!user || !isAdmin(user)) return
+    let cancelled = false
+    async function fetchMetrics() {
+      try {
+        const res = await fetch(`${SHADOW_LEDGER_API_URL}/metrics/shadow-ledger-health`)
+        if (!res.ok) throw new Error("Error al cargar métricas")
+        const data = await res.json()
+        if (!cancelled) {
+          setMetrics({
+            activeWorkers: data.activeWorkers ?? 0,
+            totalTransactions: data.totalTransactions ?? 0,
+            gmv: data.gmv ?? 0,
+            retentionRate: data.retentionRate ?? null,
+          })
+        }
+      } catch (e) {
+        if (!cancelled) setMetrics((m) => ({ ...m }))
+      } finally {
+        if (!cancelled) setIsLoadingMetrics(false)
+      }
+    }
+    fetchMetrics()
+    return () => { cancelled = true }
+  }, [user])
+
   if (isLoading || !mounted) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
@@ -35,10 +78,16 @@ export default function ShadowLedgerDashboardPage() {
 
   if (!user || !isAdmin(user)) return null
 
+  const formattedGMV = new Intl.NumberFormat("es-AR", {
+    style: "currency",
+    currency: "ARS",
+    maximumFractionDigits: 0,
+  }).format(metrics.gmv)
+
   const healthMetrics = [
     {
       title: "Trabajadores Activos (30d)",
-      value: "42",
+      value: isLoadingMetrics ? "Cargando..." : String(metrics.activeWorkers),
       target: "50+",
       icon: Users,
       color: "text-indigo-600",
@@ -46,7 +95,7 @@ export default function ShadowLedgerDashboardPage() {
     },
     {
       title: "Transacciones Totales (30d)",
-      value: "128",
+      value: isLoadingMetrics ? "Cargando..." : String(metrics.totalTransactions),
       target: null,
       icon: Receipt,
       color: "text-emerald-600",
@@ -54,7 +103,7 @@ export default function ShadowLedgerDashboardPage() {
     },
     {
       title: "GMV (30d)",
-      value: "$ 1.250.000",
+      value: isLoadingMetrics ? "Cargando..." : formattedGMV,
       target: null,
       icon: DollarSign,
       color: "text-amber-600",
@@ -62,7 +111,7 @@ export default function ShadowLedgerDashboardPage() {
     },
     {
       title: "Retention Rate (M1 → M3)",
-      value: "35%",
+      value: isLoadingMetrics ? "Cargando..." : (metrics.retentionRate != null ? `${metrics.retentionRate}%` : "Falta data (M3)"),
       target: null,
       icon: TrendingUp,
       color: "text-blue-600",
