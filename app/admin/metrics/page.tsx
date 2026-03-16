@@ -24,7 +24,8 @@ import {
   ShieldAlert,
   ChevronRight,
   ShoppingBag,
-  Eye
+  Eye,
+  LineChart
 } from 'lucide-react'
 import { ProvidersService } from "@/lib/services/providers.service"
 import { OrdersService, type Order } from "@/lib/services/orders.service"
@@ -385,6 +386,26 @@ export default function AdminMetricsPage() {
                       {pendingCount > 0 ? "Requieren tu atención" : "Todo verificado"}
                     </span>
                   </div>
+                </div>
+              </div>
+              <ChevronRight className="h-5 w-5 text-slate-400" />
+            </div>
+          </div>
+        </Link>
+
+        {/* Acceso Shadow Ledger & Riesgo */}
+        <Link href="/admin/metrics/shadow-ledger">
+          <div className="bg-white rounded-2xl p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-slate-100 border-l-4 border-l-indigo-600 hover:shadow-md transition-all cursor-pointer">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="p-3 rounded-xl bg-indigo-50 text-indigo-600">
+                  <LineChart className="w-8 h-8" />
+                </div>
+                <div>
+                  <h3 className="text-slate-900 text-base font-semibold mb-1">Shadow Ledger & Riesgo</h3>
+                  <p className="text-sm text-slate-500">
+                    Monitoreo de comportamiento financiero, retención y scoring de trabajadores para miservicio.
+                  </p>
                 </div>
               </div>
               <ChevronRight className="h-5 w-5 text-slate-400" />
