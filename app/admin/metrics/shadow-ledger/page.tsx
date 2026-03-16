@@ -18,6 +18,12 @@ type ShadowLedgerMetrics = {
   retentionRate: number | null
 }
 
+type BehavioralMetrics = {
+  avgResponseTimeMinutes: number | null
+  ghostingRate: number
+  punctualityRate: number
+}
+
 export default function ShadowLedgerDashboardPage() {
   const { user, isLoading } = useAuth()
   const router = useRouter()
@@ -29,6 +35,12 @@ export default function ShadowLedgerDashboardPage() {
     retentionRate: null,
   })
   const [isLoadingMetrics, setIsLoadingMetrics] = useState(true)
+  const [behavioralMetrics, setBehavioralMetrics] = useState<BehavioralMetrics>({
+    avgResponseTimeMinutes: null,
+    ghostingRate: 0,
+    punctualityRate: 0,
+  })
+  const [isLoadingBehavioral, setIsLoadingBehavioral] = useState(true)
 
   useEffect(() => {
     setMounted(true)
@@ -47,21 +59,40 @@ export default function ShadowLedgerDashboardPage() {
     let cancelled = false
     async function fetchMetrics() {
       try {
-        const res = await fetch(`${SHADOW_LEDGER_API_URL}/metrics/shadow-ledger-health`)
-        if (!res.ok) throw new Error("Error al cargar métricas")
-        const data = await res.json()
+        const [healthRes, behavioralRes] = await Promise.all([
+          fetch(`${SHADOW_LEDGER_API_URL}/metrics/shadow-ledger-health`),
+          fetch(`${SHADOW_LEDGER_API_URL}/metrics/behavioral-signals`),
+        ])
+
+        if (!healthRes.ok) throw new Error("Error al cargar métricas de salud")
+        if (!behavioralRes.ok) throw new Error("Error al cargar señales de comportamiento")
+
+        const healthData = await healthRes.json()
+        const behavioralData = await behavioralRes.json()
+
         if (!cancelled) {
           setMetrics({
-            activeWorkers: data.activeWorkers ?? 0,
-            totalTransactions: data.totalTransactions ?? 0,
-            gmv: data.gmv ?? 0,
-            retentionRate: data.retentionRate ?? null,
+            activeWorkers: healthData.activeWorkers ?? 0,
+            totalTransactions: healthData.totalTransactions ?? 0,
+            gmv: healthData.gmv ?? 0,
+            retentionRate: healthData.retentionRate ?? null,
+          })
+          setBehavioralMetrics({
+            avgResponseTimeMinutes: behavioralData.avgResponseTimeMinutes ?? null,
+            ghostingRate: behavioralData.ghostingRate ?? 0,
+            punctualityRate: behavioralData.punctualityRate ?? 0,
           })
         }
       } catch (e) {
-        if (!cancelled) setMetrics((m) => ({ ...m }))
+        if (!cancelled) {
+          setMetrics((m) => ({ ...m }))
+          setBehavioralMetrics((b) => ({ ...b }))
+        }
       } finally {
-        if (!cancelled) setIsLoadingMetrics(false)
+        if (!cancelled) {
+          setIsLoadingMetrics(false)
+          setIsLoadingBehavioral(false)
+        }
       }
     }
     fetchMetrics()
@@ -180,8 +211,85 @@ export default function ShadowLedgerDashboardPage() {
               <CardTitle className="text-slate-900">Señales de Comportamiento</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="h-64 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 text-sm">
-                Tabla Ghosting y tiempos de respuesta (próximamente)
+              <div className="overflow-x-auto">
+                <table className="min-w-full text-sm border border-slate-100 rounded-lg overflow-hidden">
+                  <thead className="bg-slate-50">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                        Señal
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                        Métrica Actual
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                        Target
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 bg-white">
+                    {[
+                      {
+                        label: "Tiempo de Respuesta",
+                        value:
+                          behavioralMetrics.avgResponseTimeMinutes != null
+                            ? `${behavioralMetrics.avgResponseTimeMinutes} min`
+                            : isLoadingBehavioral
+                              ? "Cargando..."
+                              : "Sin datos",
+                        target: "< 30 min",
+                        isOk:
+                          behavioralMetrics.avgResponseTimeMinutes != null &&
+                          behavioralMetrics.avgResponseTimeMinutes > 0 &&
+                          behavioralMetrics.avgResponseTimeMinutes < 30,
+                        rawValue: behavioralMetrics.avgResponseTimeMinutes ?? 0,
+                      },
+                      {
+                        label: "Ghosting Rate",
+                        value: `${behavioralMetrics.ghostingRate.toFixed(1)}%`,
+                        target: "< 10%",
+                        isOk:
+                          behavioralMetrics.ghostingRate > 0 &&
+                          behavioralMetrics.ghostingRate < 10,
+                        rawValue: behavioralMetrics.ghostingRate,
+                      },
+                      {
+                        label: "Puntualidad Reporte",
+                        value: `${behavioralMetrics.punctualityRate.toFixed(1)}%`,
+                        target: "> 80%",
+                        isOk:
+                          behavioralMetrics.punctualityRate > 80,
+                        rawValue: behavioralMetrics.punctualityRate,
+                      },
+                    ].map((row) => {
+                      const isLoadingRow = isLoadingBehavioral || row.rawValue === 0
+                      let colorClass = "text-slate-400"
+                      if (!isLoadingRow) {
+                        colorClass = row.isOk ? "text-emerald-500" : "text-amber-500"
+                      }
+                      return (
+                        <tr key={row.label}>
+                          <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-slate-700">
+                            <div className="flex items-center gap-2">
+                              <span
+                                className={`inline-flex h-2.5 w-2.5 rounded-full ${colorClass.replace(
+                                  "text-",
+                                  "bg-"
+                                )}`}
+                              />
+                              {row.label}
+                            </div>
+                          </td>
+                          <td className={`px-4 py-3 whitespace-nowrap text-sm font-semibold ${colorClass}`}>
+                            {isLoadingRow ? "Cargando..." : row.value}
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap text-sm text-slate-500">
+                            {row.target}
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
               </div>
             </CardContent>
           </Card>
