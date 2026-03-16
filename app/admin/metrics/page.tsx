@@ -394,7 +394,7 @@ export default function AdminMetricsPage() {
         </Link>
 
         {/* Acceso Shadow Ledger & Riesgo */}
-        <Link href="/admin/metrics/shadow-ledger">
+        <Link href="/admin/metrics/shadow-ledger" className="block mt-6">
           <div className="bg-white rounded-2xl p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-slate-100 border-l-4 border-l-indigo-600 hover:shadow-md transition-all cursor-pointer">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
