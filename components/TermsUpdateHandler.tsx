@@ -4,9 +4,9 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { ShieldCheck, FileText, Check, MessageSquare, PlusCircle, Sparkles } from "lucide-react"
+import { ShieldCheck, FileText, Check, MessageSquare, PlusCircle, Sparkles, Bot } from "lucide-react"
 
-const TERMS_VERSION = "2026-01-06"
+const TERMS_VERSION = "2026-03-16"
 const STORAGE_KEY = "miservicio_terms_accepted"
 
 export function TermsUpdateHandler() {
@@ -74,10 +74,22 @@ export function TermsUpdateHandler() {
                 </p>
               </div>
             </div>
+
+            <div className="flex gap-3">
+              <div className="h-8 w-8 rounded-xl bg-green-100 flex items-center justify-center shrink-0">
+                <Bot className="h-5 w-5 text-green-600" />
+              </div>
+              <div>
+                <p className="font-bold text-[#0e315d]">Chatbot con IA por WhatsApp</p>
+                <p className="text-slate-500">
+                  Atendemos consultas y te ayudamos por WhatsApp con un asistente inteligente, disponible cuando lo necesites.
+                </p>
+              </div>
+            </div>
           </div>
 
           <p className="text-center text-xs text-slate-400 px-4">
-            Hemos actualizado nuestros documentos legales para reflejar estos cambios y proteger a nuestra comunidad:
+            Hemos actualizado nuestros <strong>Términos y Condiciones</strong> y la <strong>Política de Privacidad</strong> para reflejar el chatbot con IA, el resto de funciones y proteger a nuestra comunidad.
           </p>
 
           <div className="flex justify-center gap-4 text-xs font-bold">
