@@ -685,7 +685,7 @@ export function UserProfilePage() {
           )}
 
           {/* Tarjeta de verificación de identidad (solo para proveedores) */}
-          {isProvider && providerProfile && (
+          {providerProfile && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}

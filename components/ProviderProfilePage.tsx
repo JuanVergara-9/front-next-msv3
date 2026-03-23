@@ -262,7 +262,7 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile, gues
       province: profile.province || "Provincia",
       ratingAvg: profile.rating || 0,
       reviewsCount90d: profile.review_count || 0,
-      isVerified: profile.status === 'active',
+      isVerified: profile.identity_status === 'verified',
       isLicensed: !!profile.is_licensed,
       emergencyAvailable: profile.emergency_available || false,
       description: profile.description || "Descripción no disponible",

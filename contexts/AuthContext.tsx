@@ -32,7 +32,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const profile = await ProvidersService.getMyProviderProfile()
       if (profile) {
         setProviderProfile(profile)
-        setIsProvider(true)
+        setIsProvider(true) // Pisa cualquier valor stale del JWT/localStorage: la DB manda
+      } else {
+        setProviderProfile(null)
+        setIsProvider(false)
       }
     } catch (error) {
       console.warn('Could not fetch provider profile details:', error)
