@@ -48,6 +48,7 @@ import { io } from 'socket.io-client'
 import { AuthService } from '@/lib/services/auth.service'
 import { SOCKET_URL } from '@/lib/apiClient'
 import { OrdersService } from '@/lib/services/orders.service'
+import { IdentityVerificationCard } from "@/components/IdentityVerificationCard"
 
 interface ProviderProfilePageProps {
   providerProfile?: any
@@ -1050,6 +1051,24 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile, gues
               </CardContent>
             </Card>
           </motion.div>
+
+          {/* Verificación de identidad — solo visible para el dueño del perfil */}
+          {isOwner && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.55 }}
+              className="mb-8"
+            >
+              <IdentityVerificationCard
+                providerProfile={{
+                  identity_status: (propProviderProfile?.identity_status as 'not_submitted' | 'pending' | 'verified' | 'rejected') || 'not_submitted',
+                  identity_rejection_reason: propProviderProfile?.identity_rejection_reason
+                }}
+                onUpdate={async () => { window.location.reload() }}
+              />
+            </motion.div>
+          )}
 
           {/* Tabs de contenido */}
           <motion.div
