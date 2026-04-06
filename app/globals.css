@@ -190,23 +190,20 @@
   overflow: hidden;
 }
 
-.text-balance {
-  text-wrap: balance;
-}
-
-.text-pretty {
-  text-wrap: pretty;
-}
-
 
 @layer utilities {
   .scrollbar-hide {
     -ms-overflow-style: none;
-    scrollbar-width: none;
   }
 
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
+  }
+
+  @supports (scrollbar-width: none) {
+    .scrollbar-hide {
+      scrollbar-width: none;
+    }
   }
 }
 
@@ -226,8 +223,8 @@
   animation: scroll-infinite 60s linear infinite;
   will-change: transform;
   cursor: grab;
-  user-select: none;
   -webkit-user-select: none;
+  user-select: none;
   touch-action: pan-y;
 }
 
@@ -245,13 +242,12 @@
   overflow-x: hidden;
   overflow-y: visible;
   position: relative;
-  -webkit-overflow-scrolling: touch;
-  mask-image: linear-gradient(to right,
+  -webkit-mask-image: linear-gradient(to right,
       transparent 0%,
       black 5%,
       black 95%,
       transparent 100%);
-  -webkit-mask-image: linear-gradient(to right,
+  mask-image: linear-gradient(to right,
       transparent 0%,
       black 5%,
       black 95%,
@@ -290,4 +286,8 @@
   display: flex;
   width: max-content;
   animation: marquee 40s linear infinite;
+}
+
+.pb-safe {
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
 }
