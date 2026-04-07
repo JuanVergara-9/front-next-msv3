@@ -53,73 +53,41 @@ export function TermsUpdateHandler() {
           <div className="w-10 h-1 bg-slate-200 rounded-full" />
         </div>
 
-        {/* Contenido scrolleable */}
-        <div className="overflow-y-auto flex-1 px-6 pt-4 pb-2">
-          {/* Header */}
-          <div className="flex flex-col items-center text-center mb-4">
-            <div className="bg-amber-100 p-3 rounded-full mb-3">
-              <Sparkles className="h-7 w-7 text-amber-600" />
+        {/* Contenido — sin scroll, todo visible */}
+        <div className="px-5 pt-4 pb-3">
+          {/* Header compacto */}
+          <div className="flex flex-col items-center text-center mb-3">
+            <div className="bg-amber-100 p-2.5 rounded-full mb-2">
+              <Sparkles className="h-6 w-6 text-amber-600" />
             </div>
-            <h2 id="terms-title" className="text-xl font-black text-[#0e315d]">
+            <h2 id="terms-title" className="text-lg font-black text-[#0e315d] leading-tight">
               ¡Nuevo diseño y más funciones!
             </h2>
-            <p className="text-sm font-medium text-slate-500 mt-1">
-              Renovamos miservicio para que encontrar soluciones sea más rápido y seguro.
-            </p>
           </div>
 
-          {/* Features */}
-          <div className="bg-slate-50 rounded-2xl border border-slate-100 divide-y divide-slate-100">
-            <div className="flex gap-3 p-3">
-              <div className="h-8 w-8 rounded-xl bg-blue-100 flex items-center justify-center shrink-0">
-                <PlusCircle className="h-4 w-4 text-blue-600" />
+          {/* Features — solo títulos + iconos */}
+          <div className="bg-slate-50 rounded-2xl border border-slate-100 divide-y divide-slate-100 mb-3">
+            {[
+              { icon: PlusCircle,   bg: "bg-blue-100",    color: "text-blue-600",    label: "Publicá tus Pedidos" },
+              { icon: MessageSquare,bg: "bg-emerald-100",  color: "text-emerald-600", label: "Chat Propio" },
+              { icon: ShieldCheck,  bg: "bg-purple-100",  color: "text-purple-600",  label: "Verificá tu identidad" },
+              { icon: Bot,          bg: "bg-green-100",   color: "text-green-600",   label: "Chatbot IA por WhatsApp" },
+            ].map(({ icon: Icon, bg, color, label }) => (
+              <div key={label} className="flex items-center gap-3 px-3 py-2.5">
+                <div className={`h-7 w-7 rounded-lg ${bg} flex items-center justify-center shrink-0`}>
+                  <Icon className={`h-4 w-4 ${color}`} />
+                </div>
+                <p className="font-semibold text-[#0e315d] text-sm">{label}</p>
               </div>
-              <div>
-                <p className="font-bold text-[#0e315d] text-sm">Publicá tus Pedidos</p>
-                <p className="text-xs text-slate-500 mt-0.5">Describí lo que necesitás y dejá que los profesionales se postulen.</p>
-              </div>
-            </div>
-
-            <div className="flex gap-3 p-3">
-              <div className="h-8 w-8 rounded-xl bg-emerald-100 flex items-center justify-center shrink-0">
-                <MessageSquare className="h-4 w-4 text-emerald-600" />
-              </div>
-              <div>
-                <p className="font-bold text-[#0e315d] text-sm">Chat Propio</p>
-                <p className="text-xs text-slate-500 mt-0.5">Hablá directo con los trabajadores desde la app.</p>
-              </div>
-            </div>
-
-            <div className="flex gap-3 p-3">
-              <div className="h-8 w-8 rounded-xl bg-purple-100 flex items-center justify-center shrink-0">
-                <ShieldCheck className="h-4 w-4 text-purple-600" />
-              </div>
-              <div>
-                <p className="font-bold text-[#0e315d] text-sm">¿Sos trabajador? Verificate</p>
-                <p className="text-xs text-slate-500 mt-0.5">Obtené tu insignia y generá más confianza con tus clientes.</p>
-              </div>
-            </div>
-
-            <div className="flex gap-3 p-3">
-              <div className="h-8 w-8 rounded-xl bg-green-100 flex items-center justify-center shrink-0">
-                <Bot className="h-4 w-4 text-green-600" />
-              </div>
-              <div>
-                <p className="font-bold text-[#0e315d] text-sm">Chatbot con IA por WhatsApp</p>
-                <p className="text-xs text-slate-500 mt-0.5">Asistente disponible cuando lo necesites.</p>
-              </div>
-            </div>
+            ))}
           </div>
 
           {/* Legal links */}
-          <p className="text-center text-xs text-slate-400 mt-3 px-2">
-            Actualizamos nuestros Términos y Política de Privacidad.
-          </p>
-          <div className="flex justify-center gap-4 text-xs font-bold mt-1 pb-2">
-            <Link href="/legal/terminos" className="text-primary hover:underline flex items-center gap-1" target="_blank">
+          <div className="flex justify-center gap-4 text-xs font-bold text-slate-400">
+            <Link href="/legal/terminos" className="hover:text-primary flex items-center gap-1" target="_blank">
               <FileText className="h-3 w-3" /> Términos
             </Link>
-            <Link href="/legal/privacidad" className="text-primary hover:underline flex items-center gap-1" target="_blank">
+            <Link href="/legal/privacidad" className="hover:text-primary flex items-center gap-1" target="_blank">
               <FileText className="h-3 w-3" /> Privacidad
             </Link>
           </div>
