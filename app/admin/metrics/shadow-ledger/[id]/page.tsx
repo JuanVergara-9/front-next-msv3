@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
 import { useAuth } from "@/contexts/AuthContext"
 import { isAdmin } from "@/lib/utils/admin"
+import { AuthService } from "@/lib/services/auth.service"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   ArrowLeft,
@@ -74,7 +75,7 @@ export default function WorkerFinancialProfilePage() {
       setIsLoadingData(true)
       setError(null)
       try {
-        const token = (user as any)?.token || ""
+        const token = AuthService.getAccessToken() || ""
         const headers = { Authorization: `Bearer ${token}` }
 
         const [providerRes, scoringRes] = await Promise.all([

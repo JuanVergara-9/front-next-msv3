@@ -5,8 +5,9 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { useAuth } from "@/contexts/AuthContext"
 import { isAdmin } from "@/lib/utils/admin"
+import { AuthService } from "@/lib/services/auth.service"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import { ArrowLeft, Users, Receipt, DollarSign, TrendingUp, MessageCircle, Smartphone } from "lucide-react"
+import { ArrowLeft, Users, Receipt, DollarSign, TrendingUp, MessageCircle, Smartphone, ChevronRight } from "lucide-react"
 
 const SHADOW_LEDGER_API_URL =
   process.env.NEXT_PUBLIC_TICKETS_API_URL || "https://notification-service2-production.up.railway.app/api/v1"
@@ -33,6 +34,13 @@ type BehavioralMetrics = {
   avgResponseTimeMinutes: number | null
   ghostingRate: number
   punctualityRate: number
+}
+
+type ActiveWorker = {
+  provider_id: number
+  provider_name: string
+  total_transactions: number
+  gmv: number
 }
 
 const formatARS = (amount: number) =>
@@ -67,6 +75,7 @@ export default function ShadowLedgerDashboardPage() {
     punctualityRate: 0,
   })
 
+  const [activeWorkers, setActiveWorkers] = useState<ActiveWorker[]>([])
   const [isLoadingMetrics, setIsLoadingMetrics] = useState(true)
   const [isLoadingBehavioral, setIsLoadingBehavioral] = useState(true)
 
@@ -85,18 +94,20 @@ export default function ShadowLedgerDashboardPage() {
 
     async function fetchMetrics() {
       try {
-        const token = (user as any)?.token || ""
-        const [healthRes, behavioralRes, webGMVRes] = await Promise.all([
+        const token = AuthService.getAccessToken() || ""
+        const [healthRes, behavioralRes, webGMVRes, workersRes] = await Promise.all([
           fetch(`${SHADOW_LEDGER_API_URL}/metrics/shadow-ledger-health`),
           fetch(`${SHADOW_LEDGER_API_URL}/metrics/behavioral-signals`),
           fetch(`${API_BASE_URL}/api/v1/orders/admin/gmv`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
+          fetch(`${SHADOW_LEDGER_API_URL}/metrics/active-workers`),
         ])
 
         const healthData = healthRes.ok ? await healthRes.json() : {}
         const behavioralData = behavioralRes.ok ? await behavioralRes.json() : {}
         const webData = webGMVRes.ok ? await webGMVRes.json() : {}
+        const workersData = workersRes.ok ? await workersRes.json() : {}
 
         if (!cancelled) {
           setWaMetrics({
@@ -118,6 +129,7 @@ export default function ShadowLedgerDashboardPage() {
             ghostingRate: behavioralData.ghostingRate ?? 0,
             punctualityRate: behavioralData.punctualityRate ?? 0,
           })
+          setActiveWorkers(workersData.workers ?? [])
         }
       } catch (e) {
         console.error("[ShadowLedger] Error fetching metrics:", e)
@@ -390,7 +402,7 @@ export default function ShadowLedgerDashboardPage() {
                         rawValue: behavioralMetrics.punctualityRate,
                       },
                     ].map((row) => {
-                      const isLoadingRow = isLoadingBehavioral || row.rawValue === 0
+                      const isLoadingRow = isLoadingBehavioral
                       let colorClass = "text-slate-400"
                       if (!isLoadingRow) {
                         colorClass = row.isOk ? "text-emerald-500" : "text-amber-500"
@@ -423,6 +435,55 @@ export default function ShadowLedgerDashboardPage() {
             </CardContent>
           </Card>
         </section>
+
+        {/* Sección D: Trabajadores activos → link a perfil individual */}
+        <section>
+          <Card className="border-slate-100 shadow-sm">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-slate-900 text-base">
+                Trabajadores Activos (30d)
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {isLoadingMetrics ? (
+                <p className="text-sm text-slate-400 py-4 text-center">Cargando...</p>
+              ) : activeWorkers.length === 0 ? (
+                <p className="text-sm text-slate-400 py-4 text-center">Sin actividad en los últimos 30 días.</p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="min-w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-slate-100">
+                        <th className="px-3 py-2 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Trabajador</th>
+                        <th className="px-3 py-2 text-right text-xs font-semibold text-slate-500 uppercase tracking-wide">Trabajos</th>
+                        <th className="px-3 py-2 text-right text-xs font-semibold text-slate-500 uppercase tracking-wide">GMV</th>
+                        <th className="px-3 py-2 text-right text-xs font-semibold text-slate-500 uppercase tracking-wide"></th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-50">
+                      {activeWorkers.map((w) => (
+                        <tr key={w.provider_id} className="hover:bg-slate-50 transition-colors">
+                          <td className="px-3 py-3 font-medium text-slate-800">{w.provider_name}</td>
+                          <td className="px-3 py-3 text-right text-slate-600">{w.total_transactions}</td>
+                          <td className="px-3 py-3 text-right font-semibold text-slate-800">{formatARS(w.gmv)}</td>
+                          <td className="px-3 py-3 text-right">
+                            <Link
+                              href={`/admin/metrics/shadow-ledger/${w.provider_id}`}
+                              className="inline-flex items-center gap-1 text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition-colors"
+                            >
+                              Ver perfil <ChevronRight className="w-3 h-3" />
+                            </Link>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </section>
+
       </main>
     </div>
   )
