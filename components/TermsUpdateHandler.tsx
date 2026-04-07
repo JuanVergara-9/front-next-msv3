@@ -28,30 +28,19 @@ export function TermsUpdateHandler() {
 
   return (
     <>
-      {/* Overlay oscuro */}
-      <div className="fixed inset-0 z-50 bg-black/50" aria-hidden="true" />
+      {/* Overlay oscuro — z-[200] para estar sobre el BottomNavBar (z-[100]) */}
+      <div className="fixed inset-0 z-[200] bg-black/50" aria-hidden="true" />
 
-      {/*
-        Mobile  → bottom sheet: pegado al fondo, sube desde abajo, bordes redondeados arriba
-        Desktop → modal centrado: igual que antes
-      */}
+      {/* Modal centrado en todas las pantallas */}
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="terms-title"
-        className="
-          fixed z-50 bg-white flex flex-col
-          bottom-0 left-0 right-0
-          rounded-t-3xl
-          max-h-[88dvh] w-full
-          sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2
-          sm:rounded-3xl sm:max-w-[500px] sm:max-h-[90dvh]
-        "
+        className="fixed z-[201] bg-white flex flex-col rounded-3xl shadow-xl
+          top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
+          w-[calc(100%-2rem)] max-w-[420px]
+          max-h-[calc(100dvh-8rem)]"
       >
-        {/* Tirón visual (solo mobile) */}
-        <div className="flex justify-center pt-3 pb-1 sm:hidden">
-          <div className="w-10 h-1 bg-slate-200 rounded-full" />
-        </div>
 
         {/* Contenido — sin scroll, todo visible */}
         <div className="px-5 pt-4 pb-3">
@@ -93,8 +82,8 @@ export function TermsUpdateHandler() {
           </div>
         </div>
 
-        {/* Botón — siempre visible, nunca se corta */}
-        <div className="px-6 pt-4 border-t border-slate-100 bg-white shrink-0 pb-safe">
+        {/* Botón */}
+        <div className="px-5 pt-3 pb-5 border-t border-slate-100 bg-white shrink-0 rounded-b-3xl">
           <Button
             onClick={handleAccept}
             className="w-full bg-[#0e315d] hover:bg-[#0e315d]/90 text-white font-bold rounded-xl h-12 shadow-lg text-base"
