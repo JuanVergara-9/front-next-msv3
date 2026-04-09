@@ -16,7 +16,9 @@ import {
   Ghost,
   Timer,
   AlertCircle,
+  Info,
 } from "lucide-react"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 const SHADOW_LEDGER_API_URL =
   process.env.NEXT_PUBLIC_TICKETS_API_URL || "https://notification-service2-production.up.railway.app/api/v1"
@@ -131,7 +133,24 @@ export default function WorkerFinancialProfilePage() {
     return "text-red-500"
   }
 
+  const MetricLabel = ({ label, tooltip }: { label: string; tooltip?: string }) => (
+    <div className="flex items-center gap-1.5">
+      <p className="text-sm text-slate-500 font-medium">{label}</p>
+      {tooltip && (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Info className="h-3.5 w-3.5 text-slate-300 hover:text-slate-500 cursor-help shrink-0" />
+          </TooltipTrigger>
+          <TooltipContent className="bg-slate-800 text-white border-0">
+            <p className="w-[200px] text-xs leading-relaxed">{tooltip}</p>
+          </TooltipContent>
+        </Tooltip>
+      )}
+    </div>
+  )
+
   return (
+    <TooltipProvider>
     <div className="min-h-screen bg-slate-50 font-sans pb-8">
       {/* Header */}
       <header className="bg-white border-b border-slate-100 px-6 py-4">
@@ -188,7 +207,7 @@ export default function WorkerFinancialProfilePage() {
                     <Briefcase className="w-5 h-5" />
                   </div>
                 </div>
-                <p className="text-sm text-slate-500 font-medium">Trabajos Completados</p>
+                <MetricLabel label="Trabajos Completados" tooltip="Cantidad total de servicios finalizados exitosamente." />
                 <p className="text-3xl font-bold text-slate-900 mt-1">
                   {isLoadingData ? "—" : scoring?.totalCompletedJobs ?? 0}
                 </p>
@@ -202,7 +221,7 @@ export default function WorkerFinancialProfilePage() {
                     <DollarSign className="w-5 h-5" />
                   </div>
                 </div>
-                <p className="text-sm text-slate-500 font-medium">GMV Total</p>
+                <MetricLabel label="GMV Total" tooltip="Volumen total de dinero transaccionado. Representa el ingreso bruto declarado, sin descontar comisiones." />
                 <p className="text-3xl font-bold text-slate-900 mt-1">
                   {isLoadingData ? "—" : formatARS(scoring?.totalGMV ?? null)}
                 </p>
@@ -216,7 +235,7 @@ export default function WorkerFinancialProfilePage() {
                     <Receipt className="w-5 h-5" />
                   </div>
                 </div>
-                <p className="text-sm text-slate-500 font-medium">Ticket Promedio</p>
+                <MetricLabel label="Ticket Promedio" tooltip="Valor promedio cobrado por cada trabajo." />
                 <p className="text-3xl font-bold text-slate-900 mt-1">
                   {isLoadingData
                     ? "—"
@@ -242,7 +261,7 @@ export default function WorkerFinancialProfilePage() {
                     <Clock className="w-5 h-5" />
                   </div>
                 </div>
-                <p className="text-sm text-slate-500 font-medium">Último Trabajo</p>
+                <MetricLabel label="Último Trabajo" />
                 <p className="text-3xl font-bold text-slate-900 mt-1">
                   {isLoadingData
                     ? "—"
@@ -260,7 +279,7 @@ export default function WorkerFinancialProfilePage() {
                     <Ghost className="w-5 h-5" />
                   </div>
                 </div>
-                <p className="text-sm text-slate-500 font-medium">Ghosting Rate</p>
+                <MetricLabel label="Ghosting Rate" tooltip="Porcentaje de solicitudes asignadas que el trabajador ignoró o nunca respondió por WhatsApp." />
                 <p className={`text-3xl font-bold mt-1 ${isLoadingData ? "text-slate-400" : ghostColor(scoring?.ghostingRate ?? 0)}`}>
                   {isLoadingData ? "—" : `${scoring?.ghostingRate ?? 0}%`}
                 </p>
@@ -275,7 +294,7 @@ export default function WorkerFinancialProfilePage() {
                     <Timer className="w-5 h-5" />
                   </div>
                 </div>
-                <p className="text-sm text-slate-500 font-medium">Tiempo de Respuesta</p>
+                <MetricLabel label="Tiempo de Respuesta" tooltip="Promedio en minutos que tarda en contestar el mensaje de WhatsApp desde que se le asigna el pedido." />
                 <p className={`text-3xl font-bold mt-1 ${isLoadingData ? "text-slate-400" : responseColor(scoring?.avgResponseTimeMinutes ?? null)}`}>
                   {isLoadingData
                     ? "—"
@@ -291,5 +310,6 @@ export default function WorkerFinancialProfilePage() {
 
       </main>
     </div>
+    </TooltipProvider>
   )
 }

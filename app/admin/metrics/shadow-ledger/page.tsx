@@ -7,7 +7,8 @@ import { useAuth } from "@/contexts/AuthContext"
 import { isAdmin } from "@/lib/utils/admin"
 import { AuthService } from "@/lib/services/auth.service"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import { ArrowLeft, Users, Receipt, DollarSign, TrendingUp, MessageCircle, Smartphone, ChevronRight } from "lucide-react"
+import { ArrowLeft, Users, Receipt, DollarSign, TrendingUp, MessageCircle, Smartphone, ChevronRight, Info } from "lucide-react"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 const SHADOW_LEDGER_API_URL =
   process.env.NEXT_PUBLIC_TICKETS_API_URL || "https://notification-service2-production.up.railway.app/api/v1"
@@ -161,6 +162,7 @@ export default function ShadowLedgerDashboardPage() {
   const summaryCards = [
     {
       title: "Trabajadores Activos (30d)",
+      tooltip: null,
       value: isLoadingMetrics ? "Cargando..." : String(waMetrics.activeWorkers),
       target: "50+",
       icon: Users,
@@ -169,6 +171,7 @@ export default function ShadowLedgerDashboardPage() {
     },
     {
       title: "Transacciones Totales (30d)",
+      tooltip: null,
       value: isLoadingMetrics ? "Cargando..." : String(totalTransactions),
       target: null,
       icon: Receipt,
@@ -177,6 +180,7 @@ export default function ShadowLedgerDashboardPage() {
     },
     {
       title: "GMV Total (30d)",
+      tooltip: "Volumen total de dinero transaccionado. Representa el ingreso bruto declarado, sin descontar comisiones.",
       value: isLoadingMetrics ? "Cargando..." : formatARS(totalGMV),
       target: null,
       icon: DollarSign,
@@ -185,6 +189,7 @@ export default function ShadowLedgerDashboardPage() {
     },
     {
       title: "Retention Rate (M1 → M3)",
+      tooltip: "Porcentaje de trabajadores que siguen completando trabajos 3 meses después de registrarse.",
       value: isLoadingMetrics
         ? "Cargando..."
         : waMetrics.retentionRate != null
@@ -198,6 +203,7 @@ export default function ShadowLedgerDashboardPage() {
   ]
 
   return (
+    <TooltipProvider>
     <div className="min-h-screen bg-slate-50 font-sans pb-8">
       <header className="bg-white border-b border-slate-100 px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center gap-4">
@@ -232,7 +238,19 @@ export default function ShadowLedgerDashboardPage() {
                       <span className="text-xs font-medium text-slate-400">Target: {metric.target}</span>
                     )}
                   </div>
-                  <h3 className="text-slate-500 text-sm font-medium mb-1">{metric.title}</h3>
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <h3 className="text-slate-500 text-sm font-medium">{metric.title}</h3>
+                    {metric.tooltip && (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-3.5 w-3.5 text-slate-300 hover:text-slate-500 cursor-help shrink-0" />
+                        </TooltipTrigger>
+                        <TooltipContent className="bg-slate-800 text-white border-0">
+                          <p className="w-[200px] text-xs leading-relaxed">{metric.tooltip}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    )}
+                  </div>
                   <p className="text-2xl font-bold text-slate-900 tracking-tight">{metric.value}</p>
                 </CardContent>
               </Card>
@@ -372,6 +390,7 @@ export default function ShadowLedgerDashboardPage() {
                     {[
                       {
                         label: "Tiempo de Respuesta",
+                        tooltip: "Promedio en minutos que tarda en contestar el mensaje de WhatsApp desde que se le asigna el pedido.",
                         value:
                           behavioralMetrics.avgResponseTimeMinutes != null
                             ? `${behavioralMetrics.avgResponseTimeMinutes} min`
@@ -387,6 +406,7 @@ export default function ShadowLedgerDashboardPage() {
                       },
                       {
                         label: "Ghosting Rate",
+                        tooltip: "Porcentaje de solicitudes asignadas que el trabajador ignoró o nunca respondió por WhatsApp.",
                         value: `${behavioralMetrics.ghostingRate.toFixed(1)}%`,
                         target: "< 10%",
                         isOk:
@@ -396,6 +416,7 @@ export default function ShadowLedgerDashboardPage() {
                       },
                       {
                         label: "Puntualidad Reporte",
+                        tooltip: null,
                         value: `${behavioralMetrics.punctualityRate.toFixed(1)}%`,
                         target: "> 80%",
                         isOk: behavioralMetrics.punctualityRate > 80,
@@ -418,6 +439,16 @@ export default function ShadowLedgerDashboardPage() {
                                 )}`}
                               />
                               {row.label}
+                              {row.tooltip && (
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Info className="h-3.5 w-3.5 text-slate-300 hover:text-slate-500 cursor-help shrink-0" />
+                                  </TooltipTrigger>
+                                  <TooltipContent className="bg-slate-800 text-white border-0">
+                                    <p className="w-[200px] text-xs leading-relaxed">{row.tooltip}</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              )}
                             </div>
                           </td>
                           <td className={`px-4 py-3 whitespace-nowrap text-sm font-semibold ${colorClass}`}>
@@ -486,5 +517,6 @@ export default function ShadowLedgerDashboardPage() {
 
       </main>
     </div>
+    </TooltipProvider>
   )
 }
