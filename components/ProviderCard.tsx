@@ -1,6 +1,6 @@
 "use client"
 
-import { Star, MapPin, Eye, BadgeCheck } from "lucide-react"
+import { Star, MapPin, Eye, BadgeCheck, ShieldCheck } from "lucide-react"
 import { useRouter } from "next/navigation"
 import type { ProviderWithDetails } from "@/types/api"
 import { normalizeFullName, normalizeCity } from "@/lib/utils"
@@ -14,6 +14,7 @@ export function ProviderCard({ provider, onContact }: { provider: ProviderWithDe
   )
   const normalizedCity = normalizeCity(provider.city)
   const avatar = (provider as any).avatar_url || "/placeholder.svg"
+  const isIdentityVerified = provider.identity_status === "verified"
 
   const handleViewProfile = () => {
     router.push(`/proveedores/${provider.id}`)
@@ -31,7 +32,7 @@ export function ProviderCard({ provider, onContact }: { provider: ProviderWithDe
   return (
     <div className="bg-card/90 backdrop-blur-sm rounded-3xl p-6 premium-shadow border border-border/50 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 group flex flex-col h-full">
       <div className="flex gap-4 mb-4 flex-1">
-        <div className="relative">
+        <div className="relative shrink-0">
           <img
             src={avatar}
             alt={displayName}
@@ -44,6 +45,12 @@ export function ProviderCard({ provider, onContact }: { provider: ProviderWithDe
               <h3 className="font-bold text-lg text-foreground group-hover:text-primary transition-colors break-words leading-tight flex-1 min-w-0">
                 {displayName}
               </h3>
+              {isIdentityVerified && (
+                <span className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full border border-sky-300 text-sky-800 bg-sky-50 shrink-0 mt-0.5">
+                  <ShieldCheck className="h-3 w-3 text-sky-600" aria-hidden />
+                  Verificado
+                </span>
+              )}
               {(provider as any).is_licensed && (
                 <span className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full border border-green-300 text-green-700 bg-green-50 shrink-0 mt-0.5">
                   <BadgeCheck className="h-3 w-3" /> Matriculado
