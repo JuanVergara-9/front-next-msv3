@@ -54,8 +54,10 @@ function toISODate(d: Date): string {
   return `${yyyy}-${mm}-${dd}`
 }
 
-function getTimeAgo(dateString: string): string {
+function getTimeAgo(dateString: string | null | undefined): string {
+  if (dateString == null || String(dateString).trim() === '') return 'Reciente'
   const date = new Date(dateString)
+  if (Number.isNaN(date.getTime())) return 'Reciente'
   const now = new Date()
   const diffMs = now.getTime() - date.getTime()
   const diffMins = Math.floor(diffMs / 60000)

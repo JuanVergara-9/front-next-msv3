@@ -20,6 +20,11 @@ import { OrdersService, Order, Postulation } from "@/lib/services/orders.service
 import { useAuth } from "@/contexts/AuthContext"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
+function formatOrderPublishedLabel(createdAt: string | undefined | null): string {
+    if (createdAt == null || String(createdAt).trim() === "") return "Recientemente"
+    const d = new Date(createdAt)
+    return Number.isNaN(d.getTime()) ? "Recientemente" : d.toLocaleDateString()
+}
 
 // Postulation Modal Component
 const BUDGET_ERROR_MSG = "Debes ingresar un presupuesto estimado para postularte."
@@ -416,7 +421,7 @@ export default function PedidosPage() {
                                                 <div>
                                                     <CardTitle className="text-xl">{order.title}</CardTitle>
                                                     <CardDescription>
-                                                        Publicado el {order.created_at ? new Date(order.created_at).toLocaleDateString() : 'Recientemente'} • {order.category?.name}
+                                                        Publicado el {formatOrderPublishedLabel(order.created_at)} • {order.category?.name}
                                                     </CardDescription>
                                                 </div>
                                                 <Badge variant={order.status === 'IN_PROGRESS' ? 'success' : 'default' as any}>
