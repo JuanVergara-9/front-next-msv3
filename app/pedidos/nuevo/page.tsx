@@ -14,6 +14,7 @@ import toast from "react-hot-toast"
 import { OrdersService } from "@/lib/services/orders.service"
 import { ProvidersService } from "@/lib/services/providers.service"
 import { UploadService, UploadResult } from "@/lib/services/upload.service"
+import { UserProfileService } from "@/lib/services/user-profile.service"
 import { useRouter } from "next/navigation"
 import axios from "axios"
 
@@ -32,6 +33,23 @@ interface Category {
     slug: string
 }
 
+function normalizePhoneForTicket(rawPhone: unknown): string | null {
+    if (!rawPhone) return null
+    const onlyDigits = String(rawPhone).replace(/\D/g, "")
+    return onlyDigits.length >= 10 ? onlyDigits : null
+}
+
+async function fetchTicketPhoneFromProfile(): Promise<string | null> {
+    try {
+        const myProfile = await UserProfileService.getMyProfile()
+        const phoneFromProfile = myProfile?.profile?.phone_e164 ?? myProfile?.phone_e164
+        return normalizePhoneForTicket(phoneFromProfile)
+    } catch (error) {
+        console.warn("[Tickets API] No se pudo cargar el teléfono del perfil:", error)
+        return null
+    }
+}
+
 export default function NuevoPedidoPage() {
     const router = useRouter()
     const [loading, setLoading] = useState(false)
@@ -40,6 +58,7 @@ export default function NuevoPedidoPage() {
     const [categories, setCategories] = useState<Category[]>([])
     const [uploadedImages, setUploadedImages] = useState<UploadResult[]>([])
     const [uploadingImage, setUploadingImage] = useState(false)
+    const [ticketPhone, setTicketPhone] = useState<string | null>(null)
 
     const [formData, setFormData] = useState({
         title: "",
@@ -65,6 +84,14 @@ export default function NuevoPedidoPage() {
             }
         }
         loadCategories()
+    }, [])
+
+    useEffect(() => {
+        const loadTicketPhone = async () => {
+            const phone = await fetchTicketPhoneFromProfile()
+            setTicketPhone(phone)
+        }
+        loadTicketPhone()
     }, [])
 
     const handleGetLocation = () => {
@@ -204,16 +231,27 @@ export default function NuevoPedidoPage() {
             // Obtenemos el nombre de la categoría para la API de tickets
             const categoryName = categories.find(c => c.id === formData.category_id)?.name || "General"
             const zoneName = locationMode === 'gps' ? "Ubicación GPS" : `${formData.department}, ${formData.province}`
+            const resolvedTicketPhone = ticketPhone || await fetchTicketPhoneFromProfile()
+            if (resolvedTicketPhone && resolvedTicketPhone !== ticketPhone) {
+                setTicketPhone(resolvedTicketPhone)
+            }
 
             try {
-                await axios.post(`${TICKETS_API_URL}/tickets`, {
-                    phone_number: "5492604800958", // Número por defecto para pruebas o del perfil del usuario
-                    category: categoryName,
-                    description: `${formData.title}: ${formData.description}`,
-                    zone: zoneName,
-                    urgency: "Media" // Valor por defecto para la web
-                })
-                console.log("[Tickets API] Ticket omnicanal creado con éxito")
+                if (resolvedTicketPhone) {
+                    await axios.post(`${TICKETS_API_URL}/tickets`, {
+                        phone_number: resolvedTicketPhone,
+                        category: categoryName,
+                        description: `${formData.title}: ${formData.description}`,
+                        zone: zoneName,
+                        urgency: "Media" // Valor por defecto para la web
+                    })
+                    console.log("[Tickets API] Ticket omnicanal creado con éxito")
+                } else {
+                    console.warn("[Tickets API] Ticket omitido: usuario sin teléfono válido en perfil")
+                    toast("Pedido publicado sin ticket omnicanal", {
+                        icon: "⚠️",
+                    })
+                }
             } catch (ticketErr) {
                 // Logueamos pero no bloqueamos el flujo principal si falla la persistencia extra
                 console.error("[Tickets API] Error al crear ticket omnicanal:", ticketErr)
