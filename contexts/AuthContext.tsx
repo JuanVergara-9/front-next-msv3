@@ -42,22 +42,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  // Verificar si el usuario está autenticado al cargar la app
+  // Verificar si el usuario está autenticado al cargar la app.
+  // Siempre valida el token contra el servidor para evitar que tokens
+  // expirados en localStorage provoquen errores AUTH.FORBIDDEN en la UI.
   useEffect(() => {
     const checkAuth = async () => {
-      try {
-        if (AuthService.isAuthenticated()) {
-          const currentUser = AuthService.getCurrentUser()
-          if (currentUser) {
-            setUser(currentUser)
-            setIsProvider(!!currentUser.isProvider)
+      // Sin token en localStorage → no hay sesión, evita llamada de red innecesaria
+      if (!AuthService.isAuthenticated()) {
+        setIsLoading(false)
+        return
+      }
 
-            // Intentar cargar el perfil de proveedor siempre para asegurar el estado actualizado
-            void fetchProviderProfile()
-          }
-        }
-      } catch (error: any) {
-        console.error('Error checking auth:', error)
+      try {
+        // Valida el token activo contra el servidor; si expiró, lanza un error
+        const freshUser = await AuthService.getMe()
+        setUser(freshUser)
+        setIsProvider(!!freshUser.isProvider)
+        void fetchProviderProfile()
+      } catch {
+        // Token expirado o revocado → limpiar sesión silenciosamente
+        // El interceptor de apiClient ya habrá intentado el refresh y habrá
+        // redirigido a /login si tampoco era válido. Aquí solo limpiamos estado local.
+        setUser(null)
+        setIsProvider(false)
+        setProviderProfile(null)
       } finally {
         setIsLoading(false)
       }
