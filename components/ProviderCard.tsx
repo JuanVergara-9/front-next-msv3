@@ -1,9 +1,9 @@
 "use client"
 
-import { Star, MapPin, Eye, BadgeCheck, ShieldCheck } from "lucide-react"
+import { Star, MapPin, Eye, Shield, ShieldCheck } from "lucide-react"
 import { useRouter } from "next/navigation"
 import type { ProviderWithDetails } from "@/types/api"
-import { normalizeFullName, normalizeCity } from "@/lib/utils"
+import { normalizeFullName } from "@/lib/utils"
 
 export function ProviderCard({ provider, onContact }: { provider: ProviderWithDetails; onContact?: (p: ProviderWithDetails) => void }) {
   const router = useRouter()
@@ -12,9 +12,12 @@ export function ProviderCard({ provider, onContact }: { provider: ProviderWithDe
     provider.first_name,
     provider.last_name
   )
-  const normalizedCity = normalizeCity(provider.city)
   const avatar = (provider as any).avatar_url || "/placeholder.svg"
-  const isIdentityVerified = provider.identity_status === "verified"
+
+  const hasBackgroundCheck = (provider as any).has_background_check === true
+  const identityVerified = provider.identity_status === "verified"
+  const isPro = (provider as any).is_pro === true
+  const isCertified = (provider as any).is_certified === true
 
   const handleViewProfile = () => {
     router.push(`/proveedores/${provider.id}`)
@@ -24,7 +27,6 @@ export function ProviderCard({ provider, onContact }: { provider: ProviderWithDe
     if (onContact) {
       onContact(provider)
     } else {
-      // Si no hay función onContact, redirigir al perfil
       router.push(`/proveedores/${provider.id}`)
     }
   }
@@ -38,6 +40,22 @@ export function ProviderCard({ provider, onContact }: { provider: ProviderWithDe
             alt={displayName}
             className="w-16 h-16 rounded-2xl object-cover ring-2 ring-primary/10"
           />
+          {(hasBackgroundCheck || identityVerified) && (
+            <span
+              className="absolute -bottom-0.5 -right-0.5 flex h-7 w-7 items-center justify-center rounded-full bg-white shadow-md ring-2 ring-white"
+              title={
+                hasBackgroundCheck
+                  ? "Antecedentes verificados"
+                  : "Identidad verificada"
+              }
+            >
+              {hasBackgroundCheck ? (
+                <Shield className="h-4 w-4 text-amber-500 fill-amber-100" aria-hidden />
+              ) : (
+                <ShieldCheck className="h-4 w-4 text-sky-600" aria-hidden />
+              )}
+            </span>
+          )}
         </div>
         <div className="flex-1 min-w-0 flex flex-col">
           <div className="mb-1.5 min-h-[3rem] flex flex-col justify-start">
@@ -45,15 +63,9 @@ export function ProviderCard({ provider, onContact }: { provider: ProviderWithDe
               <h3 className="font-bold text-lg text-foreground group-hover:text-primary transition-colors break-words leading-tight flex-1 min-w-0">
                 {displayName}
               </h3>
-              {isIdentityVerified && (
-                <span className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full border border-sky-300 text-sky-800 bg-sky-50 shrink-0 mt-0.5">
-                  <ShieldCheck className="h-3 w-3 text-sky-600" aria-hidden />
-                  Verificado
-                </span>
-              )}
-              {(provider as any).is_licensed && (
-                <span className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full border border-green-300 text-green-700 bg-green-50 shrink-0 mt-0.5">
-                  <BadgeCheck className="h-3 w-3" /> Matriculado
+              {isPro && (
+                <span className="inline-flex items-center rounded-md bg-zinc-800 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white shrink-0 mt-0.5">
+                  PRO
                 </span>
               )}
             </div>
@@ -91,10 +103,15 @@ export function ProviderCard({ provider, onContact }: { provider: ProviderWithDe
               ))}
             </div>
           ) : null}
+          {isCertified && (
+            <div className="mt-2">
+              <span className="inline-flex items-center gap-1 rounded-full border border-violet-200 bg-violet-50 px-2.5 py-1 text-[11px] font-medium text-violet-900">
+                <span aria-hidden>🎓</span> Profesional Verificado
+              </span>
+            </div>
+          )}
         </div>
       </div>
-
-
 
       <div className="flex gap-3">
         <button
@@ -115,5 +132,3 @@ export function ProviderCard({ provider, onContact }: { provider: ProviderWithDe
     </div>
   )
 }
-
-

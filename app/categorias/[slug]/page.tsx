@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
-import { ArrowLeft, Star, MapPin, MessageCircle, SlidersHorizontal, Eye, BadgeCheck } from "lucide-react"
+import { ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -20,8 +20,6 @@ export default function ProvidersByCategoryPage() {
   const [providers, setProviders] = useState<ProviderWithDetails[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [onlyLicensed, setOnlyLicensed] = useState<boolean>(false)
-
   const activeCategory = useMemo(() => {
     const slug = (params?.slug || "").toString()
     return categories.find(c => c.slug === slug) || null
@@ -44,7 +42,7 @@ export default function ProvidersByCategoryPage() {
           return
         }
 
-        const res = await ProvidersService.searchProviders({ category_slug: slug, limit: 24, offset: 0, licensed: onlyLicensed })
+        const res = await ProvidersService.searchProviders({ category_slug: slug, limit: 24, offset: 0 })
         const raw = Array.isArray((res as any)?.providers) ? (res as any).providers : []
         // Normalizar: asegurar categories como string[] y full_name presente, rating y review_count
         let normalized = raw.map((p: any) => {
@@ -71,7 +69,7 @@ export default function ProvidersByCategoryPage() {
     }
 
     load()
-  }, [params?.slug, onlyLicensed])
+  }, [params?.slug])
 
   const handleContact = (provider: ProviderWithDetails) => {
     if (!user) {
@@ -133,18 +131,6 @@ export default function ProvidersByCategoryPage() {
                   )}
                 </AnimatePresence>
               </div>
-            </motion.div>
-            <motion.div 
-              className="flex items-center gap-2 shrink-0"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.4, delay: 0.1 }}
-            >
-              <Button variant="outline" size="sm" className="gap-2 bg-transparent text-xs sm:text-sm whitespace-nowrap" onClick={() => setOnlyLicensed(v => !v)}>
-                <BadgeCheck className="h-4 w-4 shrink-0" />
-                <span className="hidden sm:inline-block">{onlyLicensed ? 'Solo matriculados: ON' : 'Solo matriculados'}</span>
-                <span className="inline-block sm:hidden">{onlyLicensed ? 'Solo matricula' : 'Solo matricula'}</span>
-              </Button>
             </motion.div>
           </div>
         </div>

@@ -401,10 +401,16 @@ export default function MatchPage() {
 
               {/* Badges de confianza */}
               <div className="flex flex-wrap gap-2">
-                {profileModalProvider.is_licensed && (
-                  <Badge className="gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white border-0">
+                {(profileModalProvider as any).is_certified && (
+                  <Badge className="gap-1.5 bg-violet-700 hover:bg-violet-800 text-white border-0">
                     <CheckCircle className="h-3.5 w-3.5" />
-                    Matriculado / Identidad Verificada
+                    Profesional Verificado
+                  </Badge>
+                )}
+                {profileModalProvider.identity_status === "verified" && (
+                  <Badge className="gap-1.5 bg-sky-600 hover:bg-sky-700 text-white border-0">
+                    <CheckCircle className="h-3.5 w-3.5" />
+                    Identidad verificada
                   </Badge>
                 )}
                 {profileModalProvider.emergency_available && (

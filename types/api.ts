@@ -29,7 +29,14 @@ export interface Provider {
   years_experience?: number;
   price_hint?: number;
   emergency_available: boolean;
+  /** @deprecated No usar para UI de confianza; legado. */
   is_licensed?: boolean;
+  has_background_check?: boolean;
+  is_certified?: boolean;
+  certification_status?: 'not_submitted' | 'pending' | 'verified' | 'rejected' | string;
+  certification_doc_url?: string | null;
+  certification_rejection_reason?: string | null;
+  is_pro?: boolean;
   business_hours?: Record<string, any>;
   avatar_url?: string;
   created_at: string;
@@ -125,7 +132,6 @@ export interface SearchProvidersRequest {
   radius_km?: number;
   limit?: number;
   offset?: number;
-  licensed?: boolean;
 }
 
 export interface SearchProvidersResponse {

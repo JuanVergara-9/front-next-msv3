@@ -4,7 +4,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, BadgeCheck, MapPin, Search, Users } from 'lucide-react';
+import { ArrowLeft, MapPin, Search, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ProviderCard } from '@/components/ProviderCard';
 import { ProvidersService } from '@/lib/services/providers.service';
@@ -27,8 +27,6 @@ export function LocalizedServiceContent({
     const router = useRouter();
     const [providers, setProviders] = useState<ProviderWithDetails[]>([]);
     const [loading, setLoading] = useState(true);
-    const [onlyLicensed, setOnlyLicensed] = useState(false);
-
     useEffect(() => {
         async function fetchProviders() {
             try {
@@ -38,7 +36,6 @@ export function LocalizedServiceContent({
                     city: city.name,
                     limit: 24,
                     offset: 0,
-                    licensed: onlyLicensed,
                 });
 
                 const raw = Array.isArray((res as any)?.providers) ? (res as any).providers : [];
@@ -68,7 +65,7 @@ export function LocalizedServiceContent({
         }
 
         fetchProviders();
-    }, [category.slug, city.name, onlyLicensed]);
+    }, [category.slug, city.name]);
 
     const handleContact = (provider: ProviderWithDetails) => {
         if (provider.whatsapp_e164) {
@@ -113,20 +110,6 @@ export function LocalizedServiceContent({
                                     <span>{city.name}, {province.name}</span>
                                 </div>
                             </div>
-                        </div>
-                        <div className="flex items-center gap-2 shrink-0">
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                className={`gap-2 bg-transparent text-xs sm:text-sm ${onlyLicensed ? 'border-primary text-primary' : ''}`}
-                                onClick={() => setOnlyLicensed(v => !v)}
-                            >
-                                <BadgeCheck className="h-4 w-4 shrink-0" />
-                                <span className="hidden sm:inline">
-                                    {onlyLicensed ? 'Solo matriculados: ON' : 'Solo matriculados'}
-                                </span>
-                                <span className="inline sm:hidden">Matriculados</span>
-                            </Button>
                         </div>
                     </div>
                 </div>

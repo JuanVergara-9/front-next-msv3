@@ -25,7 +25,8 @@ import {
   ChevronRight,
   ShoppingBag,
   Eye,
-  LineChart
+  LineChart,
+  GraduationCap
 } from 'lucide-react'
 import { ProvidersService } from "@/lib/services/providers.service"
 import { OrdersService, type Order } from "@/lib/services/orders.service"
@@ -388,6 +389,23 @@ export default function AdminMetricsPage() {
                       {pendingCount > 0 ? "Requieren tu atención" : "Todo verificado"}
                     </span>
                   </div>
+                </div>
+              </div>
+              <ChevronRight className="h-5 w-5 text-slate-400" />
+            </div>
+          </div>
+        </Link>
+
+        <Link href="/admin/certificaciones" className="block mt-4">
+          <div className="bg-white rounded-2xl p-6 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border-l-4 border-l-violet-500 hover:shadow-lg transition-shadow cursor-pointer">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="p-3 rounded-xl bg-violet-50 text-violet-600">
+                  <GraduationCap size={24} strokeWidth={2.5} />
+                </div>
+                <div>
+                  <h3 className="text-slate-500 text-sm font-medium mb-1">Certificaciones pendientes</h3>
+                  <p className="text-sm text-slate-600">Matrículas y credenciales por revisar</p>
                 </div>
               </div>
               <ChevronRight className="h-5 w-5 text-slate-400" />

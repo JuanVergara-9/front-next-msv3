@@ -18,7 +18,6 @@ import {
   Phone,
   MessageCircle,
   Shield,
-  BadgeCheck,
   Wrench,
   Camera,
   Calendar,
@@ -49,6 +48,7 @@ import { AuthService } from '@/lib/services/auth.service'
 import { SOCKET_URL } from '@/lib/apiClient'
 import { OrdersService } from '@/lib/services/orders.service'
 import { IdentityVerificationCard } from "@/components/IdentityVerificationCard"
+import { CertificationUpsellBanner } from "@/components/CertificationUpsellBanner"
 
 interface ProviderProfilePageProps {
   providerProfile?: any
@@ -264,7 +264,9 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile, gues
       ratingAvg: profile.rating || 0,
       reviewsCount90d: profile.review_count || 0,
       isVerified: profile.identity_status === 'verified',
-      isLicensed: !!profile.is_licensed,
+      isCertified: !!(profile as any).is_certified,
+      isPro: !!(profile as any).is_pro,
+      hasBackgroundCheck: !!(profile as any).has_background_check,
       emergencyAvailable: profile.emergency_available || false,
       description: profile.description || "Descripción no disponible",
       yearsExperience: profile.years_experience || 0,
@@ -724,8 +726,13 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile, gues
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.5, delay: 0.3 }}
                       >
-                        <h1 className="text-2xl font-bold text-[#111827] text-balance">
-                          {providerData.firstName} {providerData.lastName}
+                        <h1 className="text-2xl font-bold text-[#111827] text-balance flex flex-wrap items-center gap-2">
+                          <span>{providerData.firstName} {providerData.lastName}</span>
+                          {providerData.isPro && (
+                            <span className="inline-flex items-center rounded-md bg-zinc-800 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
+                              PRO
+                            </span>
+                          )}
                         </h1>
                         <motion.div
                           className="mt-2 flex flex-wrap items-center gap-2"
@@ -754,16 +761,16 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile, gues
                               {providerData.category}
                             </Badge>
                           )}
-                          {providerData.isLicensed && (
+                          {providerData.isCertified && (
                             <motion.div
                               initial={{ opacity: 0, scale: 0.8 }}
                               animate={{ opacity: 1, scale: 1 }}
                               transition={{ duration: 0.3, delay: 0.6 }}
-                              whileHover={{ scale: 1.1, y: -2 }}
+                              whileHover={{ scale: 1.05, y: -2 }}
                             >
-                              <Badge variant="outline" className="border-green-500 text-green-700">
-                                <BadgeCheck className="h-3 w-3 mr-1" />
-                                Matriculado
+                              <Badge variant="outline" className="border-violet-400 text-violet-800 bg-violet-50">
+                                <span className="mr-1" aria-hidden>🎓</span>
+                                Profesional Verificado
                               </Badge>
                             </motion.div>
                           )}
@@ -774,9 +781,9 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile, gues
                               transition={{ duration: 0.3, delay: 0.65 }}
                               whileHover={{ scale: 1.1, y: -2 }}
                             >
-                              <Badge variant="outline" className="border-green-500 text-green-700">
+                              <Badge variant="outline" className="border-sky-500 text-sky-800 bg-sky-50">
                                 <Shield className="h-3 w-3 mr-1" />
-                                Verificado
+                                Identidad verificada
                               </Badge>
                             </motion.div>
                           )}
@@ -1066,6 +1073,20 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile, gues
                   identity_rejection_reason: propProviderProfile?.identity_rejection_reason
                 }}
                 onUpdate={async () => { window.location.reload() }}
+              />
+            </motion.div>
+          )}
+
+          {isOwner && propProviderProfile && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.58 }}
+              className="mb-8"
+            >
+              <CertificationUpsellBanner
+                provider={propProviderProfile}
+                onUpdated={() => { window.location.reload() }}
               />
             </motion.div>
           )}
@@ -1843,7 +1864,6 @@ function EditProviderForm({ initial, onSaved }: { initial: any; onSaved: () => v
     city: initial?.city || '',
     years_experience: initial?.years_experience || 0,
     emergency_available: !!initial?.emergency_available,
-    is_licensed: !!initial?.is_licensed,
     price_hint: initial?.price_hint || undefined,
     category_ids: initial?.categories?.map((c: any) => c.id) || initial?.category_id ? [initial.category_id] : [],
   })
@@ -1997,10 +2017,6 @@ function EditProviderForm({ initial, onSaved }: { initial: any; onSaved: () => v
         <Input placeholder="Ciudad" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} />
         <Input type="number" min={0} max={80} placeholder="Años de experiencia" value={form.years_experience} onChange={(e) => setForm({ ...form, years_experience: Number(e.target.value) })} />
         <Input type="number" min={0} placeholder="Precio orientativo" value={form.price_hint ?? ''} onChange={(e) => setForm({ ...form, price_hint: Number(e.target.value) || undefined })} />
-        <div className="flex items-center gap-2">
-          <input id="is_licensed" type="checkbox" checked={!!form.is_licensed} onChange={(e) => setForm({ ...form, is_licensed: e.target.checked })} />
-          <label htmlFor="is_licensed" className="text-sm text-[#111827]">Profesional matriculado</label>
-        </div>
       </div>
       <Textarea placeholder="Descripción" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={4} />
       <div className="flex justify-end gap-2">

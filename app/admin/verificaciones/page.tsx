@@ -63,6 +63,9 @@ export default function AdminVerificationsPage() {
         <div>
           <h1 className="text-2xl font-bold">Solicitudes de Verificación</h1>
           <p className="text-gray-500">Validá la identidad de los trabajadores</p>
+          <p className="text-sm mt-2">
+            <Link href="/admin/certificaciones" className="text-primary underline">Certificaciones pendientes (matrícula)</Link>
+          </p>
         </div>
       </div>
 

@@ -18,6 +18,8 @@ import { toast } from "sonner"
 import Link from "next/link"
 import { OrdersService, Order, Postulation } from "@/lib/services/orders.service"
 import { useAuth } from "@/contexts/AuthContext"
+import { CertificationUpsellBanner } from "@/components/CertificationUpsellBanner"
+import type { Provider } from "@/types/api"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 function formatOrderPublishedLabel(createdAt: string | undefined | null): string {
@@ -176,6 +178,7 @@ export default function PedidosPage() {
     const [selectedJob, setSelectedJob] = useState<any>(null)
     const [isPostulating, setIsPostulating] = useState(false)
     const [remainingSlots, setRemainingSlots] = useState(3)
+    const [providerMe, setProviderMe] = useState<Provider | null>(null)
 
     useEffect(() => {
         const loadInitialData = async () => {
@@ -197,6 +200,14 @@ export default function PedidosPage() {
                 } catch (err) {
                     console.error("Error loading feed:", err)
                 }
+                try {
+                    const p = await ProvidersService.getMyProviderProfile()
+                    setProviderMe(p)
+                } catch {
+                    setProviderMe(null)
+                }
+            } else {
+                setProviderMe(null)
             }
 
             // 3. Cargar Ubicación (Opcional, no bloquea lo anterior)
@@ -264,6 +275,18 @@ export default function PedidosPage() {
                     <h1 className="text-3xl font-extrabold text-foreground mb-2">Tablero de Pedidos</h1>
                     <p className="text-muted-foreground">Gestioná tus solicitudes o encontrá nuevas oportunidades de trabajo.</p>
                 </header>
+
+                {isProvider && providerMe && (
+                    <div className="mb-6 max-w-3xl">
+                        <CertificationUpsellBanner
+                            provider={providerMe}
+                            onUpdated={async () => {
+                                const p = await ProvidersService.getMyProviderProfile()
+                                setProviderMe(p)
+                            }}
+                        />
+                    </div>
+                )}
 
                 <Tabs
                     defaultValue={isProvider ? "feed" : "mis-pedidos"}

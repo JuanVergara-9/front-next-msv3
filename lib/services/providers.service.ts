@@ -22,7 +22,6 @@ export class ProvidersService {
     if (params.radius_km) usp.set('radiusKm', params.radius_km.toString());
     if (params.limit) usp.set('limit', params.limit.toString());
     if (params.offset) usp.set('offset', params.offset.toString());
-    if (params.licensed) usp.set('licensed', 'true');
 
     const url = `/api/v1/providers?${usp.toString()}`;
     // El backend (provider-service) responde paginado: { count, items } o a veces envuelto en { data: { count, items } }
@@ -103,7 +102,6 @@ export class ProvidersService {
     years_experience?: number;
     price_hint?: number;
     emergency_available?: boolean;
-    is_licensed?: boolean;
     business_hours?: any;
     category_id?: number;
     category_ids?: number[];
@@ -206,7 +204,6 @@ export class ProvidersService {
     years_experience?: number;
     price_hint?: number;
     emergency_available?: boolean;
-    is_licensed?: boolean;
     business_hours?: any;
   }): Promise<Provider> {
     return apiFetch<{ provider: Provider }>('/api/v1/providers/mine', {
@@ -320,6 +317,46 @@ export class ProvidersService {
     await apiFetch(`/api/v1/providers/${providerId}/identity-review`, {
       method: 'PUT',
       body: JSON.stringify({ status, rejection_reason: reason }),
+    })
+  }
+
+  /** Matrícula / credencial — trabajador */
+  static async uploadCertificationDoc(file: File): Promise<Provider> {
+    const base = (process.env.NEXT_PUBLIC_GATEWAY_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000').replace(/\/+$/, '')
+    const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null
+    const form = new FormData()
+    form.append('file', file)
+    const res = await fetch(`${base}/api/v1/providers/mine/certification`, {
+      method: 'POST',
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      } as Record<string, string>,
+      body: form,
+      cache: 'no-store',
+    })
+    if (!res.ok) throw new Error(await res.text())
+    const data = await res.json()
+    return data.provider as Provider
+  }
+
+  static async getPendingCertifications(): Promise<Provider[]> {
+    const res = await apiFetch<{ count: number; items: Provider[] }>('/api/v1/providers/admin/list?certificationStatus=pending&limit=100')
+    return res.items || []
+  }
+
+  static async reviewCertification(
+    providerId: number,
+    status: 'verified' | 'rejected',
+    reason?: string,
+    hasBackgroundCheck?: boolean
+  ): Promise<void> {
+    await apiFetch(`/api/v1/providers/${providerId}/certification-review`, {
+      method: 'PUT',
+      body: JSON.stringify({
+        status,
+        rejection_reason: reason,
+        ...(typeof hasBackgroundCheck === 'boolean' ? { has_background_check: hasBackgroundCheck } : {}),
+      }),
     })
   }
 }
