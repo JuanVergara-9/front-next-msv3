@@ -29,6 +29,8 @@ export interface ReviewSummaryResponse {
     count: number
     avgRating: number
     photosRate: number
+    count90d?: number
+    avgRating90d?: number
   }
 }
 
