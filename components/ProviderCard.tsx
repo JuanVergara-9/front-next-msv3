@@ -40,20 +40,12 @@ export function ProviderCard({ provider, onContact }: { provider: ProviderWithDe
             alt={displayName}
             className="w-16 h-16 rounded-2xl object-cover ring-2 ring-primary/10"
           />
-          {(hasBackgroundCheck || identityVerified) && (
+          {hasBackgroundCheck && (
             <span
               className="absolute -bottom-0.5 -right-0.5 flex h-7 w-7 items-center justify-center rounded-full bg-white shadow-md ring-2 ring-white"
-              title={
-                hasBackgroundCheck
-                  ? "Antecedentes verificados"
-                  : "Identidad verificada"
-              }
+              title="Antecedentes verificados"
             >
-              {hasBackgroundCheck ? (
-                <Shield className="h-4 w-4 text-amber-500 fill-amber-100" aria-hidden />
-              ) : (
-                <ShieldCheck className="h-4 w-4 text-sky-600" aria-hidden />
-              )}
+              <Shield className="h-4 w-4 text-amber-500 fill-amber-100" aria-hidden />
             </span>
           )}
         </div>
@@ -63,6 +55,14 @@ export function ProviderCard({ provider, onContact }: { provider: ProviderWithDe
               <h3 className="font-bold text-lg text-foreground group-hover:text-primary transition-colors break-words leading-tight flex-1 min-w-0">
                 {displayName}
               </h3>
+              {identityVerified && (
+                <span
+                  className="inline-flex items-center justify-center rounded-full bg-sky-50 p-1 border border-sky-200 text-sky-700 shrink-0 mt-0.5"
+                  title="Identidad validada"
+                >
+                  <ShieldCheck className="h-3.5 w-3.5" aria-hidden />
+                </span>
+              )}
               {isPro && (
                 <span className="inline-flex items-center rounded-md bg-zinc-800 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white shrink-0 mt-0.5">
                   PRO
@@ -106,7 +106,7 @@ export function ProviderCard({ provider, onContact }: { provider: ProviderWithDe
           {isCertified && (
             <div className="mt-2">
               <span className="inline-flex items-center gap-1 rounded-full border border-violet-200 bg-violet-50 px-2.5 py-1 text-[11px] font-medium text-violet-900">
-                <span aria-hidden>🎓</span> Profesional Verificado
+                <span aria-hidden>🎓</span> Profesional Matriculado
               </span>
             </div>
           )}
