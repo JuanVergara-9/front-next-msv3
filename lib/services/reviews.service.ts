@@ -1,4 +1,4 @@
-import { apiFetch } from '../apiClient'
+import { apiFetch, silentLogoutAndRedirect } from '../apiClient'
 
 export interface CreateReviewRequest {
   providerId: number
@@ -66,6 +66,10 @@ export class ReviewsService {
       body: form,
       cache: 'no-store',
     })
+    if (res.status === 401 || res.status === 403) {
+      silentLogoutAndRedirect()
+      throw new Error('AUTH.FORBIDDEN')
+    }
     if (!res.ok) {
       const text = await res.text()
       throw new Error(text || 'Error al subir fotos')

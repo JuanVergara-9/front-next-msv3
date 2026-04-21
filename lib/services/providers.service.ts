@@ -1,4 +1,4 @@
-import { apiFetch } from '../apiClient';
+import { apiFetch, silentLogoutAndRedirect } from '../apiClient';
 import type {
   Provider,
   ProviderWithDetails,
@@ -8,6 +8,42 @@ import type {
   ContactIntent
 } from '../../types/api';
 import { ReviewsService } from './reviews.service';
+
+/** Gateway/BFF puede devolver `{ provider }`, `{ data: { provider } }` o el objeto plano. */
+function unwrapProviderResponse<T extends Provider | ProviderWithDetails>(raw: unknown): T | null {
+  if (raw == null || typeof raw !== 'object') return null;
+  const o = raw as Record<string, unknown>;
+  const data = o.data;
+  const fromNested =
+    o.provider ??
+    (typeof data === 'object' && data !== null
+      ? (data as Record<string, unknown>).provider
+      : undefined);
+  const p = fromNested != null && typeof fromNested === 'object' ? fromNested : raw;
+  if (typeof p === 'object' && p !== null && (p as { id?: unknown }).id != null) return p as T;
+  return null;
+}
+
+function getApiBase(): string {
+  return (process.env.NEXT_PUBLIC_GATEWAY_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000').replace(/\/+$/, '')
+}
+
+async function authFetch(url: string, init: RequestInit): Promise<Response> {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null
+  const headers: Record<string, string> = {
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...(init.headers as Record<string, string> | undefined),
+  }
+
+  const res = await fetch(url, { ...init, headers, cache: 'no-store' })
+
+  if (res.status === 401 || res.status === 403) {
+    silentLogoutAndRedirect()
+    throw new Error('AUTH.FORBIDDEN')
+  }
+  if (!res.ok) throw new Error(await res.text())
+  return res
+}
 
 export class ProvidersService {
   static async searchProviders(params: SearchProvidersRequest = {}): Promise<SearchProvidersResponse> {
@@ -82,8 +118,10 @@ export class ProvidersService {
   }
 
   static async getProvider(id: number): Promise<ProviderWithDetails> {
-    const response = await apiFetch<{ provider: ProviderWithDetails }>(`/api/v1/providers/${id}`, { cacheTtlMs: 0 })
-    return response.provider
+    const raw = await apiFetch<Record<string, unknown>>(`/api/v1/providers/${id}`, { cacheTtlMs: 0 });
+    const p = unwrapProviderResponse<ProviderWithDetails>(raw);
+    if (!p) throw new Error('Respuesta inválida del servidor');
+    return p;
   }
 
   static async updateMyProviderProfile(updateData: {
@@ -215,48 +253,30 @@ export class ProvidersService {
   // Obtener mi perfil de proveedor
   static async getMyProviderProfile(): Promise<Provider | null> {
     try {
-      console.log('Fetching provider profile from /api/v1/providers/mine')
-      const response = await apiFetch<{ provider: Provider }>('/api/v1/providers/mine');
-      console.log('Provider profile response:', response)
-      return response.provider;
+      const raw = await apiFetch<Record<string, unknown>>('/api/v1/providers/mine');
+      return unwrapProviderResponse<Provider>(raw);
     } catch (error) {
-      console.error('Error fetching provider profile:', error)
-      // Si no existe el perfil o hay un error, retornar null
+      console.error('Error fetching provider profile:', error);
       return null;
     }
   }
 
-  // Subir avatar propio (multipart/form-data, field 'file')
   static async uploadMyAvatar(file: File): Promise<Provider> {
-    const base = (process.env.NEXT_PUBLIC_GATEWAY_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000').replace(/\/+$/, '')
-    const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null
     const form = new FormData()
     form.append('file', file)
-    const res = await fetch(`${base}/api/v1/providers/mine/avatar`, {
+    const res = await authFetch(`${getApiBase()}/api/v1/providers/mine/avatar`, {
       method: 'POST',
-      headers: {
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      } as any,
       body: form,
-      cache: 'no-store',
     })
-    if (!res.ok) throw new Error(await res.text())
     const data = await res.json()
     return data.provider as Provider
   }
 
   static async deleteMyAvatar(): Promise<Provider> {
-    const base = (process.env.NEXT_PUBLIC_GATEWAY_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000').replace(/\/+$/, '')
-    const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null
-    const res = await fetch(`${base}/api/v1/providers/mine/avatar`, {
+    const res = await authFetch(`${getApiBase()}/api/v1/providers/mine/avatar`, {
       method: 'DELETE',
-      headers: {
-        'Accept': 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
-      cache: 'no-store',
+      headers: { 'Accept': 'application/json' },
     })
-    if (!res.ok) throw new Error(await res.text())
     const data = await res.json()
     return data.provider as Provider
   }
@@ -280,28 +300,16 @@ export class ProvidersService {
     return res.availability;
   }
 
-  // Subir documentos de identidad
   static async uploadIdentityDocs(files: { dniFront: File; dniBack: File; selfie: File }): Promise<void> {
-    const base = (process.env.NEXT_PUBLIC_GATEWAY_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000').replace(/\/+$/, '')
-    const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null
-
     const formData = new FormData()
     formData.append('dni_front', files.dniFront)
     formData.append('dni_back', files.dniBack)
     formData.append('selfie', files.selfie)
 
-    const res = await fetch(`${base}/api/v1/providers/mine/identity`, {
+    const res = await authFetch(`${getApiBase()}/api/v1/providers/mine/identity`, {
       method: 'POST',
-      headers: {
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      } as any,
       body: formData,
     })
-
-    if (!res.ok) {
-      const text = await res.text()
-      throw new Error(text || 'Error al subir documentos')
-    }
 
     return res.json()
   }
@@ -322,19 +330,12 @@ export class ProvidersService {
 
   /** Matrícula / credencial — trabajador */
   static async uploadCertificationDoc(file: File): Promise<Provider> {
-    const base = (process.env.NEXT_PUBLIC_GATEWAY_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000').replace(/\/+$/, '')
-    const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null
     const form = new FormData()
     form.append('file', file)
-    const res = await fetch(`${base}/api/v1/providers/mine/certification`, {
+    const res = await authFetch(`${getApiBase()}/api/v1/providers/mine/certification`, {
       method: 'POST',
-      headers: {
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      } as Record<string, string>,
       body: form,
-      cache: 'no-store',
     })
-    if (!res.ok) throw new Error(await res.text())
     const data = await res.json()
     return data.provider as Provider
   }

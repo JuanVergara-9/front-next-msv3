@@ -56,6 +56,11 @@ export class AuthService {
     localStorage.removeItem(this.USER_KEY)
   }
 
+  // Limpiar sesión (público) — usado por AuthContext cuando getMe falla
+  static clearSession(): void {
+    this.clearAuthData()
+  }
+
   // Obtener token de acceso actual
   static getAccessToken(): string | null {
     return localStorage.getItem(this.ACCESS_TOKEN_KEY)

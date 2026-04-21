@@ -49,14 +49,41 @@ apiClient.interceptors.request.use(
 )
 
 /** Logout silencioso: borra tokens y redirige a /login sin lanzar errores en la UI */
-function silentLogoutAndRedirect(): void {
+export function silentLogoutAndRedirect(): void {
   if (typeof window === 'undefined') return
   localStorage.removeItem('accessToken')
   localStorage.removeItem('refreshToken')
   localStorage.removeItem('user')
-  // Evita redirect en la propia página de login para no generar loops
+  // Notificar al AuthContext para que sincronice el estado de React
+  window.dispatchEvent(new Event('auth:logout'))
   if (!window.location.pathname.startsWith('/login') && !window.location.pathname.startsWith('/auth')) {
     window.location.href = '/login'
+  }
+}
+
+// Cola de refresh: garantiza que solo UN refresh corra a la vez; las demás
+// peticiones 401 esperan al mismo promise en vez de competir entre sí.
+let refreshPromise: Promise<string> | null = null
+
+async function refreshAccessToken(): Promise<string> {
+  if (refreshPromise) return refreshPromise
+
+  refreshPromise = (async () => {
+    const refreshToken = localStorage.getItem('refreshToken')
+    if (!refreshToken) throw new Error('No refresh token')
+
+    const response = await axios.post(`${API_BASE_URL}/api/v1/auth/refresh`, { refreshToken })
+    const { accessToken, refreshToken: newRefreshToken } = response.data
+
+    localStorage.setItem('accessToken', accessToken)
+    localStorage.setItem('refreshToken', newRefreshToken)
+    return accessToken as string
+  })()
+
+  try {
+    return await refreshPromise
+  } finally {
+    refreshPromise = null
   }
 }
 
@@ -79,17 +106,9 @@ apiClient.interceptors.response.use(
 
       try {
         if (typeof window !== 'undefined') {
-          const refreshToken = localStorage.getItem('refreshToken')
-          if (refreshToken) {
-            const response = await axios.post(`${API_BASE_URL}/api/v1/auth/refresh`, { refreshToken })
-            const { accessToken, refreshToken: newRefreshToken } = response.data
-
-            localStorage.setItem('accessToken', accessToken)
-            localStorage.setItem('refreshToken', newRefreshToken)
-
-            originalRequest.headers.Authorization = `Bearer ${accessToken}`
-            return apiClient(originalRequest)
-          }
+          const newAccessToken = await refreshAccessToken()
+          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`
+          return apiClient(originalRequest)
         }
       } catch {
         // Refresh falló (token expirado o revocado) → logout silencioso
@@ -146,7 +165,6 @@ export async function apiFetch<T>(
         cache: 'no-store',
       })
 
-      // 403 → logout silencioso inmediato
       if (!res.ok && res.status === 403) {
         silentLogoutAndRedirect()
         throw new Error('AUTH.FORBIDDEN')
@@ -154,38 +172,17 @@ export async function apiFetch<T>(
 
       if (!res.ok && res.status === 401 && typeof window !== 'undefined') {
         try {
-          const refreshToken = localStorage.getItem('refreshToken')
-          if (refreshToken) {
-            const r = await fetch(`${baseNormalized}/api/v1/auth/refresh`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ refreshToken }),
-            })
-            if (r.ok) {
-              const data = await r.json()
-              const accessTokenNew = data.accessToken || data.access_token
-              const refreshTokenNew = data.refreshToken || data.refresh_token
-              if (accessTokenNew) localStorage.setItem('accessToken', accessTokenNew)
-              if (refreshTokenNew) localStorage.setItem('refreshToken', refreshTokenNew)
-              const retryHeaders: Record<string, string> = {
-                ...headers,
-                ...(accessTokenNew ? { Authorization: `Bearer ${accessTokenNew}` } : {}),
-              }
-              res = await fetch(url, {
-                ...optsWithoutCache,
-                headers: retryHeaders,
-                cache: 'no-store',
-              })
-            } else {
-              silentLogoutAndRedirect()
-              throw new Error('AUTH.FORBIDDEN')
-            }
-          } else {
-            silentLogoutAndRedirect()
-            throw new Error('AUTH.FORBIDDEN')
+          const newToken = await refreshAccessToken()
+          const retryHeaders: Record<string, string> = {
+            ...headers,
+            Authorization: `Bearer ${newToken}`,
           }
-        } catch (e: any) {
-          if (e?.message === 'AUTH.FORBIDDEN') throw e
+          res = await fetch(url, {
+            ...optsWithoutCache,
+            headers: retryHeaders,
+            cache: 'no-store',
+          })
+        } catch {
           silentLogoutAndRedirect()
           throw new Error('AUTH.FORBIDDEN')
         }
@@ -208,7 +205,7 @@ export async function apiFetch<T>(
     }
   }
 
-  const doFetch = async (retry: boolean): Promise<T> => {
+  const doFetch = async (retried: boolean): Promise<T> => {
     const response = await fetch(url, {
       ...optsWithoutCache,
       headers,
@@ -218,46 +215,29 @@ export async function apiFetch<T>(
       return response.json() as Promise<T>
     }
 
-    // 403 → logout silencioso inmediato (sin mostrar error en UI)
     if (response.status === 403) {
       silentLogoutAndRedirect()
       throw new Error('AUTH.FORBIDDEN')
     }
 
-    // 401 → intentar refresh una sola vez
-    if (response.status === 401 && typeof window !== 'undefined' && !retry) {
+    if (response.status === 401 && typeof window !== 'undefined' && !retried) {
       try {
-        const refreshToken = localStorage.getItem('refreshToken')
-        if (refreshToken) {
-          const r = await fetch(`${baseNormalized}/api/v1/auth/refresh`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ refreshToken }),
-          })
-          if (r.ok) {
-            const data = await r.json()
-            const accessTokenNew = data.accessToken || data.access_token
-            const refreshTokenNew = data.refreshToken || data.refresh_token
-            if (accessTokenNew) localStorage.setItem('accessToken', accessTokenNew)
-            if (refreshTokenNew) localStorage.setItem('refreshToken', refreshTokenNew)
-            const retryHeaders: Record<string, string> = {
-              ...headers,
-              ...(accessTokenNew ? { Authorization: `Bearer ${accessTokenNew}` } : {}),
-            }
-            const retryRes = await fetch(url, {
-              ...optsWithoutCache,
-              headers: retryHeaders,
-              cache: 'no-store',
-            })
-            if (retryRes.ok) {
-              return retryRes.json() as Promise<T>
-            }
-          }
+        const newToken = await refreshAccessToken()
+        const retryHeaders: Record<string, string> = {
+          ...headers,
+          Authorization: `Bearer ${newToken}`,
+        }
+        const retryRes = await fetch(url, {
+          ...optsWithoutCache,
+          headers: retryHeaders,
+          cache: 'no-store',
+        })
+        if (retryRes.ok) {
+          return retryRes.json() as Promise<T>
         }
       } catch {
         // ignore
       }
-      // Refresh falló o no había refreshToken → logout silencioso
       silentLogoutAndRedirect()
       throw new Error('AUTH.FORBIDDEN')
     }

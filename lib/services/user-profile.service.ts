@@ -1,4 +1,4 @@
-import { apiClient } from '../apiClient'
+import { apiClient, silentLogoutAndRedirect } from '../apiClient'
 
 export interface UserReview {
   id: number
@@ -134,37 +134,42 @@ export class UserProfileService {
     return apiClient.put(`${this.BASE_URL}/me`, data)
   }
 
-  // Subir avatar de usuario (multipart/form-data, field 'file')
-  static async uploadAvatar(file: File): Promise<any> {
-    const base = (process.env.NEXT_PUBLIC_GATEWAY_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000').replace(/\/+$/,'')
+  private static getBase(): string {
+    return (process.env.NEXT_PUBLIC_GATEWAY_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000').replace(/\/+$/, '')
+  }
+
+  private static async authFetch(url: string, init: RequestInit): Promise<Response> {
     const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null
+    const headers: Record<string, string> = {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(init.headers as Record<string, string> | undefined),
+    }
+
+    const res = await fetch(url, { ...init, headers, cache: 'no-store' })
+
+    if (res.status === 401 || res.status === 403) {
+      silentLogoutAndRedirect()
+      throw new Error('AUTH.FORBIDDEN')
+    }
+    if (!res.ok) throw new Error(await res.text())
+    return res
+  }
+
+  static async uploadAvatar(file: File): Promise<any> {
     const form = new FormData()
     form.append('file', file)
-    const res = await fetch(`${base}/api/v1/user-profile/me/avatar`, {
+    const res = await this.authFetch(`${this.getBase()}/api/v1/user-profile/me/avatar`, {
       method: 'POST',
-      headers: {
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      } as any,
       body: form,
-      cache: 'no-store',
     })
-    if (!res.ok) throw new Error(await res.text())
     const data = await res.json()
     return data.profile
   }
 
-  // Eliminar avatar de usuario
   static async deleteAvatar(): Promise<any> {
-    const base = (process.env.NEXT_PUBLIC_GATEWAY_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000').replace(/\/+$/,'')
-    const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null
-    const res = await fetch(`${base}/api/v1/user-profile/me/avatar`, {
+    const res = await this.authFetch(`${this.getBase()}/api/v1/user-profile/me/avatar`, {
       method: 'DELETE',
-      headers: {
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      } as any,
-      cache: 'no-store',
     })
-    if (!res.ok) throw new Error(await res.text())
     const data = await res.json()
     return data.profile
   }

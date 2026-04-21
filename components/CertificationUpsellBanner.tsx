@@ -20,9 +20,14 @@ export function CertificationUpsellBanner({
   const [uploading, setUploading] = useState(false)
 
   if (!provider) return null
-  if (provider.is_certified) return null
+  const certified =
+    (provider as any).is_certified === true ||
+    (provider as any).isCertified === true
+  if (certified) return null
 
-  const status = (provider.certification_status || "not_submitted") as CertStatus
+  const status = ((provider as any).certification_status ??
+    (provider as any).certificationStatus ??
+    "not_submitted") as CertStatus
 
   if (status === "pending") {
     return (

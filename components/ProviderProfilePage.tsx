@@ -18,6 +18,7 @@ import {
   Phone,
   MessageCircle,
   Shield,
+  ShieldCheck,
   Wrench,
   Camera,
   Calendar,
@@ -253,6 +254,14 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile, gues
       finalCount: uniqueCategories.length
     })
 
+    const p = profile as Record<string, unknown>
+    const identityRaw = p.identity_status ?? p.identityStatus
+    const isVerified = identityRaw === 'verified'
+    const truthy = (v: unknown) => v === true || v === 'true' || v === 1
+    const isCertified = truthy(p.is_certified ?? p.isCertified)
+    const isPro = truthy(p.is_pro ?? p.isPro)
+    const hasBackgroundCheck = truthy(p.has_background_check ?? p.hasBackgroundCheck)
+
     return {
       id: profile.id?.toString() || "1",
       firstName: profile.first_name || "Usuario",
@@ -263,10 +272,10 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile, gues
       province: profile.province || "Provincia",
       ratingAvg: profile.rating || 0,
       reviewsCount90d: profile.review_count || 0,
-      isVerified: profile.identity_status === 'verified',
-      isCertified: !!(profile as any).is_certified,
-      isPro: !!(profile as any).is_pro,
-      hasBackgroundCheck: !!(profile as any).has_background_check,
+      isVerified,
+      isCertified,
+      isPro,
+      hasBackgroundCheck,
       emergencyAvailable: profile.emergency_available || false,
       description: profile.description || "Descripción no disponible",
       yearsExperience: profile.years_experience || 0,
@@ -698,6 +707,7 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile, gues
                               initial={{ opacity: 0, scale: 0.9 }}
                               animate={{ opacity: 1, scale: 1 }}
                               transition={{ duration: 0.3, ease: "easeOut" }}
+                              className="relative inline-block"
                             >
                               <Avatar className="h-20 w-20 border-4 border-white shadow-lg">
                                 <AvatarImage
@@ -709,6 +719,22 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile, gues
                                   {providerData.lastName[0]}
                                 </AvatarFallback>
                               </Avatar>
+                              {(providerData.hasBackgroundCheck || providerData.isVerified) && (
+                                <span
+                                  className="absolute -bottom-0.5 -right-0.5 flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-md ring-2 ring-white"
+                                  title={
+                                    providerData.hasBackgroundCheck
+                                      ? "Antecedentes verificados"
+                                      : "Identidad verificada (DNI)"
+                                  }
+                                >
+                                  {providerData.hasBackgroundCheck ? (
+                                    <Shield className="h-4 w-4 text-amber-500 fill-amber-100" aria-hidden />
+                                  ) : (
+                                    <ShieldCheck className="h-4 w-4 text-sky-600" aria-hidden />
+                                  )}
+                                </span>
+                              )}
                             </motion.div>
                           </motion.button>
                         </DialogTrigger>
