@@ -215,8 +215,8 @@ export function CategoriesSection({ initialCategories = [], initialProviders = [
       const transformedProviders = enrichedProviders.map((provider) => ({
         ...provider,
         full_name: `${provider.first_name ?? ''} ${provider.last_name ?? ''}`.trim(),
-        rating: Number((provider as any).rating) || 0,
-        review_count: Number((provider as any).review_count) || 0,
+        rating: Number((provider as any).rating) || Number((provider as any).average_rating) || 0,
+        review_count: Number((provider as any).review_count) || Number((provider as any).total_reviews) || 0,
         distance_km:
           location && provider.lat && provider.lng
             ? ProvidersService.calculateDistance(

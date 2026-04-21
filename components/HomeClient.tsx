@@ -707,8 +707,8 @@ export function HomeClient({ initialProviders = [] }: HomeClientProps) {
       let transformedProviders = response.providers.map(provider => ({
         ...provider,
         full_name: `${provider.first_name} ${provider.last_name}`,
-        rating: provider.rating || 0,
-        review_count: provider.review_count || 0,
+        rating: provider.rating || (provider as any).average_rating || 0,
+        review_count: provider.review_count || (provider as any).total_reviews || 0,
         distance_km: undefined,
         categories: provider.category ? [provider.category.name] : [],
         avatar_url: (provider as any).avatar_url,
@@ -777,8 +777,8 @@ export function HomeClient({ initialProviders = [] }: HomeClientProps) {
             let transformedProviders = response.providers.map(provider => ({
               ...provider,
               full_name: `${provider.first_name} ${provider.last_name}`,
-              rating: provider.rating || 0,
-              review_count: provider.review_count || 0,
+              rating: provider.rating || (provider as any).average_rating || 0,
+              review_count: provider.review_count || (provider as any).total_reviews || 0,
               distance_km: ProvidersService.calculateDistance(
                 location!.lat,
                 location!.lng,
@@ -843,8 +843,8 @@ export function HomeClient({ initialProviders = [] }: HomeClientProps) {
             let transformedProviders = response.providers.map(provider => ({
               ...provider,
               full_name: `${provider.first_name} ${provider.last_name}`,
-              rating: provider.rating || 0,
-              review_count: provider.review_count || 0,
+              rating: provider.rating || (provider as any).average_rating || 0,
+              review_count: provider.review_count || (provider as any).total_reviews || 0,
               distance_km: ProvidersService.calculateDistance(
                 freshLocation.lat,
                 freshLocation.lng,
@@ -865,8 +865,8 @@ export function HomeClient({ initialProviders = [] }: HomeClientProps) {
                 transformedProviders = r2.providers.map(provider => ({
                   ...provider,
                   full_name: `${provider.first_name} ${provider.last_name}`,
-                  rating: provider.rating || 0,
-                  review_count: provider.review_count || 0,
+                  rating: provider.rating || (provider as any).average_rating || 0,
+                  review_count: provider.review_count || (provider as any).total_reviews || 0,
                   distance_km: 0, // Fallback distance
                   categories: provider.category ? [provider.category.name] : [],
                   avatar_url: (provider as any).avatar_url,
@@ -962,8 +962,8 @@ export function HomeClient({ initialProviders = [] }: HomeClientProps) {
       let transformedProviders = response.providers.map(provider => ({
         ...provider,
         full_name: `${provider.first_name} ${provider.last_name}`,
-        rating: provider.rating || 0,
-        review_count: provider.review_count || 0,
+        rating: provider.rating || (provider as any).average_rating || 0,
+        review_count: provider.review_count || (provider as any).total_reviews || 0,
         distance_km: userLocation ?
           ProvidersService.calculateDistance(
             userLocation.lat,

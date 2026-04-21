@@ -337,9 +337,18 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile, gues
       }))
 
       setAllReviews(normalizedItems)
-      setReviewsCount(summary.summary.count || list.count || 0)
-      setReviewsCount90d(summary.summary.count90d ?? (summary.summary.count || 0))
-      setAvgRating(summary.summary.avgRating || 0)
+
+      const totalCount = summary.summary.count || list.count || normalizedItems.length
+      setReviewsCount(totalCount)
+      setReviewsCount90d(summary.summary.count90d ?? 0)
+
+      // Usar avgRating del backend si existe; si es 0 pero hay reseñas, calcular desde las reseñas
+      let rating = summary.summary.avgRating || 0
+      if (rating === 0 && normalizedItems.length > 0) {
+        const sum = normalizedItems.reduce((acc, r) => acc + (r.rating || 0), 0)
+        rating = Number((sum / normalizedItems.length).toFixed(1))
+      }
+      setAvgRating(rating)
       setPhotosRate(summary.summary.photosRate || 0)
     } catch (e) {
       console.warn('Error loading reviews', e)
@@ -544,9 +553,17 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile, gues
         photos: Array.isArray(item.photos) ? item.photos : (item.photos ? [item.photos] : [])
       }))
       setAllReviews(normalizedItems)
-      setReviewsCount(summary.summary.count || list.count || 0)
-      setReviewsCount90d(summary.summary.count90d ?? (summary.summary.count || 0))
-      setAvgRating(summary.summary.avgRating || 0)
+
+      const totalCount = summary.summary.count || list.count || normalizedItems.length
+      setReviewsCount(totalCount)
+      setReviewsCount90d(summary.summary.count90d ?? 0)
+
+      let rating = summary.summary.avgRating || 0
+      if (rating === 0 && normalizedItems.length > 0) {
+        const sum = normalizedItems.reduce((acc, r) => acc + (r.rating || 0), 0)
+        rating = Number((sum / normalizedItems.length).toFixed(1))
+      }
+      setAvgRating(rating)
       setPhotosRate(summary.summary.photosRate || 0)
     } catch (err: any) {
       let message = 'No se pudo enviar la reseña'

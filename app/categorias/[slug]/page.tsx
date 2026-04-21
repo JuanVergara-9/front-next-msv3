@@ -53,8 +53,8 @@ export default function ProvidersByCategoryPage() {
             ...p,
             full_name: p.full_name || [p.first_name, p.last_name].filter(Boolean).join(' '),
             categories: categoryNames,
-            rating: p.rating || 0,
-            review_count: p.review_count || 0,
+            rating: p.rating || p.average_rating || 0,
+            review_count: p.review_count || p.total_reviews || 0,
           }
         })
 

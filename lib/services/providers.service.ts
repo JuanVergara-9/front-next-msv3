@@ -109,10 +109,11 @@ export class ProvidersService {
         rating: provider.rating ?? 0,
         review_count: provider.review_count ?? 0,
       };
+      // Usar datos del summary si son > 0; de lo contrario mantener los del provider
       return {
         ...provider,
-        rating: summary.rating ?? provider.rating ?? 0,
-        review_count: summary.review_count ?? provider.review_count ?? 0,
+        rating: summary.rating || provider.rating || 0,
+        review_count: summary.review_count || provider.review_count || 0,
       };
     });
   }
