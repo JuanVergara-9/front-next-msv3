@@ -148,8 +148,9 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile, gues
   const [reviews, setReviews] = useState<ReviewItem[]>([])
   const [matchLoading, setMatchLoading] = useState(false)
   const isGuestFlow = guestRequestId != null && guestRequestId > 0
-  const [allReviews, setAllReviews] = useState<ReviewItem[]>([]) // Todas las reseñas sin filtrar
+  const [allReviews, setAllReviews] = useState<ReviewItem[]>([])
   const [reviewsCount, setReviewsCount] = useState<number>(0)
+  const [reviewsCount90d, setReviewsCount90d] = useState<number>(0)
   const [avgRating, setAvgRating] = useState<number>(0)
   const [photosRate, setPhotosRate] = useState<number>(0)
   const [loadingReviews, setLoadingReviews] = useState<boolean>(false)
@@ -337,10 +338,10 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile, gues
 
       setAllReviews(normalizedItems)
       setReviewsCount(summary.summary.count || list.count || 0)
+      setReviewsCount90d(summary.summary.count90d ?? summary.summary.count || 0)
       setAvgRating(summary.summary.avgRating || 0)
       setPhotosRate(summary.summary.photosRate || 0)
     } catch (e) {
-      // Silenciar en UI, opcionalmente loguear
       console.warn('Error loading reviews', e)
     } finally {
       setLoadingReviews(false)
@@ -544,6 +545,7 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile, gues
       }))
       setAllReviews(normalizedItems)
       setReviewsCount(summary.summary.count || list.count || 0)
+      setReviewsCount90d(summary.summary.count90d ?? summary.summary.count || 0)
       setAvgRating(summary.summary.avgRating || 0)
       setPhotosRate(summary.summary.photosRate || 0)
     } catch (err: any) {
@@ -1302,7 +1304,7 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile, gues
                                 )
                               })}
                             </div>
-                            <p className="text-sm text-[#6B7280] mt-1">{reviewsCount > 0 ? reviewsCount : providerData.reviewsCount90d} reseñas (90 días)</p>
+                            <p className="text-sm text-[#6B7280] mt-1">{reviewsCount > 0 ? reviewsCount : providerData.reviewsCount90d} reseñas</p>
                           </motion.div>
                           <motion.div
                             className="text-right"
@@ -1311,7 +1313,7 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile, gues
                             transition={{ duration: 0.4, delay: 0.2 }}
                           >
                             <p className="text-sm text-[#6B7280]">{photosRate}% con fotos</p>
-                            <p className="text-sm text-[#6B7280]">Reseñas (90 días): {reviewsCount > 0 ? reviewsCount : providerData.reviewsCount90d}</p>
+                            <p className="text-sm text-[#6B7280]">Reseñas (90 días): {reviewsCount90d}</p>
                           </motion.div>
                         </div>
 
