@@ -338,7 +338,7 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile, gues
 
       setAllReviews(normalizedItems)
       setReviewsCount(summary.summary.count || list.count || 0)
-      setReviewsCount90d(summary.summary.count90d ?? summary.summary.count || 0)
+      setReviewsCount90d(summary.summary.count90d ?? (summary.summary.count || 0))
       setAvgRating(summary.summary.avgRating || 0)
       setPhotosRate(summary.summary.photosRate || 0)
     } catch (e) {
@@ -545,7 +545,7 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile, gues
       }))
       setAllReviews(normalizedItems)
       setReviewsCount(summary.summary.count || list.count || 0)
-      setReviewsCount90d(summary.summary.count90d ?? summary.summary.count || 0)
+      setReviewsCount90d(summary.summary.count90d ?? (summary.summary.count || 0))
       setAvgRating(summary.summary.avgRating || 0)
       setPhotosRate(summary.summary.photosRate || 0)
     } catch (err: any) {
