@@ -23,7 +23,7 @@ export const BottomNavBar = React.memo(function BottomNavBar({
   onProfileClick
 }: BottomNavBarProps) {
   const pathname = usePathname()
-  const { user } = useAuth()
+  const { user, isProvider } = useAuth()
   const { unreadCount } = useUnreadCount()
   const admin = isAdmin(user)
 
@@ -34,7 +34,7 @@ export const BottomNavBar = React.memo(function BottomNavBar({
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-[100] glass-effect border-t border-border/50 px-2 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] bg-white md:hidden w-full max-w-[100vw] overflow-x-hidden">
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-4 gap-1">
+        <div className={`grid gap-1 ${isProvider ? 'grid-cols-5' : 'grid-cols-4'}`}>
           {[
             {
               name: "Inicio",
@@ -51,6 +51,7 @@ export const BottomNavBar = React.memo(function BottomNavBar({
               ),
               active: pathname === '/',
               onClick: onHomeClick,
+              show: true,
             },
             {
               name: "Pedidos",
@@ -67,6 +68,7 @@ export const BottomNavBar = React.memo(function BottomNavBar({
               ),
               active: pathname === '/pedidos',
               onClick: onCategoriesClick,
+              show: true,
             },
             {
               name: "Mensajes",
@@ -89,6 +91,18 @@ export const BottomNavBar = React.memo(function BottomNavBar({
                 </div>
               ),
               active: pathname?.startsWith('/mensajes'),
+              show: true,
+            },
+            {
+              name: "Negocio",
+              href: "/mi-negocio",
+              icon: (
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+              ),
+              active: pathname === '/mi-negocio',
+              show: isProvider,
             },
             {
               name: "Perfil",
@@ -105,9 +119,10 @@ export const BottomNavBar = React.memo(function BottomNavBar({
               ),
               active: pathname === '/profile',
               onClick: onProfileClick,
+              show: true,
             },
 
-          ].map((item) => (
+          ].filter(item => item.show).map((item) => (
             <Link
               key={item.name}
               href={item.href}

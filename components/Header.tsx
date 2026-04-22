@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { useAuth } from "@/contexts/AuthContext"
 import { Button } from "@/components/ui/button"
-import { LogOut, User, MessageSquare, LayoutDashboard, Home, Zap, PlusCircle, ChevronDown, MapPin, Settings, HelpCircle, Shield } from "lucide-react"
+import { LogOut, User, MessageSquare, LayoutDashboard, Home, Zap, PlusCircle, ChevronDown, MapPin, Settings, HelpCircle, Shield, BarChart3, Crown } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { useUnreadCount } from "@/contexts/UnreadCountContext"
 import { isAdmin } from "@/lib/utils/admin"
@@ -27,7 +27,7 @@ interface HeaderProps {
 }
 
 export const Header = ({ city }: HeaderProps) => {
-  const { user, isAuthenticated, logout, isLoading } = useAuth()
+  const { user, isAuthenticated, logout, isLoading, isProvider } = useAuth()
   const pathname = usePathname()
   const { unreadCount } = useUnreadCount()
   const admin = isAdmin(user)
@@ -110,6 +110,25 @@ export const Header = ({ city }: HeaderProps) => {
             )}
           </Link>
 
+          {isProvider && (
+            <Link
+              href="/mi-negocio"
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all relative ${pathname === "/mi-negocio"
+                ? "text-primary"
+                : "text-slate-500 hover:text-slate-700 hover:bg-white/50"
+                }`}
+            >
+              <BarChart3 className="w-4 h-4" /> Mi Negocio
+              {pathname === "/mi-negocio" && (
+                <motion.div
+                  layoutId="active-nav"
+                  className="absolute -bottom-[2px] left-4 right-4 h-0.5 bg-primary rounded-full shadow-[0_0_8px_rgba(0,123,255,0.4)]"
+                  transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                />
+              )}
+            </Link>
+          )}
+
           {admin && (
             <Link
               href="/admin/metrics"
@@ -186,6 +205,14 @@ export const Header = ({ city }: HeaderProps) => {
                     <MapPin className="w-4 h-4" />
                     <span className="truncate">Ubicación: {city}</span>
                   </DropdownMenuItem>
+                  {isProvider && (
+                    <DropdownMenuItem asChild>
+                      <Link href="/mi-negocio" className="flex items-center gap-2 cursor-pointer">
+                        <BarChart3 className="w-4 h-4 text-indigo-500" />
+                        <span>Mi Negocio</span>
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
                   {admin && (
                     <DropdownMenuItem asChild>
                       <Link href="/admin/metrics" className="flex items-center gap-2 cursor-pointer">
