@@ -350,14 +350,13 @@ const ActiveMarketplaceHero = ({
               </Link>
             ) : (
               <div className="relative group">
-                <a href="https://wa.me/542604619658?text=Hola%21%20Necesito%20un%20profesional%20para%20un%20trabajo%20en%20mi%20hogar." target="_blank" rel="noopener noreferrer" className="w-full">
                   <Button
+                    onClick={() => window.open("https://wa.me/542604619658?text=" + encodeURIComponent("Hola! Necesito un profesional para un trabajo en mi hogar."), "_blank")}
                     className="w-full h-14 md:h-20 text-2xl md:text-2xl font-black rounded-xl md:rounded-2xl bg-[#ff7b00] hover:bg-[#e66e00] text-white shadow-lg transition-all hover:scale-[1.02] active:scale-95 gap-2 md:gap-3 border-b-4 border-[#cc5f00]"
                   >
                     Solicitar ahora
                     <SendHorizontal className="w-7 h-7 md:w-12 md:h-12 stroke-[3px]" />
                   </Button>
-                </a>
                 {/* Hand drawn arrow pointing to button */}
                 <div className="hidden lg:block absolute -right-24 top-0 w-20 h-20 text-[#ff7b00] transform rotate-12 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
                   <HandDrawnArrow className="w-full h-full" />
