@@ -322,10 +322,7 @@ function MiNegocioContent() {
 
         {/* Section 5: Tu Camino Financiero */}
         <section className="bg-white rounded-2xl border border-slate-100 p-6">
-          <FinancialRoadmap
-            currentScore={dashboard.level.score}
-            currentLevel={dashboard.level.level}
-          />
+          <FinancialRoadmap />
         </section>
       </div>
     </div>
