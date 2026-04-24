@@ -244,6 +244,8 @@ export class ProvidersService {
     price_hint?: number;
     emergency_available?: boolean;
     business_hours?: any;
+    /** Obligatorio en el alta de proveedor. */
+    reputation_consent: boolean;
   }): Promise<Provider> {
     return apiFetch<{ provider: Provider }>('/api/v1/providers/mine', {
       method: 'POST',

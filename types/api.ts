@@ -29,6 +29,8 @@ export interface Provider {
   years_experience?: number;
   price_hint?: number;
   emergency_available: boolean;
+  /** Consentimiento explícito (alta) para análisis de actividad y perfil de reputación. No revocable por el usuario vía API. */
+  reputation_consent?: boolean;
   /** @deprecated No usar para UI de confianza; legado. */
   is_licensed?: boolean;
   has_background_check?: boolean;

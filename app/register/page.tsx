@@ -65,6 +65,7 @@ export default function RegisterPage() {
     yearsExperience: "",
     description: "",
     acceptTerms: false,
+    reputationConsent: false,
   })
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({})
@@ -135,6 +136,10 @@ export default function RegisterPage() {
     }
     if (!providerForm.acceptTerms) {
       newErrors.acceptTerms = "Debes aceptar los términos y condiciones"
+    }
+    if (!providerForm.reputationConsent) {
+      newErrors.reputationConsent =
+        "Debes aceptar el análisis de actividad para la reputación para continuar como profesional"
     }
 
     setErrors(newErrors)
@@ -222,6 +227,7 @@ export default function RegisterPage() {
         city: providerForm.ciudad,
         years_experience: parseInt(providerForm.yearsExperience),
         emergency_available: providerForm.emergencyAvailable,
+        reputation_consent: true,
       })
       
       toast.success('¡Perfil de proveedor creado exitosamente!')
@@ -701,6 +707,19 @@ export default function RegisterPage() {
                     </div>
                     {errors.acceptTerms && <p className="text-red-500 text-sm">{errors.acceptTerms}</p>}
 
+                    <div className="flex items-start space-x-2 pt-2">
+                      <Checkbox
+                        id="reputationConsent"
+                        checked={providerForm.reputationConsent}
+                        onCheckedChange={(checked) => setProviderForm({ ...providerForm, reputationConsent: !!checked })}
+                        className="mt-1"
+                      />
+                      <Label htmlFor="reputationConsent" className="text-sm text-gray-600 leading-relaxed">
+                        Acepto que miservicio analice mi actividad para construir mi perfil de reputación
+                      </Label>
+                    </div>
+                    {errors.reputationConsent && <p className="text-red-500 text-sm">{errors.reputationConsent}</p>}
+
                     <div className="flex justify-between pt-6">
                       <Button
                         type="button"
@@ -715,7 +734,7 @@ export default function RegisterPage() {
                         type="submit"
                         className="h-12 px-8 text-white font-medium"
                         style={{ backgroundColor: "#2563EB" }}
-                        disabled={isLoading}
+                        disabled={isLoading || !providerForm.acceptTerms || !providerForm.reputationConsent}
                       >
                         {isLoading ? "Creando cuenta..." : "Crear cuenta de proveedor"}
                       </Button>

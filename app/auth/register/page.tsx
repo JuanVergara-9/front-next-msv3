@@ -69,6 +69,7 @@ export default function RegisterPage() {
     yearsExperience: "",
     description: "",
     acceptTerms: false,
+    reputationConsent: false,
   })
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
 
@@ -162,6 +163,10 @@ export default function RegisterPage() {
     }
     if (!providerForm.acceptTerms) {
       newErrors.acceptTerms = "Debes aceptar los términos y condiciones"
+    }
+    if (!providerForm.reputationConsent) {
+      newErrors.reputationConsent =
+        "Debes aceptar el análisis de actividad para la reputación para continuar como profesional"
     }
 
     setErrors(newErrors)
@@ -267,6 +272,7 @@ export default function RegisterPage() {
         city: providerForm.ciudad,
         years_experience: parseInt(providerForm.yearsExperience),
         emergency_available: providerForm.emergencyAvailable,
+        reputation_consent: true,
       })
       // 3. Subir avatar si fue elegido
       if (avatarFile) {
@@ -752,11 +758,28 @@ export default function RegisterPage() {
                                   </Label>
                                 </div>
 
+                                <div className="flex items-start space-x-3 pt-2 bg-slate-50/50 p-4 rounded-2xl border border-slate-100">
+                                  <Checkbox
+                                    id="reputationConsent"
+                                    checked={providerForm.reputationConsent}
+                                    onCheckedChange={(checked) => setProviderForm({ ...providerForm, reputationConsent: !!checked })}
+                                    className="mt-1 border-slate-300 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                                  />
+                                  <Label htmlFor="reputationConsent" className="text-xs text-slate-500 leading-relaxed cursor-pointer font-medium">
+                                    Acepto que miservicio analice mi actividad para construir mi perfil de reputación
+                                  </Label>
+                                </div>
+                                {errors.reputationConsent && <p className="text-red-500 text-xs font-bold ml-1">{errors.reputationConsent}</p>}
+
                                 <div className="flex gap-4 pt-4">
                                   <Button type="button" onClick={handlePrevStep} variant="outline" className="h-14 flex-1 border-slate-200 rounded-2xl font-bold text-slate-500 hover:bg-slate-50">
                                     <ArrowLeft className="w-4 h-4 mr-2" /> Volver
                                   </Button>
-                                  <Button type="submit" disabled={isLoading} className="h-14 flex-[2] bg-primary hover:bg-primary/90 text-white font-black text-lg rounded-2xl shadow-lg shadow-primary/20">
+                                  <Button
+                                    type="submit"
+                                    disabled={isLoading || !providerForm.acceptTerms || !providerForm.reputationConsent}
+                                    className="h-14 flex-[2] bg-primary hover:bg-primary/90 text-white font-black text-lg rounded-2xl shadow-lg shadow-primary/20"
+                                  >
                                     {isLoading ? "Creando..." : "Crear Perfil"}
                                   </Button>
                                 </div>
