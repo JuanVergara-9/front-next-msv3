@@ -19,7 +19,7 @@ export default function PrivacidadPage() {
             <strong>Aplicación:</strong> miservicio
           </p>
           <p className="text-sm text-muted-foreground">
-            Última actualización: Febrero 2026
+            Última actualización: Abril 2026
           </p>
         </div>
 
@@ -27,7 +27,7 @@ export default function PrivacidadPage() {
         <div className="prose prose-lg max-w-none">
           <div className="bg-card rounded-2xl p-6 md:p-8 border border-border/50 shadow-sm">
             <p className="text-muted-foreground mb-6">
-              En <strong>miservicio</strong> nos tomamos muy en serio la protección de tus datos personales. Esta política detalla cómo recopilamos, utilizamos y protegemos tu información, en cumplimiento con la <strong>Ley de Protección de Datos Personales N° 25.326</strong> de la República Argentina.
+              En <strong>miservicio</strong>, la protección de tus datos es nuestra prioridad. Esta política cumple con la <strong>Ley de Protección de Datos Personales N° 25.326</strong> de la República Argentina.
             </p>
 
             <div className="space-y-8">
@@ -39,18 +39,13 @@ export default function PrivacidadPage() {
                 </h2>
                 <div className="pl-11 space-y-3">
                   <p className="text-muted-foreground">
-                    Para el funcionamiento de la aplicación, recabamos los siguientes datos:
+                    Recabamos datos para que la plataforma funcione:
                   </p>
                   <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-4">
-                    <li><strong>Datos de Registro:</strong> Nombre, apellido, correo electrónico, contraseña y foto de perfil.</li>
-                    <li><strong>Datos de Contacto:</strong> Número de teléfono celular y dirección (provincia, ciudad, domicilio aproximado).</li>
-                    <li><strong>Datos de las Solicitudes (Pedidos):</strong> La información que incluís al describir tu problema (ej: "Se rompió el tanque de agua", fotos del desperfecto, zona aproximada). Tené en cuenta que esta descripción será visible para los Proveedores registrados.</li>
-                    <li><strong>Datos del Perfil (Proveedores):</strong> Profesión, descripción de habilidades, fotos de trabajos previos y matrícula (si aplica).</li>
-                    <li><strong>Datos de Ubicación:</strong> Recopilamos tu ubicación precisa o aproximada (a través del GPS o red) <strong>solo si nos das permiso</strong>, para mostrarte servicios o clientes cercanos.</li>
-                    <li><strong>Datos Técnicos:</strong> Información sobre tu dispositivo, dirección IP y sistema operativo para fines de seguridad y mejora de la app.</li>
-                    <li><strong>Datos de Verificación de Identidad (Opcional):</strong> Si decidís verificar tu perfil, recopilaremos imágenes de tu DNI (frente y dorso) y una selfie para cotejar la identidad. Estos datos son sensibles y tienen protección reforzada.</li>
-                    <li><strong>Datos de Interacción vía WhatsApp:</strong> Si utilizás nuestro Chatbot, recopilamos tu número de teléfono, el contenido de los mensajes estrictamente relacionados con el servicio, la fecha y hora de la comunicación, y los registros de aceptación de nuestros términos (Audit Trail).</li>
-                    <li><strong>Datos Transaccionales y de Desempeño:</strong> Recopilamos información sobre los servicios concretados, presupuestos estimados acordados a través de la plataforma, frecuencia de uso, tasa de respuesta, cumplimiento de los trabajos y las calificaciones/reseñas emitidas por la contraparte.</li>
+                    <li><strong>Registro y Perfil:</strong> Nombre, correo, número de celular, dirección aproximada y foto.</li>
+                    <li><strong>Proveedores:</strong> Profesión, fotos de trabajos, matrícula y datos de verificación (DNI y selfie).</li>
+                    <li><strong>Interacción:</strong> Mensajes vía WhatsApp relacionados al servicio y registros de aceptación (Audit Trail).</li>
+                    <li><strong>Ubicación:</strong> Solo con tu permiso expreso para mostrarte servicios cercanos.</li>
                   </ul>
                 </div>
               </section>
@@ -59,19 +54,27 @@ export default function PrivacidadPage() {
               <section>
                 <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-3">
                   <span className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">2</span>
-                  Finalidad: ¿Para qué usamos tus datos?
+                  Finalidad del tratamiento
                 </h2>
                 <div className="pl-11 space-y-3">
                   <p className="text-muted-foreground">
-                    Tus datos personales serán utilizados con las siguientes finalidades:
+                    Usamos tus datos para conectarte con otros usuarios, gestionar tu cuenta, garantizar la seguridad y enviarte notificaciones del servicio.
                   </p>
-                  <ol className="list-decimal list-inside space-y-2 text-muted-foreground ml-4">
-                    <li><strong>Conexión de Servicios:</strong> Permitir que Clientes y Proveedores se encuentren y comuniquen.</li>
-                    <li><strong>Gestión de Cuenta y Verificación:</strong> Crear tu perfil, brindarte soporte y, si lo solicitás, procesar tus documentos de identidad para otorgar la insignia de “Perfil Verificado”.</li>
-                    <li><strong>Seguridad:</strong> Detectar y prevenir fraudes o usos indebidos de la plataforma.</li>
-                    <li><strong>Comunicaciones:</strong> Enviarte notificaciones sobre tu cuenta o actualizaciones del servicio.</li>
-                    <li><strong>Análisis de Riesgo y Perfil Crediticio (Scoring):</strong> Analizamos tus datos transaccionales, de desempeño y calificaciones para construir un perfil de confiabilidad o "Reputación Digital". Este perfil nos permite evaluar el comportamiento de los Proveedores en la plataforma con el fin de, eventualmente, ofrecerles acceso a herramientas, beneficios o servicios financieros de inclusión (propios o de terceros aliados) basados en su capacidad de trabajo comprobada.</li>
-                  </ol>
+                  <div className="bg-muted/50 rounded-lg p-4 space-y-3">
+                    <p className="text-muted-foreground">
+                      <strong>2.1 Análisis de Reputación Digital (Scoring de Proveedores):</strong>
+                    </p>
+                    <p className="text-muted-foreground">
+                      El scoring es un perfil construido mediante procesamiento automatizado de tu desempeño (trabajos cumplidos, calificaciones, tasa de respuesta). Con tu consentimiento expreso, usamos este perfil para:
+                    </p>
+                    <ul className="list-disc list-inside space-y-1 text-muted-foreground ml-2">
+                      <li>Darte acceso prioritario a nuevos trabajos.</li>
+                      <li>Ofrecerte servicios financieros o beneficios premium (propios o de terceros).</li>
+                    </ul>
+                    <p className="text-muted-foreground text-sm">
+                      <strong>Tu derecho:</strong> Podés rechazar o revocar este proceso desde la configuración de privacidad en cualquier momento.
+                    </p>
+                  </div>
                 </div>
               </section>
 
@@ -79,25 +82,17 @@ export default function PrivacidadPage() {
               <section>
                 <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-3">
                   <span className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">3</span>
-                  Compartición de datos con terceros
+                  Compartición y Transferencia Internacional
                 </h2>
                 <div className="pl-11 space-y-3">
                   <p className="text-muted-foreground">
-                    <strong>miservicio</strong> no vende tus datos personales. Sin embargo, para que la aplicación cumpla su función, es necesario compartir cierta información:
+                    <strong>No vendemos tus datos.</strong> Compartimos información entre usuarios (Cliente/Proveedor) solo cuando se establece una conexión de trabajo.
                   </p>
-                  <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-4">
-                    <li>
-                      <strong>Entre Usuarios:</strong>
-                      <div className="mt-2 ml-4 space-y-2">
-                        <p><strong>Visibilidad de Pedidos:</strong> Al publicar una solicitud, entendés que la descripción del problema, las fotos adjuntas y tu zona aproximada (Barrio/Ciudad) serán visibles para los Proveedores registrados en la plataforma a fin de que puedan evaluar el trabajo y postularse.</p>
-                        <p><strong>Datos de Contacto:</strong> Tu número de teléfono y dirección exacta solo se compartirán con el profesional una vez que se haya establecido una conexión o aceptación de presupuesto, según el flujo de la plataforma.</p>
-                        <p className="text-xs italic mt-1">Las imágenes de tu DNI y tu selfie de verificación son de uso exclusivo del equipo de administración de miservicio y nunca se comparten ni se publican en tu perfil.</p>
-                      </div>
-                    </li>
-                    <li><strong>Proveedores de Servicios Externos:</strong> Podemos usar servicios de terceros para alojamiento web, mapas (ej. Google Maps) o análisis de datos, quienes solo accederán a la información necesaria para prestar su servicio y bajo obligación de confidencialidad.</li>
-                    <li><strong>Aliados Estratégicos y Financieros:</strong> En el caso de que tu Perfil de Trabajo califique para beneficios o servicios financieros, y siempre con tu consentimiento previo ante esa oferta específica, podremos compartir tu "Scoring" o Reputación Digital con instituciones financieras o partners estratégicos para facilitar el acceso a dichos servicios.</li>
-                    <li><strong>Requerimiento Legal:</strong> Compartiremos información si una autoridad judicial competente lo solicita formalmente.</li>
-                  </ul>
+                  <div className="bg-muted/50 rounded-lg p-4 space-y-2">
+                    <p className="text-muted-foreground">
+                      <strong>3.1 Transferencia Internacional:</strong> Algunos proveedores técnicos (como Google Cloud o AWS) pueden estar fuera de Argentina. Al aceptar esta política, autorizás la transferencia de datos a países con niveles adecuados de protección.
+                    </p>
+                  </div>
                 </div>
               </section>
 
@@ -105,12 +100,14 @@ export default function PrivacidadPage() {
               <section>
                 <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-3">
                   <span className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">4</span>
-                  Consentimiento
+                  Retención de Datos (Plazos Claros)
                 </h2>
                 <div className="pl-11 space-y-3">
-                  <p className="text-muted-foreground">
-                    Al registrarte, declarás que los datos proporcionados son verdaderos y otorgás tu <strong>consentimiento expreso</strong> para que <strong>miservicio</strong> los procese conforme a esta política. La provisión de datos es voluntaria, pero la negativa a proporcionar los datos obligatorios impedirá el uso de la aplicación.
-                  </p>
+                  <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-4">
+                    <li><strong>Cuenta activa:</strong> Mientras uses la plataforma.</li>
+                    <li><strong>Tras eliminación:</strong> Los datos de perfil se borran en 30 días; los de verificación (DNI/selfie) en 48 horas. Por obligación legal y fiscal, conservaremos el historial de transacciones por 10 años.</li>
+                    <li><strong>Anonimización:</strong> Los datos de scoring se anonimizan irreversiblemente en 60 días tras la baja.</li>
+                  </ul>
                 </div>
               </section>
 
@@ -118,12 +115,22 @@ export default function PrivacidadPage() {
               <section>
                 <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-3">
                   <span className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">5</span>
-                  Seguridad de la información
+                  Tus Derechos (Acceso, Rectificación, Supresión y Oposición)
                 </h2>
                 <div className="pl-11 space-y-3">
                   <p className="text-muted-foreground">
-                    Implementamos medidas técnicas y organizativas razonables para proteger tus datos contra acceso no autorizado, alteración o pérdida. Sin embargo, ningún sistema de transmisión por internet es 100% seguro, por lo que no podemos garantizar la seguridad absoluta de la información transmitida.
+                    Tenés derecho a controlar tu información (Derechos ARCO):
                   </p>
+                  <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-4">
+                    <li><strong>Acceso gratuito:</strong> Cada 6 meses.</li>
+                    <li><strong>Rectificación o Supresión:</strong> Cuando los datos sean erróneos o ya no sean necesarios.</li>
+                    <li><strong>Portabilidad:</strong> Recibir tus datos en formato legible.</li>
+                  </ul>
+                  <div className="bg-muted/50 rounded-lg p-4 mt-4 space-y-2">
+                    <p className="text-muted-foreground text-sm">
+                      <strong>Cómo ejercerlos:</strong> Enviá un email a <a href="mailto:app.miservicio@gmail.com" className="text-primary hover:underline font-medium">app.miservicio@gmail.com</a> con el asunto &quot;Ejercicio de Derechos ARCO&quot; y copia de tu DNI. Responderemos en un máximo de <strong>10 días hábiles</strong>.
+                    </p>
+                  </div>
                 </div>
               </section>
 
@@ -131,20 +138,12 @@ export default function PrivacidadPage() {
               <section>
                 <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-3">
                   <span className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">6</span>
-                  Tus Derechos (Acceso, Rectificación y Supresión)
+                  Seguridad y Notificación de Brechas
                 </h2>
                 <div className="pl-11 space-y-3">
                   <p className="text-muted-foreground">
-                    Como titular de los datos, tenés derecho a acceder a tu información, rectificarla si es errónea o solicitar su eliminación (derecho al olvido), enviando un correo a <strong>app.miservicio@gmail.com</strong>.
+                    Implementamos medidas técnicas para protegerte. En caso de una brecha de seguridad que afecte tus datos, nos comprometemos a investigarla en <strong>72 horas</strong> y notificarte individualmente junto a la autoridad de control (AAIP) en un máximo de <strong>5 días hábiles</strong>.
                   </p>
-                  <div className="bg-muted/50 rounded-lg p-4 mt-4 space-y-2">
-                    <p className="text-muted-foreground italic text-sm">
-                      "El titular de los datos personales tiene la facultad de ejercer el derecho de acceso a los mismos en forma gratuita a intervalos no inferiores a seis meses, salvo que se acredite un interés legítimo al efecto conforme lo establecido en el artículo 14, inciso 3 de la Ley Nº 25.326".
-                    </p>
-                    <p className="text-muted-foreground italic text-sm">
-                      "La Agencia de Acceso a la Información Pública, Órgano de Control de la Ley Nº 25.326, tiene la atribución de atender las denuncias y reclamos que se interpongan con relación al incumplimiento de las normas sobre protección de datos personales".
-                    </p>
-                  </div>
                 </div>
               </section>
 
@@ -152,11 +151,11 @@ export default function PrivacidadPage() {
               <section>
                 <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-3">
                   <span className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">7</span>
-                  Retención de datos
+                  Protección de Menores
                 </h2>
                 <div className="pl-11 space-y-3">
                   <p className="text-muted-foreground">
-                    Mantendremos tu información mientras tu cuenta esté activa o sea necesario para cumplir con obligaciones legales. Si decidís eliminar tu cuenta, tus datos personales serán bloqueados o eliminados, salvo aquellos que debamos conservar por ley.
+                    <strong>miservicio</strong> no está dirigida a menores de 18 años. Si detectamos datos de un menor, procederemos a su eliminación inmediata en un plazo de <strong>72 horas</strong>.
                   </p>
                 </div>
               </section>
@@ -165,11 +164,11 @@ export default function PrivacidadPage() {
               <section>
                 <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-3">
                   <span className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">8</span>
-                  Cambios en la Política
+                  Cookies y Tecnologías de Rastreo
                 </h2>
                 <div className="pl-11 space-y-3">
                   <p className="text-muted-foreground">
-                    Podemos actualizar esta política ocasionalmente. Te notificaremos sobre cambios significativos a través de la app o por email. El uso continuado de la app implica la aceptación de los nuevos términos.
+                    Utilizamos cookies esenciales para mantener tu sesión activa y cookies analíticas (que podés desactivar) para entender cómo usás la app. No utilizamos cookies publicitarias de terceros por el momento.
                   </p>
                 </div>
               </section>
@@ -178,18 +177,21 @@ export default function PrivacidadPage() {
               <section>
                 <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-3">
                   <span className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">9</span>
-                  Contacto
+                  Autoridad de Control y Registro
                 </h2>
                 <div className="pl-11 space-y-3">
                   <p className="text-muted-foreground">
-                    Para dudas sobre privacidad, contactanos en:
+                    <strong>miservicio</strong> está en proceso de registro de sus bases de datos ante la <strong>Agencia de Acceso a la Información Pública (AAIP)</strong>. Ante cualquier incumplimiento, tenés derecho a presentar un reclamo ante dicha agencia.
                   </p>
-                  <div className="bg-muted/50 rounded-lg p-4">
+                  <div className="bg-muted/50 rounded-lg p-4 space-y-1">
+                    <p className="text-muted-foreground text-sm">
+                      Av. Pte. Julio A. Roca 710, CABA
+                    </p>
                     <a 
-                      href="mailto:app.miservicio@gmail.com" 
-                      className="text-primary hover:text-primary/80 transition-colors font-medium text-lg flex items-center gap-2"
+                      href="mailto:denuncias@aaip.gob.ar" 
+                      className="text-primary hover:text-primary/80 transition-colors font-medium text-sm"
                     >
-                      📧 app.miservicio@gmail.com
+                      denuncias@aaip.gob.ar
                     </a>
                   </div>
                 </div>
@@ -201,11 +203,17 @@ export default function PrivacidadPage() {
               <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
                 <div>
                   <p className="text-sm text-muted-foreground">
-                    Protegemos tu privacidad y datos personales
+                    Para consultas sobre privacidad, contactanos:
                   </p>
+                  <a 
+                    href="mailto:app.miservicio@gmail.com" 
+                    className="text-primary hover:text-primary/80 transition-colors font-medium"
+                  >
+                    app.miservicio@gmail.com
+                  </a>
                 </div>
                 <div className="text-sm text-muted-foreground">
-                  <p>miservicio © 2025</p>
+                  <p>miservicio © 2026</p>
                 </div>
               </div>
             </div>
