@@ -25,24 +25,18 @@ export default function TerminosPage() {
         {/* Content */}
         <div className="prose prose-lg max-w-none">
           <div className="bg-card rounded-2xl p-6 md:p-8 border border-border/50 shadow-sm">
-            <p className="text-muted-foreground mb-6">
-              Bienvenido/a a <strong>miservicio</strong>. Al registrarte o utilizar nuestra plataforma (sitio web o Chatbot de WhatsApp), aceptás estos Términos y Condiciones, los cuales constituyen un contrato legalmente vinculante. Si no estás de acuerdo con alguna de estas cláusulas, por favor, abstenete de utilizar el servicio.
-            </p>
 
             <div className="space-y-8">
               {/* Section 1 */}
               <section>
                 <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-3">
                   <span className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">1</span>
-                  Descripción del Servicio y Fase Beta
+                  Descripción y Fase Beta
                 </h2>
                 <div className="pl-11 space-y-3">
-                  <p className="text-muted-foreground">
-                    <strong>miservicio</strong> es una plataforma tecnológica que facilita el contacto entre personas que requieren un servicio (&quot;Clientes&quot;) y prestadores independientes que los ofrecen (&quot;Proveedores&quot;).
-                  </p>
                   <div className="bg-muted/50 rounded-lg p-4 space-y-2">
                     <p className="text-muted-foreground">
-                      <strong>1.1 Fase de Validación (Beta):</strong> El usuario reconoce que la plataforma opera actualmente en una fase de validación técnica. El servicio se ofrece &quot;tal cual está&quot;. miservicio se compromete a notificar con al menos 48 horas de anticipación cualquier modificación sustancial que afecte la funcionalidad esencial, salvo casos de fuerza mayor o urgencia técnica. Durante esta fase, el usuario acepta la posibilidad de errores menores que serán corregidos progresivamente.
+                      <strong>1.1 Validación técnica:</strong> miservicio opera en fase Beta. El servicio se ofrece &quot;tal cual está&quot;. Notificaremos cambios sustanciales con 48 horas de antelación, salvo urgencias técnicas.
                     </p>
                   </div>
                 </div>
@@ -52,11 +46,11 @@ export default function TerminosPage() {
               <section>
                 <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-3">
                   <span className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">2</span>
-                  Gratuidad y Modelo de Negocio
+                  Gratuidad
                 </h2>
                 <div className="pl-11 space-y-3">
                   <p className="text-muted-foreground">
-                    Durante esta etapa, el registro y la intermediación básica son <strong>gratuitos</strong>. miservicio se reserva el derecho de implementar modelos de suscripción (como el nivel PRO) o comisiones en el futuro, notificando previamente a los usuarios antes de su entrada en vigencia.
+                    El uso básico es gratuito. miservicio se reserva el derecho de implementar modelos de suscripción o comisiones, notificando previamente.
                   </p>
                 </div>
               </section>
@@ -65,28 +59,27 @@ export default function TerminosPage() {
               <section>
                 <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-3">
                   <span className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">3</span>
-                  Capacidad y Registro
+                  Registro y Verificación
                 </h2>
                 <div className="pl-11 space-y-3">
-                  <p className="text-muted-foreground">
-                    El servicio es para <strong>mayores de 18 años</strong> con capacidad legal. Al registrarte, declarás bajo juramento que los datos proporcionados son reales.
-                  </p>
                   <div className="bg-muted/50 rounded-lg p-4 space-y-2">
                     <p className="text-muted-foreground">
-                      <strong>3.1 Verificación de Identidad (Insignia de Confianza):</strong> Ofrecemos una verificación opcional mediante DNI y selfie.
+                      <strong>3.1 Verificación de Identidad (Insignia de Confianza):</strong> Ofrecemos una verificación opcional mediante DNI y selfie. Confirma que la persona coincide con el documento al momento de la verificación.
                     </p>
-                    <ul className="list-disc list-inside space-y-1 text-muted-foreground ml-2">
-                      <li><strong>Alcance Limitado:</strong> Confirma que la persona coincide con el documento al momento de la verificación.</li>
-                    </ul>
                     <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-3 mt-2">
                       <p className="text-muted-foreground font-semibold text-sm">IMPORTANTE: Esta verificación NO constituye:</p>
-                      <ul className="list-disc list-inside space-y-1 text-muted-foreground ml-2 text-sm mt-1">
-                        <li>Una certificación de idoneidad técnica</li>
-                        <li>Garantía de ausencia de antecedentes penales o judiciales</li>
-                        <li>Validación de matrícula profesional habilitante</li>
-                        <li>Un aval sobre la calidad del servicio prestado</li>
-                      </ul>
+                      <p className="text-muted-foreground text-sm mt-1">
+                        Certificación de idoneidad técnica, garantía de ausencia de antecedentes penales, validación de matrícula, aval de calidad ni garantía de solvencia.
+                      </p>
                     </div>
+                    <p className="text-muted-foreground text-sm mt-2">
+                      <strong>Revocación:</strong> Podemos retirar la insignia sin previo aviso por inconsistencias o sospecha de fraude.
+                    </p>
+                  </div>
+                  <div className="bg-muted/50 rounded-lg p-4 space-y-2">
+                    <p className="text-muted-foreground">
+                      <strong>3.2 Reglas para Publicación de Pedidos:</strong> El Cliente se compromete a describir necesidades reales, sin contenido ilícito, violento o discriminatorio, y a no publicar datos de contacto directos en la descripción pública.
+                    </p>
                   </div>
                 </div>
               </section>
@@ -99,7 +92,7 @@ export default function TerminosPage() {
                 </h2>
                 <div className="pl-11 space-y-3">
                   <p className="text-muted-foreground">
-                    <strong>miservicio</strong> actúa únicamente como un intermediario digital (vidriera). No existe relación laboral, de dependencia ni subordinación entre los Proveedores y miservicio. El Proveedor es un profesional autónomo responsable de sus propias obligaciones impositivas y herramientas de trabajo.
+                    miservicio es un intermediario digital. No existe relación laboral ni dependencia entre los Proveedores y miservicio.
                   </p>
                 </div>
               </section>
@@ -108,16 +101,12 @@ export default function TerminosPage() {
               <section>
                 <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-3">
                   <span className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">5</span>
-                  Limitación de Responsabilidad
+                  Responsabilidad
                 </h2>
                 <div className="pl-11 space-y-3">
                   <p className="text-muted-foreground">
-                    Dado que <strong>miservicio</strong> no forma parte de la transacción final:
+                    Cualquier disputa por el servicio es un asunto privado entre Cliente y Proveedor. miservicio queda eximido de toda responsabilidad civil, penal o administrativa.
                   </p>
-                  <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-4">
-                    <li><strong>Calidad y Conflictos:</strong> Cualquier reclamo por daños o perjuicios derivados del servicio es un asunto privado entre Cliente y Proveedor. miservicio queda eximido de toda responsabilidad civil, penal o administrativa.</li>
-                    <li><strong>Seguridad:</strong> La contratación es responsabilidad exclusiva de las partes. No realizamos visitas domiciliarias ni verificaciones de antecedentes de oficio.</li>
-                  </ul>
                 </div>
               </section>
 
@@ -125,12 +114,22 @@ export default function TerminosPage() {
               <section>
                 <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-3">
                   <span className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">6</span>
-                  Generación de Reputación y Historial Profesional
+                  Reputación y Scoring
                 </h2>
                 <div className="pl-11 space-y-3">
                   <p className="text-muted-foreground">
-                    La plataforma procesa datos de actividad (trabajos realizados, puntualidad, reseñas) para construir un Historial de Trabajo o Reputación Digital. El usuario acepta que este historial es propiedad de miservicio y podrá ser utilizado para ofrecer beneficios, niveles de visibilidad o servicios financieros basados en el desempeño.
+                    Procesamos datos de actividad para construir tu &quot;Reputación Digital&quot;.
                   </p>
+                  <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-3">
+                    <p className="text-muted-foreground text-sm">
+                      <strong>IMPORTANTE:</strong> El uso de estos datos para scoring financiero requiere tu consentimiento específico según la Política de Privacidad. El historial básico es propiedad de miservicio para gestionar la visibilidad en la plataforma.
+                    </p>
+                  </div>
+                  <div className="bg-muted/50 rounded-lg p-4 space-y-2 mt-2">
+                    <p className="text-muted-foreground">
+                      <strong>6.1 Pagos entre Usuarios:</strong> Los pagos se acuerdan y ejecutan exclusivamente entre las partes (efectivo u otros medios ajenos). miservicio no procesa pagos ni interviene en la facturación.
+                    </p>
+                  </div>
                 </div>
               </section>
 
@@ -138,14 +137,11 @@ export default function TerminosPage() {
               <section>
                 <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-3">
                   <span className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">7</span>
-                  Propiedad Intelectual y Licencia de Contenido
+                  Propiedad Intelectual
                 </h2>
                 <div className="pl-11 space-y-3">
                   <p className="text-muted-foreground">
-                    <strong>7.1 Propiedad:</strong> El software, marca y diseño de <strong>miservicio</strong> son propiedad exclusiva de sus creadores.
-                  </p>
-                  <p className="text-muted-foreground">
-                    <strong>7.2 Contenido del Usuario:</strong> Al subir fotos o reseñas, otorgás a miservicio una licencia gratuita y mundial para usar dicho material en promoción, redes sociales y mejora de algoritmos de Inteligencia Artificial.
+                    El software y la marca son propiedad exclusiva de miservicio. Otorgás una licencia de uso para el contenido que subas (fotos/reseñas) con fines de promoción y mejora de IA.
                   </p>
                 </div>
               </section>
@@ -154,14 +150,14 @@ export default function TerminosPage() {
               <section>
                 <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-3">
                   <span className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">8</span>
-                  Suspensión Preventiva y Cancelación
+                  Suspensión y Resolución de Conflictos
                 </h2>
                 <div className="pl-11 space-y-3">
                   <p className="text-muted-foreground">
-                    <strong>8.1 Suspensión:</strong> Podemos suspender una cuenta preventivamente (máximo 10 días) ante denuncias fundadas, sospecha de fraude o uso de documentos falsos mientras se investiga el caso.
+                    <strong>8.1 Suspensión Preventiva:</strong> Podemos suspender cuentas por 10 días ante denuncias de fraude o documentos falsos.
                   </p>
                   <p className="text-muted-foreground">
-                    <strong>8.2 Baja:</strong> Nos reservamos el derecho de eliminar cuentas que violen estos términos o utilicen lenguaje ofensivo, sin derecho a indemnización.
+                    <strong>8.2 Mediación:</strong> Previo a cualquier juicio, las partes aceptan una mediación privada en San Rafael, Mendoza, por un plazo máximo de 30 días.
                   </p>
                 </div>
               </section>
@@ -170,11 +166,11 @@ export default function TerminosPage() {
               <section>
                 <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-3">
                   <span className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">9</span>
-                  Resolución de Conflictos (Mediación)
+                  Ley Aplicable
                 </h2>
                 <div className="pl-11 space-y-3">
                   <p className="text-muted-foreground">
-                    Previo a cualquier acción judicial, las partes se comprometen a intentar resolver sus diferencias mediante una <strong>Mediación Privada</strong> ante un mediador matriculado en la Provincia de Mendoza, por un plazo máximo de 30 días, compartiendo los gastos de la misma por partes iguales.
+                    Leyes de Argentina. Jurisdicción: <strong>Tribunales Ordinarios de San Rafael, Mendoza</strong>.
                   </p>
                 </div>
               </section>
@@ -183,11 +179,11 @@ export default function TerminosPage() {
               <section>
                 <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-3">
                   <span className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">10</span>
-                  Ley Aplicable y Jurisdicción
+                  Consentimiento y Trazabilidad
                 </h2>
                 <div className="pl-11 space-y-3">
                   <p className="text-muted-foreground">
-                    Estos términos se rigen por las leyes de la República Argentina. Solo en caso de fracaso de la mediación, las partes se someten a los <strong>Tribunales Ordinarios de la ciudad de San Rafael, Mendoza</strong>.
+                    El uso del Bot de WhatsApp implica aceptación expresa. miservicio guarda registro encriptado de dicha aceptación (Audit Trail).
                   </p>
                 </div>
               </section>
@@ -196,11 +192,11 @@ export default function TerminosPage() {
               <section>
                 <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-3">
                   <span className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">11</span>
-                  Consentimiento Electrónico y Trazabilidad
+                  Indemnidad
                 </h2>
                 <div className="pl-11 space-y-3">
                   <p className="text-muted-foreground">
-                    Al interactuar con nuestro Chatbot y aceptar los términos, manifiestas tu consentimiento expreso. miservicio registrará la traza de auditoría (número, fecha y hora) como prueba fehaciente del contrato.
+                    El usuario mantendrá indemne a miservicio ante reclamos de terceros derivados de su uso de la app o de los servicios prestados.
                   </p>
                 </div>
               </section>
@@ -209,11 +205,24 @@ export default function TerminosPage() {
               <section>
                 <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-3">
                   <span className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">12</span>
-                  Cláusula de Indemnidad
+                  Usos Prohibidos
                 </h2>
                 <div className="pl-11 space-y-3">
                   <p className="text-muted-foreground">
-                    El usuario se compromete a mantener indemne a miservicio, sus directores y representantes frente a cualquier reclamo, demanda o costo legal iniciado por terceros como consecuencia de su incumplimiento de estos términos o de los servicios prestados entre Cliente y Proveedor.
+                    Prohibido contenido ilegal, suplantar identidad, acoso, o captar clientes para operar sistemáticamente fuera de la app. Infringir esto resulta en baja inmediata.
+                  </p>
+                </div>
+              </section>
+
+              {/* Section 13 */}
+              <section>
+                <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-3">
+                  <span className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">13</span>
+                  Modificaciones
+                </h2>
+                <div className="pl-11 space-y-3">
+                  <p className="text-muted-foreground">
+                    Podemos modificar estos términos con <strong>15 días</strong> de aviso para cambios sustanciales o <strong>7 días</strong> para menores, vía email o notificación push.
                   </p>
                 </div>
               </section>

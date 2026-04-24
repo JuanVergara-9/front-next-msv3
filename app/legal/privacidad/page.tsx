@@ -26,27 +26,18 @@ export default function PrivacidadPage() {
         {/* Content */}
         <div className="prose prose-lg max-w-none">
           <div className="bg-card rounded-2xl p-6 md:p-8 border border-border/50 shadow-sm">
-            <p className="text-muted-foreground mb-6">
-              En <strong>miservicio</strong>, la protección de tus datos es nuestra prioridad. Esta política cumple con la <strong>Ley de Protección de Datos Personales N° 25.326</strong> de la República Argentina.
-            </p>
 
             <div className="space-y-8">
               {/* Section 1 */}
               <section>
                 <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-3">
                   <span className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">1</span>
-                  Información que recopilamos
+                  Información Recopilada
                 </h2>
                 <div className="pl-11 space-y-3">
                   <p className="text-muted-foreground">
-                    Recabamos datos para que la plataforma funcione:
+                    Datos de registro, contacto, fotos de pedidos, perfil profesional, ubicación (con permiso) y metadatos de WhatsApp.
                   </p>
-                  <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-4">
-                    <li><strong>Registro y Perfil:</strong> Nombre, correo, número de celular, dirección aproximada y foto.</li>
-                    <li><strong>Proveedores:</strong> Profesión, fotos de trabajos, matrícula y datos de verificación (DNI y selfie).</li>
-                    <li><strong>Interacción:</strong> Mensajes vía WhatsApp relacionados al servicio y registros de aceptación (Audit Trail).</li>
-                    <li><strong>Ubicación:</strong> Solo con tu permiso expreso para mostrarte servicios cercanos.</li>
-                  </ul>
                 </div>
               </section>
 
@@ -54,26 +45,18 @@ export default function PrivacidadPage() {
               <section>
                 <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-3">
                   <span className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">2</span>
-                  Finalidad del tratamiento
+                  Finalidad y Scoring
                 </h2>
                 <div className="pl-11 space-y-3">
-                  <p className="text-muted-foreground">
-                    Usamos tus datos para conectarte con otros usuarios, gestionar tu cuenta, garantizar la seguridad y enviarte notificaciones del servicio.
-                  </p>
                   <div className="bg-muted/50 rounded-lg p-4 space-y-3">
                     <p className="text-muted-foreground">
-                      <strong>2.1 Análisis de Reputación Digital (Scoring de Proveedores):</strong>
+                      <strong>2.1 Análisis de Reputación Digital (Scoring):</strong> Con tu consentimiento expreso, procesamos tus datos para ofrecerte prioridad en trabajos y beneficios financieros. Podés revocar este permiso en Configuración.
                     </p>
-                    <p className="text-muted-foreground">
-                      El scoring es un perfil construido mediante procesamiento automatizado de tu desempeño (trabajos cumplidos, calificaciones, tasa de respuesta). Con tu consentimiento expreso, usamos este perfil para:
-                    </p>
-                    <ul className="list-disc list-inside space-y-1 text-muted-foreground ml-2">
-                      <li>Darte acceso prioritario a nuevos trabajos.</li>
-                      <li>Ofrecerte servicios financieros o beneficios premium (propios o de terceros).</li>
-                    </ul>
-                    <p className="text-muted-foreground text-sm">
-                      <strong>Tu derecho:</strong> Podés rechazar o revocar este proceso desde la configuración de privacidad en cualquier momento.
-                    </p>
+                    <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-3">
+                      <p className="text-muted-foreground text-sm">
+                        <strong>Protección Especial:</strong> Nunca usaremos el scoring para decisiones discriminatorias por origen, género, orientación sexual, religión, condición social o discapacidad.
+                      </p>
+                    </div>
                   </div>
                 </div>
               </section>
@@ -82,15 +65,20 @@ export default function PrivacidadPage() {
               <section>
                 <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-3">
                   <span className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">3</span>
-                  Compartición y Transferencia Internacional
+                  Transferencia Internacional
                 </h2>
                 <div className="pl-11 space-y-3">
                   <p className="text-muted-foreground">
-                    <strong>No vendemos tus datos.</strong> Compartimos información entre usuarios (Cliente/Proveedor) solo cuando se establece una conexión de trabajo.
+                    Algunos de nuestros proveedores de servicios técnicos se encuentran fuera de la República Argentina. Al aceptar esta política, autorizás la transferencia de tus datos personales a los siguientes proveedores que garantizan niveles de protección adecuados según la AAIP:
                   </p>
+                  <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-4">
+                    <li><strong>Estados Unidos (Vercel Inc.):</strong> Proveedor del servicio de hosting y despliegue de nuestra plataforma frontend.</li>
+                    <li><strong>Estados Unidos (Railway Corp.):</strong> Proveedor del servicio de infraestructura y alojamiento de nuestro backend y bases de datos.</li>
+                    <li><strong>Estados Unidos / Irlanda (Meta Platforms, Inc.):</strong> Proveedor de la tecnología WhatsApp Business API para el funcionamiento de nuestro Chatbot oficial.</li>
+                  </ul>
                   <div className="bg-muted/50 rounded-lg p-4 space-y-2">
-                    <p className="text-muted-foreground">
-                      <strong>3.1 Transferencia Internacional:</strong> Algunos proveedores técnicos (como Google Cloud o AWS) pueden estar fuera de Argentina. Al aceptar esta política, autorizás la transferencia de datos a países con niveles adecuados de protección.
+                    <p className="text-muted-foreground text-sm">
+                      <strong>Garantías:</strong> Estos terceros están contractualmente obligados a procesar tus datos bajo estrictas normas de confidencialidad y únicamente para los fines técnicos necesarios para la prestación del servicio de miservicio.
                     </p>
                   </div>
                 </div>
@@ -100,13 +88,13 @@ export default function PrivacidadPage() {
               <section>
                 <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-3">
                   <span className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">4</span>
-                  Retención de Datos (Plazos Claros)
+                  Retención de Datos
                 </h2>
                 <div className="pl-11 space-y-3">
                   <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-4">
-                    <li><strong>Cuenta activa:</strong> Mientras uses la plataforma.</li>
-                    <li><strong>Tras eliminación:</strong> Los datos de perfil se borran en 30 días; los de verificación (DNI/selfie) en 48 horas. Por obligación legal y fiscal, conservaremos el historial de transacciones por 10 años.</li>
-                    <li><strong>Anonimización:</strong> Los datos de scoring se anonimizan irreversiblemente en 60 días tras la baja.</li>
+                    <li><strong>DNI/Selfie:</strong> Se eliminan en <strong>48 horas</strong> tras verificar.</li>
+                    <li><strong>Datos de perfil:</strong> Se borran <strong>30 días</strong> después de la baja.</li>
+                    <li><strong>Historial transaccional:</strong> Se guarda <strong>10 años</strong> por ley.</li>
                   </ul>
                 </div>
               </section>
@@ -115,20 +103,18 @@ export default function PrivacidadPage() {
               <section>
                 <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-3">
                   <span className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">5</span>
-                  Tus Derechos (Acceso, Rectificación, Supresión y Oposición)
+                  Tus Derechos ARCO
                 </h2>
                 <div className="pl-11 space-y-3">
                   <p className="text-muted-foreground">
-                    Tenés derecho a controlar tu información (Derechos ARCO):
+                    Acceso (gratis cada 6 meses), Rectificación, Supresión y Oposición.
                   </p>
-                  <ul className="list-disc list-inside space-y-2 text-muted-foreground ml-4">
-                    <li><strong>Acceso gratuito:</strong> Cada 6 meses.</li>
-                    <li><strong>Rectificación o Supresión:</strong> Cuando los datos sean erróneos o ya no sean necesarios.</li>
-                    <li><strong>Portabilidad:</strong> Recibir tus datos en formato legible.</li>
-                  </ul>
-                  <div className="bg-muted/50 rounded-lg p-4 mt-4 space-y-2">
+                  <div className="bg-muted/50 rounded-lg p-4 space-y-2">
                     <p className="text-muted-foreground text-sm">
-                      <strong>Cómo ejercerlos:</strong> Enviá un email a <a href="mailto:app.miservicio@gmail.com" className="text-primary hover:underline font-medium">app.miservicio@gmail.com</a> con el asunto &quot;Ejercicio de Derechos ARCO&quot; y copia de tu DNI. Responderemos en un máximo de <strong>10 días hábiles</strong>.
+                      <strong>Contacto:</strong> <a href="mailto:app.miservicio@gmail.com" className="text-primary hover:underline font-medium">app.miservicio@gmail.com</a> (Asunto: &quot;Ejercicio de Derechos ARCO&quot;). Responderemos en <strong>10 días hábiles</strong>.
+                    </p>
+                    <p className="text-muted-foreground text-sm">
+                      <strong>Reclamos AAIP:</strong> Av. Pte. Julio A. Roca 710, CABA | <a href="mailto:denuncias@aaip.gob.ar" className="text-primary hover:underline font-medium">denuncias@aaip.gob.ar</a>
                     </p>
                   </div>
                 </div>
@@ -138,11 +124,11 @@ export default function PrivacidadPage() {
               <section>
                 <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-3">
                   <span className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">6</span>
-                  Seguridad y Notificación de Brechas
+                  Seguridad y Brechas
                 </h2>
                 <div className="pl-11 space-y-3">
                   <p className="text-muted-foreground">
-                    Implementamos medidas técnicas para protegerte. En caso de una brecha de seguridad que afecte tus datos, nos comprometemos a investigarla en <strong>72 horas</strong> y notificarte individualmente junto a la autoridad de control (AAIP) en un máximo de <strong>5 días hábiles</strong>.
+                    Investigamos incidentes en <strong>72 horas</strong> y notificamos a los afectados y a la AAIP en un máximo de <strong>5 días hábiles</strong>.
                   </p>
                 </div>
               </section>
@@ -151,11 +137,11 @@ export default function PrivacidadPage() {
               <section>
                 <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-3">
                   <span className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">7</span>
-                  Protección de Menores
+                  Menores
                 </h2>
                 <div className="pl-11 space-y-3">
                   <p className="text-muted-foreground">
-                    <strong>miservicio</strong> no está dirigida a menores de 18 años. Si detectamos datos de un menor, procederemos a su eliminación inmediata en un plazo de <strong>72 horas</strong>.
+                    miservicio no es para menores de 18 años. Si detectamos datos de un menor, los borramos en <strong>72 horas</strong>.
                   </p>
                 </div>
               </section>
@@ -164,11 +150,11 @@ export default function PrivacidadPage() {
               <section>
                 <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-3">
                   <span className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">8</span>
-                  Cookies y Tecnologías de Rastreo
+                  Cookies y Rastreo
                 </h2>
                 <div className="pl-11 space-y-3">
                   <p className="text-muted-foreground">
-                    Utilizamos cookies esenciales para mantener tu sesión activa y cookies analíticas (que podés desactivar) para entender cómo usás la app. No utilizamos cookies publicitarias de terceros por el momento.
+                    Usamos cookies <strong>Esenciales</strong> (sesión y seguridad) y <strong>Analíticas</strong> (desactivables). Nuestro chatbot registra metadatos de conversación, pero no accede a otros contactos o chats privados.
                   </p>
                 </div>
               </section>
@@ -177,22 +163,48 @@ export default function PrivacidadPage() {
               <section>
                 <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-3">
                   <span className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">9</span>
-                  Autoridad de Control y Registro
+                  Registro de Base de Datos
                 </h2>
                 <div className="pl-11 space-y-3">
                   <p className="text-muted-foreground">
-                    <strong>miservicio</strong> está en proceso de registro de sus bases de datos ante la <strong>Agencia de Acceso a la Información Pública (AAIP)</strong>. Ante cualquier incumplimiento, tenés derecho a presentar un reclamo ante dicha agencia.
+                    miservicio está en proceso de registro ante la <strong>AAIP</strong>.
                   </p>
-                  <div className="bg-muted/50 rounded-lg p-4 space-y-1">
-                    <p className="text-muted-foreground text-sm">
-                      Av. Pte. Julio A. Roca 710, CABA
-                    </p>
+                  <p className="text-muted-foreground text-sm italic">
+                    Disposición: En trámite.
+                  </p>
+                </div>
+              </section>
+
+              {/* Section 10 */}
+              <section>
+                <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-3">
+                  <span className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">10</span>
+                  Modificaciones
+                </h2>
+                <div className="pl-11 space-y-3">
+                  <p className="text-muted-foreground">
+                    Avisaremos cambios significativos por email o banner. El uso continuado implica aceptación.
+                  </p>
+                </div>
+              </section>
+
+              {/* Section 11 */}
+              <section>
+                <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-3">
+                  <span className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">11</span>
+                  Contacto
+                </h2>
+                <div className="pl-11 space-y-3">
+                  <div className="bg-muted/50 rounded-lg p-4">
                     <a 
-                      href="mailto:denuncias@aaip.gob.ar" 
-                      className="text-primary hover:text-primary/80 transition-colors font-medium text-sm"
+                      href="mailto:app.miservicio@gmail.com" 
+                      className="text-primary hover:text-primary/80 transition-colors font-medium text-lg"
                     >
-                      denuncias@aaip.gob.ar
+                      app.miservicio@gmail.com
                     </a>
+                    <p className="text-muted-foreground text-sm mt-1">
+                      Tiempo de respuesta: Máximo 10 días hábiles.
+                    </p>
                   </div>
                 </div>
               </section>
@@ -203,14 +215,8 @@ export default function PrivacidadPage() {
               <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
                 <div>
                   <p className="text-sm text-muted-foreground">
-                    Para consultas sobre privacidad, contactanos:
+                    Protegemos tu privacidad y datos personales
                   </p>
-                  <a 
-                    href="mailto:app.miservicio@gmail.com" 
-                    className="text-primary hover:text-primary/80 transition-colors font-medium"
-                  >
-                    app.miservicio@gmail.com
-                  </a>
                 </div>
                 <div className="text-sm text-muted-foreground">
                   <p>miservicio © 2026</p>
