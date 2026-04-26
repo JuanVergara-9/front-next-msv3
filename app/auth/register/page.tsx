@@ -726,6 +726,23 @@ export default function RegisterPage() {
                                   <Input id="providerPhone" type="tel" placeholder="ej: 2604..." value={providerForm.phone} onChange={(e) => setProviderForm({ ...providerForm, phone: e.target.value })} className="h-14 bg-slate-50/50 border-slate-200 rounded-2xl focus:bg-white font-medium" />
                                 </div>
 
+                                <div className="space-y-2">
+                                  <Label htmlFor="yearsExperience" className="text-sm font-bold text-[#0e315d] ml-1">
+                                    Años de experiencia
+                                  </Label>
+                                  <Input
+                                    id="yearsExperience"
+                                    type="number"
+                                    min="0"
+                                    max="80"
+                                    placeholder="ej: 5"
+                                    value={providerForm.yearsExperience}
+                                    onChange={(e) => setProviderForm({ ...providerForm, yearsExperience: e.target.value })}
+                                    className={`h-14 bg-slate-50/50 border-slate-200 rounded-2xl focus:bg-white font-medium ${errors.yearsExperience ? "border-red-300" : ""}`}
+                                  />
+                                  {errors.yearsExperience && <p className="text-red-500 text-xs font-bold ml-1">{errors.yearsExperience}</p>}
+                                </div>
+
                                 <div className="flex items-center justify-between p-4 bg-slate-50/50 border border-slate-100 rounded-2xl">
                                   <div className="space-y-0.5">
                                     <Label htmlFor="emergency" className="text-sm font-bold text-[#0e315d]">¿Atendés urgencias?</Label>
