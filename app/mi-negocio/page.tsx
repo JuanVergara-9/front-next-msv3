@@ -214,6 +214,38 @@ function MiNegocioContent() {
     )
   }
 
+  if (!providerProfile) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="w-8 h-8 text-indigo-600 animate-spin" />
+          <p className="text-sm text-slate-500">Cargando tu perfil...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!providerProfile.is_pro) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-6 bg-slate-50/50">
+        <div className="text-center max-w-md">
+          <Crown className="w-12 h-12 text-amber-500 mx-auto mb-3" />
+          <h1 className="text-xl font-bold text-slate-900 mb-2">Mi Negocio es exclusivo PRO</h1>
+          <p className="text-sm text-slate-600 mb-6">
+            Esta sección muestra métricas y tu camino financiero cuando tengas el plan PRO activo.
+          </p>
+          <button
+            type="button"
+            onClick={() => router.push("/profile")}
+            className="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition"
+          >
+            Ir a mi perfil
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">

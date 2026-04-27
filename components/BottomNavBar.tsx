@@ -23,9 +23,10 @@ export const BottomNavBar = React.memo(function BottomNavBar({
   onProfileClick
 }: BottomNavBarProps) {
   const pathname = usePathname()
-  const { user, isProvider } = useAuth()
+  const { user, isProvider, providerProfile } = useAuth()
   const { unreadCount } = useUnreadCount()
   const admin = isAdmin(user)
+  const showMiNegocio = isProvider && providerProfile?.is_pro === true
 
   // Ocultar la barra de navegación en la pantalla de chat específico en mobile
   const isSpecificChat = pathname?.startsWith('/mensajes/') && pathname !== '/mensajes'
@@ -34,7 +35,7 @@ export const BottomNavBar = React.memo(function BottomNavBar({
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-[100] glass-effect border-t border-border/50 px-2 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] bg-white md:hidden w-full max-w-[100vw] overflow-x-hidden">
       <div className="max-w-7xl mx-auto">
-        <div className={`grid gap-1 ${isProvider ? 'grid-cols-5' : 'grid-cols-4'}`}>
+        <div className={`grid gap-1 ${showMiNegocio ? 'grid-cols-5' : 'grid-cols-4'}`}>
           {[
             {
               name: "Inicio",
@@ -102,7 +103,7 @@ export const BottomNavBar = React.memo(function BottomNavBar({
                 </svg>
               ),
               active: pathname === '/mi-negocio',
-              show: isProvider,
+              show: showMiNegocio,
             },
             {
               name: "Perfil",

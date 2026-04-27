@@ -27,10 +27,11 @@ interface HeaderProps {
 }
 
 export const Header = ({ city }: HeaderProps) => {
-  const { user, isAuthenticated, logout, isLoading, isProvider } = useAuth()
+  const { user, isAuthenticated, logout, isLoading, isProvider, providerProfile } = useAuth()
   const pathname = usePathname()
   const { unreadCount } = useUnreadCount()
   const admin = isAdmin(user)
+  const showMiNegocio = isProvider && providerProfile?.is_pro === true
 
   const handleLogout = async () => {
     try {
@@ -110,7 +111,7 @@ export const Header = ({ city }: HeaderProps) => {
             )}
           </Link>
 
-          {isProvider && (
+          {showMiNegocio && (
             <Link
               href="/mi-negocio"
               className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all relative ${pathname === "/mi-negocio"
@@ -205,7 +206,7 @@ export const Header = ({ city }: HeaderProps) => {
                     <MapPin className="w-4 h-4" />
                     <span className="truncate">Ubicación: {city}</span>
                   </DropdownMenuItem>
-                  {isProvider && (
+                  {showMiNegocio && (
                     <DropdownMenuItem asChild>
                       <Link href="/mi-negocio" className="flex items-center gap-2 cursor-pointer">
                         <BarChart3 className="w-4 h-4 text-indigo-500" />
