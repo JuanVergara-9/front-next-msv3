@@ -41,6 +41,7 @@ import {
   MessageSquare,
   ArrowRight
 } from "lucide-react"
+import { InsumosSanRafaelSection } from "@/components/InsumosSanRafaelSection"
 
 // Componente de efecto typewriter para oficios
 const TypewriterText = ({ words, className = "" }: { words: string[]; className?: string }) => {
@@ -1369,6 +1370,8 @@ export default function MiservicioHome() {
           />
         </section>
       )}
+
+      <InsumosSanRafaelSection />
 
       <footer className="bg-slate-50 border-t border-slate-200">
         <div className="max-w-7xl mx-auto px-4 py-16">
