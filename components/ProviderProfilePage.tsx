@@ -166,6 +166,8 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile, gues
   const [editingReviewId, setEditingReviewId] = useState<number | null>(null)
   const [editingReviewPhotos, setEditingReviewPhotos] = useState<string[]>([])
   const [activeTab, setActiveTab] = useState<string>('informacion')
+  const [consentChecked, setConsentChecked] = useState(false)
+  const [consentSubmitting, setConsentSubmitting] = useState(false)
   const [isStartingChat, setIsStartingChat] = useState(false)
   const maxCommentLength = 2000
   const maxPhotos = 6
@@ -262,6 +264,7 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile, gues
     const isCertified = truthy(p.is_certified ?? p.isCertified)
     const isPro = truthy(p.is_pro ?? p.isPro)
     const hasBackgroundCheck = truthy(p.has_background_check ?? p.hasBackgroundCheck)
+    const reputationConsent = truthy(p.reputation_consent ?? p.reputationConsent)
 
     return {
       id: profile.id?.toString() || "1",
@@ -277,6 +280,7 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile, gues
       isCertified,
       isPro,
       hasBackgroundCheck,
+      reputationConsent,
       emergencyAvailable: profile.emergency_available || false,
       description: profile.description || "Descripción no disponible",
       yearsExperience: profile.years_experience || 0,
@@ -292,6 +296,12 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile, gues
 
   // No usar datos mock. Si no hay perfil, no renderizar nada.
   const providerData = mapProviderData(propProviderProfile)
+  const needsReputationConsent = !!isOwner && !!providerData && !providerData.reputationConsent
+
+  useEffect(() => {
+    if (!providerData) return
+    setConsentChecked(!!providerData.reputationConsent)
+  }, [providerData?.reputationConsent])
 
   const providerIdNum = useMemo(() => {
     const idNum = Number(providerData?.id)
@@ -1103,6 +1113,69 @@ export function ProviderProfilePage({ providerProfile: propProviderProfile, gues
               </CardContent>
             </Card>
           </motion.div>
+
+          {needsReputationConsent && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.45, delay: 0.5 }}
+            >
+              <Card className="rounded-2xl border border-amber-200 bg-amber-50/80 shadow-sm">
+                <CardContent className="p-5 md:p-6">
+                  <div className="flex items-start gap-3">
+                    <AlertCircle className="h-5 w-5 text-amber-700 mt-0.5" />
+                    <div className="flex-1">
+                      <h3 className="text-sm md:text-base font-bold text-amber-900 mb-2">
+                        Activá tu perfil de reputación
+                      </h3>
+                      <p className="text-xs md:text-sm text-amber-900/90 mb-4">
+                        Para perfiles creados antes de este cambio, necesitamos que confirmes este consentimiento para
+                        que las nuevas señales alimenten tu score y reputación.
+                      </p>
+
+                      <label className="flex items-start gap-2.5 mb-4 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={consentChecked}
+                          onChange={(e) => setConsentChecked(e.target.checked)}
+                          className="mt-0.5 h-4 w-4 rounded border-amber-400 text-amber-700 focus:ring-amber-500"
+                        />
+                        <span className="text-xs md:text-sm text-amber-950">
+                          Acepto que miservicio analice mi actividad para construir mi perfil de reputación
+                        </span>
+                      </label>
+
+                      <Button
+                        onClick={async () => {
+                          try {
+                            setConsentSubmitting(true)
+                            await ProvidersService.acceptMyReputationConsent()
+                            toast({ title: 'Consentimiento guardado', description: 'Tu perfil de reputación quedó activado.' })
+                            window.location.reload()
+                          } catch (e: any) {
+                            let msg = 'No se pudo guardar el consentimiento.'
+                            try { msg = JSON.parse(e?.message)?.error?.message || msg } catch {}
+                            toast({ title: 'Error', description: msg })
+                          } finally {
+                            setConsentSubmitting(false)
+                          }
+                        }}
+                        disabled={!consentChecked || consentSubmitting}
+                        className="bg-amber-700 hover:bg-amber-800 text-white"
+                      >
+                        {consentSubmitting ? (
+                          <>
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            Guardando...
+                          </>
+                        ) : 'Aceptar y activar'}
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
 
           {/* Verificación de identidad — solo visible para el dueño del perfil */}
           {isOwner && (

@@ -303,6 +303,14 @@ export class ProvidersService {
     return res.availability;
   }
 
+  /** Para perfiles legacy: acepta explícitamente el consentimiento de reputación. */
+  static async acceptMyReputationConsent(): Promise<Provider> {
+    return apiFetch<{ provider: Provider }>('/api/v1/providers/mine/reputation-consent', {
+      method: 'PUT',
+      body: JSON.stringify({ reputation_consent: true })
+    }).then((response) => response.provider);
+  }
+
   static async uploadIdentityDocs(files: { dniFront: File; dniBack: File; selfie: File }): Promise<void> {
     const formData = new FormData()
     formData.append('dni_front', files.dniFront)
