@@ -1,14 +1,11 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect } from "react"
 import { ProvidersService } from '@/lib/services/providers.service'
 import { UserProfileService } from '@/lib/services/user-profile.service'
 import { useAuth } from '@/contexts/AuthContext'
-import { useRouter } from 'next/navigation'
-import Link from 'next/link'
-import { ProviderCard } from '../components/ProviderCard'
-import type { ProviderWithDetails } from '../types/api'
-import { motion, AnimatePresence } from "framer-motion"
+import Link from "next/link"
+import { motion } from "framer-motion"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -505,185 +502,6 @@ const RecentOrdersFeed = ({ city }: { city: string }) => {
 }
 
 
-const SkeletonCard = () => (
-  <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 animate-pulse flex flex-col h-full">
-    <div className="flex gap-4 mb-4 flex-1">
-      <div className="w-16 h-16 bg-gray-200 rounded-2xl flex-shrink-0"></div>
-      <div className="flex-1 space-y-2">
-        <div className="h-5 bg-gray-200 rounded w-3/4"></div>
-        <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-        <div className="h-3 bg-gray-200 rounded w-2/3 mt-2"></div>
-        <div className="h-3 bg-gray-200 rounded w-full mt-1"></div>
-      </div>
-    </div>
-    <div className="mb-4 flex gap-2">
-      <div className="h-6 bg-gray-200 rounded-full w-20"></div>
-    </div>
-    <div className="flex gap-3 mt-auto">
-      <div className="flex-1 h-12 bg-gray-200 rounded-2xl"></div>
-      <div className="flex-1 h-12 bg-gray-200 rounded-2xl"></div>
-    </div>
-  </div>
-)
-
-
-const EmptyState = ({ onSearchCityWide, onViewCategories }: { onSearchCityWide: () => void; onViewCategories: () => void }) => (
-  <div className="text-center py-12">
-    <div className="w-20 h-20 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-3xl flex items-center justify-center mx-auto mb-6 premium-shadow">
-      <svg className="w-10 h-10 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-        />
-      </svg>
-    </div>
-    <h3 className="text-xl font-bold text-foreground mb-3">¡Aún no hay proveedores en tu zona!</h3>
-    <p className="text-muted-foreground mb-6 max-w-md mx-auto text-pretty">
-      Estamos trabajando para traer los mejores profesionales a tu área.
-      Mientras tanto, probá con otros términos de búsqueda.
-    </p>
-    <div className="flex flex-col sm:flex-row gap-3 justify-center">
-      <button onClick={onSearchCityWide} className="px-6 py-3 bg-primary text-white rounded-xl hover:bg-primary/90 transition-colors font-medium cursor-pointer">
-        Buscar en toda la ciudad
-      </button>
-      <button onClick={onViewCategories} className="px-6 py-3 border border-primary text-primary rounded-xl hover:bg-primary/10 transition-colors font-medium cursor-pointer">
-        Ver categorías
-      </button>
-    </div>
-  </div>
-)
-
-// Categories section removed from Home per product decision
-
-const ProvidersList = ({
-  providers,
-  loading,
-  onContact,
-  onSearchCityWide,
-  onViewCategories,
-}: {
-  providers: ProviderWithDetails[]
-  loading: boolean
-  onContact: (provider: ProviderWithDetails) => void
-  onSearchCityWide: () => void
-  onViewCategories: () => void
-}) => (
-  <motion.section
-    className="px-4 py-4 flex-1"
-    initial={{ opacity: 0 }}
-    animate={{ opacity: 1 }}
-    transition={{ duration: 0.5, delay: 0.6 }}
-  >
-    <div className="max-w-7xl mx-auto">
-      <motion.h2
-        className="text-lg font-semibold text-foreground mb-4"
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.4, delay: 0.7 }}
-      >
-        Cerca de mí
-      </motion.h2>
-      {/*
-- [ ] Hero and Search Improvements
-    - [ ] Enable Search results for all users
-    - [ ] Implement floating Hero image on mobile (80% opacity)
-    - [ ] Resize "How It Works" cards and text on mobile
-    - [ ] Finalize standard title sizes and spacing
-- [x] Refine Category Slider
-    - [x] Remove white gradient shadow
-    - [x] Add scroll indicator (arrow or dots)
-      */}
-      <AnimatePresence mode="wait">
-        {loading ? (
-          <motion.div
-            key="loading"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <div className="md:hidden -mx-4 px-4 overflow-x-auto">
-              <div className="flex snap-x snap-mandatory snap-always space-x-4 pr-4">
-                {Array.from({ length: 4 }).map((_, i) => (
-                  <motion.div
-                    key={i}
-                    className="min-w-[85%] snap-center"
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.3, delay: i * 0.1 }}
-                  >
-                    <SkeletonCard />
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-            <div className="hidden md:grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: i * 0.1 }}
-                >
-                  <SkeletonCard />
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-        ) : providers.length === 0 ? (
-          <motion.div
-            key="empty"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <EmptyState onSearchCityWide={onSearchCityWide} onViewCategories={onViewCategories} />
-          </motion.div>
-        ) : (
-          <motion.div
-            key="providers"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <div className="md:hidden -mx-4 px-4 overflow-x-auto pb-4">
-              <div className="flex snap-x snap-mandatory snap-always space-x-4 pr-4 pb-2 items-stretch">
-                {providers.map((provider, index) => (
-                  <motion.div
-                    key={provider.id}
-                    className="min-w-[85%] snap-center h-full"
-                    initial={{ opacity: 0, x: 50 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.4, delay: index * 0.1 }}
-                  >
-                    <ProviderCard provider={provider} onContact={onContact} />
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-            <div className="hidden md:grid gap-4 md:grid-cols-2 lg:grid-cols-3 items-stretch">
-              {providers.map((provider, index) => (
-                <motion.div
-                  key={provider.id}
-                  className="h-full"
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: index * 0.1, type: "spring", stiffness: 100 }}
-                >
-                  <ProviderCard provider={provider} onContact={onContact} />
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  </motion.section>
-)
-
-
 // Componente de botón de feedback reutilizable
 const FeedbackButton = () => {
   const { user } = useAuth()
@@ -817,10 +635,8 @@ const FeedbackButton = () => {
 // Main component
 export default function MiservicioHome() {
   const { user, isProvider } = useAuth()
-  const router = useRouter()
   const [city, setCity] = useState<string>("")
   const [query, setQuery] = useState<string>("")
-  const [activeCategory, setActiveCategory] = useState<string | null>(null)
   const [stats, setStats] = useState({ total_providers: 0 })
   const [categoryCounts, setCategoryCounts] = useState<Record<string, number>>({})
 
@@ -837,294 +653,36 @@ export default function MiservicioHome() {
     }).catch(console.error)
   }, [])
 
-  const [loading, setLoading] = useState<boolean>(true)
-  const [error, setError] = useState<string | null>(null)
-  const [providers, setProviders] = useState<ProviderWithDetails[]>([])
-  const [filtered, setFiltered] = useState<ProviderWithDetails[]>([])
-  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null)
-  const handleSearchCityWide = async () => {
-    try {
-      setLoading(true)
-      const searchParams: any = { limit: 24 }
-      // Buscar por ciudad actual si la tenemos resuelta
-      if (city && city.includes(',')) {
-        searchParams.city = city.split(',')[0].trim()
-      }
-      const response = await ProvidersService.searchProviders(searchParams)
-      let transformedProviders = response.providers.map(provider => ({
-        ...provider,
-        full_name: `${provider.first_name} ${provider.last_name}`,
-        rating: provider.rating || 0,
-        review_count: provider.review_count || 0,
-        distance_km: undefined,
-        categories: provider.category ? [provider.category.name] : [],
-        avatar_url: (provider as any).avatar_url,
-      }))
-
-      transformedProviders = await ProvidersService.enrichWithReviewSummaries(transformedProviders)
-      setProviders(transformedProviders)
-      setFiltered(transformedProviders)
-    } catch (e) {
-      console.warn('City-wide search failed:', e)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleViewCategories = () => {
-    window.location.href = '/categorias'
-  }
-
-  // Load data from backend
   useEffect(() => {
-    const loadData = async () => {
+    const loadCity = async () => {
       try {
-        setLoading(true)
-
-        // 1) Intentar obtener ubicación del usuario
-        let location: { lat: number; lng: number } | null = null
-        try {
-          location = await ProvidersService.getCurrentLocation()
-          setUserLocation(location)
-        } catch (locationError) {
-          console.warn('Could not get location:', locationError)
-        }
-
-        // 2) Preparar parámetros de búsqueda (usar la variable local para no depender del setState)
-        const searchParams: any = { limit: 6 }
+        const location = await ProvidersService.getCurrentLocation().catch(() => null)
         if (location) {
-          searchParams.lat = location.lat
-          searchParams.lng = location.lng
-          searchParams.radius_km = 50 // 50km radius
+          const cityName = await ProvidersService.getCityFromCoords(location.lat, location.lng).catch(() => null)
+          setCity(cityName || "San Rafael, Mendoza")
+        } else {
+          setCity("San Rafael, Mendoza")
         }
-
-        // 3) Resolver en paralelo: reverse geocoding (si hay coords) y providers
-        const [cityName, response] = await Promise.all([
-          location
-            ? ProvidersService.getCityFromCoords(location.lat, location.lng).catch(() => 'Mi ubicación')
-            : Promise.resolve('San Rafael, Mendoza'),
-          ProvidersService.searchProviders(searchParams),
-        ])
-
-        setCity(cityName || 'San Rafael, Mendoza')
-
-        // 4) Transform backend data to UI format (usar location local para distancia)
-        let transformedProviders = response.providers.map(provider => ({
-          ...provider,
-          full_name: `${provider.first_name} ${provider.last_name}`,
-          rating: provider.rating || 0,
-          review_count: provider.review_count || 0,
-          distance_km: location
-            ? ProvidersService.calculateDistance(
-              location.lat,
-              location.lng,
-              provider.lat || 0,
-              provider.lng || 0
-            )
-            : undefined,
-          categories: provider.category ? [provider.category.name] : [],
-          avatar_url: (provider as any).avatar_url,
-        }))
-
-        transformedProviders = await ProvidersService.enrichWithReviewSummaries(transformedProviders)
-
-        // 4b) Fallback: si no hay resultados cerca, probar por ciudad detectada
-        if (transformedProviders.length === 0 && (cityName || '').includes(',')) {
-          try {
-            const onlyCity = (cityName || '').split(',')[0].trim()
-            if (onlyCity) {
-              const r2 = await ProvidersService.searchProviders({ city: onlyCity, limit: 6 })
-              transformedProviders = r2.providers.map(provider => ({
-                ...provider,
-                full_name: `${provider.first_name} ${provider.last_name}`,
-                rating: provider.rating || 0,
-                review_count: provider.review_count || 0,
-                distance_km: undefined,
-                categories: provider.category ? [provider.category.name] : [],
-                avatar_url: (provider as any).avatar_url,
-              }))
-
-              transformedProviders = await ProvidersService.enrichWithReviewSummaries(transformedProviders)
-            }
-          } catch (e) {
-            console.warn('City fallback failed', e)
-          }
-        }
-
-        setProviders(transformedProviders)
-        setFiltered(transformedProviders)
-      } catch (err) {
-        console.warn('Error loading data from backend:', err)
-        // No usar datos mock; dejar lista vacía para validación
-        setProviders([])
-        setFiltered([])
-      } finally {
-        setLoading(false)
+      } catch {
+        setCity("San Rafael, Mendoza")
       }
     }
-
-    loadData()
+    void loadCity()
   }, [])
 
-  // Filter providers based on query and category
-  useEffect(() => {
-    let result = providers
-
-    if (query.trim()) {
-      const searchTerm = query.toLowerCase()
-      result = result.filter(
-        (provider) =>
-          provider.full_name.toLowerCase().includes(searchTerm) ||
-          (provider.description && provider.description.toLowerCase().includes(searchTerm)) ||
-          provider.categories.some((cat) => cat.toLowerCase().includes(searchTerm)),
-      )
-    }
-
-    if (activeCategory) {
-      result = result.filter((provider) => provider.categories.includes(activeCategory))
-    }
-
-    setFiltered(result)
-  }, [query, activeCategory, providers])
-
-  const handleSearch = async () => {
+  const handleSearch = () => {
     if (!query.trim()) return
 
     void InsightsService.trackSearch({
       query: query.trim(),
       city,
-      category: activeCategory ?? undefined,
       userId: user?.id ?? undefined,
     })
-
-    // Si ya hay proveedores filtrados localmente, simplemente hacer scroll a los resultados
-    // El filtro en tiempo real ya está funcionando
-    if (filtered.length > 0) {
-      // Hacer scroll suave a la sección de proveedores
-      // Buscar el h2 que contiene "Cerca de mí" y hacer scroll a su sección padre
-      const headings = Array.from(document.querySelectorAll('h2'))
-      const cercaHeading = headings.find(h2 => h2.textContent?.includes('Cerca de mí'))
-      if (cercaHeading) {
-        const section = cercaHeading.closest('section')
-        if (section) {
-          section.scrollIntoView({ behavior: 'smooth', block: 'start' })
-        }
-      }
-      return
-    }
-
-    // Si no hay proveedores filtrados, hacer búsqueda en el backend
-    try {
-      setLoading(true)
-      const searchParams: any = {
-        query: query.trim()
-      }
-
-      if (userLocation) {
-        searchParams.lat = userLocation.lat
-        searchParams.lng = userLocation.lng
-        searchParams.radius_km = 50
-      }
-
-      const response = await ProvidersService.searchProviders(searchParams)
-
-      let transformedProviders = response.providers.map(provider => ({
-        ...provider,
-        full_name: `${provider.first_name} ${provider.last_name}`,
-        rating: provider.rating || 0,
-        review_count: provider.review_count || 0,
-        distance_km: userLocation ?
-          ProvidersService.calculateDistance(
-            userLocation.lat,
-            userLocation.lng,
-            provider.lat || 0,
-            provider.lng || 0
-          ) : undefined,
-        categories: provider.category ? [provider.category.name] : [],
-        avatar_url: (provider as any).avatar_url
-      }))
-
-      transformedProviders = await ProvidersService.enrichWithReviewSummaries(transformedProviders)
-
-      setProviders(transformedProviders)
-      setFiltered(transformedProviders)
-    } catch (err) {
-      console.warn('Error searching, using current providers:', err)
-      // En caso de error en búsqueda, mantener los proveedores actuales
-      // No mostrar error, solo log en consola
-    } finally {
-      setLoading(false)
+    const el = document.getElementById("home-categorias")
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" })
     }
   }
-
-  const handleContact = (provider: ProviderWithDetails) => {
-    if (!user) {
-      const next = `/proveedores/${provider.id}`
-      router.push(`/auth/login?next=${encodeURIComponent(next)}`)
-      return
-    }
-    const primaryCategory = provider.categories?.[0]
-    const baseTracking = {
-      providerId: provider.id,
-      city: provider.city,
-      category: primaryCategory,
-      userId: user?.id ?? undefined,
-    }
-    if (provider.whatsapp_e164) {
-      void InsightsService.trackContactClick({
-        ...baseTracking,
-        channel: 'whatsapp',
-      })
-      const message = encodeURIComponent("Hola! Te contacto desde https://miservicio.ar. Vi tu perfil y me interesa tu servicio, quería hacerte una consulta rápida.")
-      window.open(`https://wa.me/${provider.whatsapp_e164}?text=${message}`, "_blank")
-    } else if (provider.phone_e164) {
-      void InsightsService.trackContactClick({
-        ...baseTracking,
-        channel: 'phone',
-      })
-      window.open(`tel:${provider.phone_e164}`, "_blank")
-    } else if (provider.contact_email) {
-      void InsightsService.trackContactClick({
-        ...baseTracking,
-        channel: 'form',
-      })
-      window.open(`mailto:${provider.contact_email}`, "_blank")
-    } else {
-      // Si no hay datos de contacto, redirigir al perfil donde pueden ver más información
-      router.push(`/proveedores/${provider.id}`)
-    }
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-center">
-          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-          </div>
-          <h2 className="text-lg font-semibold text-foreground mb-2">Algo salió mal</h2>
-          <p className="text-muted-foreground">{error}</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="mt-4 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
-          >
-            Reintentar
-          </button>
-        </div>
-      </div>
-    )
-  }
-
-
-
-  const isFilteredView = query.trim().length > 0 || !!activeCategory
 
   return (
     <div className="min-h-screen bg-background flex flex-col pb-20 sm:pb-0 font-sans home-bg-vignette">
@@ -1137,7 +695,7 @@ export default function MiservicioHome() {
 
       <main className="flex-1 py-6 md:py-12 px-4 space-y-10 md:space-y-20">
         {/* Prominent Search Bar */}
-        <section className="max-w-4xl mx-auto text-center space-y-5 md:space-y-8">
+        <section id="home-buscador" className="max-w-4xl mx-auto text-center space-y-5 md:space-y-8">
           <div className="space-y-4">
             <h2 className="text-3xl md:text-4xl font-black text-[#0e315d]">¿Qué necesitás hoy?</h2>
             <p className="text-slate-500 font-medium text-lg">Buscá entre más de {stats.total_providers} profesionales recomendados.</p>
@@ -1165,7 +723,7 @@ export default function MiservicioHome() {
         </section>
 
         {/* Categories: Mobile (Slider of Chips) & Desktop (Grid) */}
-        <section className="max-w-7xl mx-auto -mt-6 md:mt-0 relative z-10">
+        <section id="home-categorias" className="max-w-7xl mx-auto -mt-6 md:mt-0 relative z-10">
           {/* Scroll Hint Gradient REMOVED */}
 
 
@@ -1341,35 +899,6 @@ export default function MiservicioHome() {
 
         <TrustSection />
       </main>
-
-      {/* Existing Providers search list - HIDDEN FOR CLIENTS to avoid cannibalization */}
-      {isProvider && (
-        <section id="providers-section" className="max-w-7xl mx-auto pt-8">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-            <div>
-              <h2 className="text-2xl font-black text-[#0e315d]">Explorar Profesionales</h2>
-              <p className="text-[#0d519b]/60 font-medium">Buscá y contactá directamente a los mejores calificados</p>
-            </div>
-            <div className="relative w-full md:w-96">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-              <Input
-                placeholder="Ej: Gasista matriculado..."
-                className="pl-12 h-14 rounded-2xl border-border/40 focus:ring-primary/20"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-              />
-            </div>
-          </div>
-          <ProvidersList
-            providers={filtered}
-            loading={loading}
-            onContact={handleContact}
-            onSearchCityWide={handleSearchCityWide}
-            onViewCategories={handleViewCategories}
-          />
-        </section>
-      )}
 
       <InsumosSanRafaelSection />
 
